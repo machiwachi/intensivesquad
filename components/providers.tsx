@@ -6,14 +6,25 @@ import {
   darkTheme,
   lightTheme,
 } from "@rainbow-me/rainbowkit";
+import {
+  RainbowKitSiweNextAuthProvider,
+  GetSiweMessageOptions,
+} from "@rainbow-me/rainbowkit-siwe-next-auth";
 import { WagmiProvider } from "wagmi";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { useTheme } from "next-themes";
+import { SessionProvider } from "next-auth/react";
 
 import { config } from "@/lib/wagmi";
 
 const queryClient = new QueryClient();
+
+const getSiweMessageOptions: GetSiweMessageOptions = () => ({
+  statement: "Sign in to Intensive Squad - Gamified Study Warriors",
+  domain:
+    typeof window !== "undefined" ? window.location.host : "localhost:3000",
+});
 
 function RainbowKitProviderWrapper({
   children,
@@ -23,13 +34,23 @@ function RainbowKitProviderWrapper({
   const { theme } = useTheme();
 
   return (
-    <RainbowKitProvider theme={theme === "dark" ? darkTheme() : lightTheme()}>
-      {children}
-    </RainbowKitProvider>
+    <RainbowKitSiweNextAuthProvider
+      getSiweMessageOptions={getSiweMessageOptions}
+    >
+      <RainbowKitProvider theme={theme === "dark" ? darkTheme() : lightTheme()}>
+        {children}
+      </RainbowKitProvider>
+    </RainbowKitSiweNextAuthProvider>
   );
 }
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({
+  children,
+  session,
+}: {
+  children: React.ReactNode;
+  session?: any;
+}) {
   return (
     <NextThemesProvider
       attribute="class"
@@ -38,9 +59,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
       disableTransitionOnChange
     >
       <WagmiProvider config={config}>
-        <QueryClientProvider client={queryClient}>
-          <RainbowKitProviderWrapper>{children}</RainbowKitProviderWrapper>
-        </QueryClientProvider>
+        <SessionProvider session={session} refetchInterval={0}>
+          <QueryClientProvider client={queryClient}>
+            <RainbowKitProviderWrapper>{children}</RainbowKitProviderWrapper>
+          </QueryClientProvider>
+        </SessionProvider>
       </WagmiProvider>
     </NextThemesProvider>
   );

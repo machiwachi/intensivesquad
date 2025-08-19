@@ -5,6 +5,8 @@ import "./globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 
 import { Providers } from "@/components/providers";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 
 const orbitron = Orbitron({
   subsets: ["latin"],
@@ -18,15 +20,17 @@ export const metadata: Metadata = {
   generator: "v0.app",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession(authOptions);
+
   return (
     <html lang="en" className={`${orbitron.variable} antialiased`}>
       <body className="scanlines">
-        <Providers>{children}</Providers>
+        <Providers session={session}>{children}</Providers>
       </body>
     </html>
   );
