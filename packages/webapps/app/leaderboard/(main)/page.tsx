@@ -1,26 +1,13 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { SCORE_TOKEN, type Clan } from "@/lib/data";
 import { formatTokenAmount } from "@/lib/utils";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useQuery } from "@tanstack/react-query";
-import { BarChart3, Plus, Skull, Trophy, Users, Zap } from "lucide-react";
+import { Skull, Trophy, Users, Zap } from "lucide-react";
 import { useState } from "react";
-import { useAccount } from "wagmi";
 import { ClanCard } from "../clan-card";
 import { ClanDetailDialog } from "../clan-detail.dialog";
-import { ClanRankingsChart } from "../clan-rankings-chart";
-import { CreateClanDialog } from "../create-clan.dialog";
-import { UserRankingsChart } from "../user-rankings-chart";
-import { RankButton } from "../rank.button";
 
 export default function ClansLeaderboard() {
   const { data: clans } = useQuery<Clan[]>({
@@ -29,9 +16,6 @@ export default function ClansLeaderboard() {
   });
 
   const [selectedClan, setSelectedClan] = useState<Clan | null>(null);
-
-  const { address: walletAddress, isConnected: isWalletConnected } =
-    useAccount();
 
   if (!clans) return null;
 
