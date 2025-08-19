@@ -42,7 +42,12 @@ export const authOptions: NextAuthOptions = {
             process.env.VERCEL_BRANCH_URL ||
             "localhost:3000";
 
-          console.log("nextAuthDomain", nextAuthDomain);
+          console.log("nextAuthDomain", {
+            nextAuthDomain,
+            NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+            VERCEL_URL: process.env.VERCEL_URL,
+            VERCEL_BRANCH_URL: process.env.VERCEL_BRANCH_URL,
+          });
 
           const siwe = new SiweMessage(credentials.message);
 
