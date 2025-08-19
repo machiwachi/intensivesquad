@@ -36,13 +36,11 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
-          console.log("credentials", credentials);
-
-          const siwe = new SiweMessage(credentials.message);
-
           const nextAuthUrl = new URL(
             process.env.NEXTAUTH_URL || "http://localhost:3000"
           );
+
+          const siwe = new SiweMessage(credentials.message);
 
           const result = await siwe.verify({
             signature: credentials.signature,
