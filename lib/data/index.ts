@@ -29,6 +29,7 @@ export const mockClans = [
     remainingMembers: 5,
     totalMembers: 6,
     leverage: 2.4,
+    isUserClan: true,
     dividendVault: {
       totalBalance: 2450.75,
       userClaimable: 408.46,
