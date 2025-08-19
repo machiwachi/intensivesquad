@@ -1,13 +1,19 @@
-import { mockClans, SCORE_TOKEN } from "@/lib/data";
+import { SCORE_TOKEN, type Clan } from "@/lib/data";
 import { BarChart3 } from "lucide-react";
 import { formatTokenAmount } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { RankIcon } from "./rank";
+import { useQuery } from "@tanstack/react-query";
 
 export const ClanRankingsChart = () => {
-  const sortedClans = [...mockClans].sort(
-    (a, b) => b.totalScore - a.totalScore
-  );
+  const { data: clans } = useQuery<Clan[]>({
+    queryKey: ["clans"],
+    queryFn: () => fetch("/api/clans").then((res) => res.json()),
+  });
+
+  if (!clans) return null;
+
+  const sortedClans = [...clans].sort((a, b) => b.totalScore - a.totalScore);
   const maxScore = Math.max(...sortedClans.map((c) => c.totalScore));
 
   return (

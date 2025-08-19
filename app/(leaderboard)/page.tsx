@@ -8,19 +8,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { SCORE_TOKEN, type Clan } from "@/lib/data";
 import { formatTokenAmount } from "@/lib/utils";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useQuery } from "@tanstack/react-query";
 import { BarChart3, Plus, Skull, Trophy, Users, Zap } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
 import { useAccount } from "wagmi";
 import { ClanCard } from "./clan-card";
@@ -42,15 +34,10 @@ export default function ClansLeaderboard() {
   const [showCreateClan, setShowCreateClan] = useState(false);
   const [showRankings, setShowRankings] = useState(false);
 
-  const totalClans = clans?.length ?? 0;
-  const avgScore =
-    clans && totalClans > 0
-      ? Math.round(
-          clans.reduce((sum, clan) => sum + clan.totalScore, 0) / totalClans
-        )
-      : 0;
-
   if (!clans) return null;
+
+  const totalClans = clans.length;
+  const totalScore = clans.reduce((sum, clan) => sum + clan.totalScore, 0);
 
   return (
     <div className="min-h-screen bg-background p-4 lg:p-8">
@@ -85,14 +72,7 @@ export default function ClansLeaderboard() {
               </Button>
             )}
 
-            <div className="pixel-border rounded-lg overflow-hidden">
-              <Button
-                onClick={() => {
-                  fetch("/api/hello");
-                }}
-              >
-                Try
-              </Button>
+            <div className="rounded-lg">
               <ConnectButton
                 chainStatus="icon"
                 accountStatus={{
@@ -129,13 +109,13 @@ export default function ClansLeaderboard() {
                 <p className="text-2xl font-bold pixel-font">
                   {
                     formatTokenAmount(
-                      avgScore * Math.pow(10, SCORE_TOKEN.decimals),
+                      totalScore * Math.pow(10, SCORE_TOKEN.decimals),
                       SCORE_TOKEN
                     ).split(" ")[0]
                   }
                 </p>
                 <p className="text-sm text-muted-foreground pixel-font">
-                  平均 {SCORE_TOKEN.symbol}
+                  总计流通量 {SCORE_TOKEN.symbol}
                 </p>
               </div>
             </CardContent>
@@ -215,7 +195,7 @@ export default function ClansLeaderboard() {
       </div>
 
       <Dialog open={showRankings} onOpenChange={setShowRankings}>
-        <DialogContent className="max-w-4xl pixel-border max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl sm:max-w-6xl pixel-border max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="pixel-font text-2xl flex items-center gap-2">
               <BarChart3 className="w-6 h-6" />

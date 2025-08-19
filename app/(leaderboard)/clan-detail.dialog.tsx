@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { SCORE_TOKEN, VAULT_TOKEN, type Clan } from "@/lib/data";
+import { SCORE_TOKEN, type Clan } from "@/lib/data";
 import { formatTokenAmount } from "@/lib/utils";
 import { UserPlus } from "lucide-react";
 import { DividendVaultWidget } from "./dividend-vault-widget";
@@ -176,8 +176,8 @@ export function ClanDetailDialog({
                             金库：+
                             {formatTokenAmount(
                               dividendContribution *
-                                Math.pow(10, VAULT_TOKEN.decimals),
-                              VAULT_TOKEN
+                                Math.pow(10, SCORE_TOKEN.decimals),
+                              SCORE_TOKEN
                             )}
                           </p>
                           <p className="pixel-font text-xs text-muted-foreground">

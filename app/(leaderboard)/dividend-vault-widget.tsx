@@ -3,7 +3,7 @@ import { Coins, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Clan, VAULT_TOKEN } from "@/lib/data";
+import { Clan, SCORE_TOKEN } from "@/lib/data";
 import { useAccount } from "wagmi";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -61,8 +61,8 @@ export const DividendVaultWidget = ({
           <span className="pixel-font text-xs font-bold">
             {formatTokenAmount(
               clan.dividendVault.totalBalance *
-                Math.pow(10, VAULT_TOKEN.decimals),
-              VAULT_TOKEN
+                Math.pow(10, SCORE_TOKEN.decimals),
+              SCORE_TOKEN
             )}
           </span>
         </div>
@@ -94,7 +94,7 @@ export const DividendVaultWidget = ({
           <Coins className="w-5 h-5 text-yellow-500" />
           <h4 className="pixel-font font-bold">分红金库</h4>
           <Badge variant="outline" className="pixel-font text-xs">
-            {VAULT_TOKEN.symbol}
+            {SCORE_TOKEN.symbol}
           </Badge>
         </div>
       </CardHeader>
@@ -105,8 +105,8 @@ export const DividendVaultWidget = ({
             <p className="pixel-font text-lg font-bold text-primary pixel-font">
               {formatTokenAmount(
                 clan.dividendVault.totalBalance *
-                  Math.pow(10, VAULT_TOKEN.decimals),
-                VAULT_TOKEN
+                  Math.pow(10, SCORE_TOKEN.decimals),
+                SCORE_TOKEN
               )}
             </p>
           </div>
@@ -116,10 +116,10 @@ export const DividendVaultWidget = ({
               {isMember
                 ? formatTokenAmount(
                     clan.dividendVault.userClaimable *
-                      Math.pow(10, VAULT_TOKEN.decimals),
-                    VAULT_TOKEN
+                      Math.pow(10, SCORE_TOKEN.decimals),
+                    SCORE_TOKEN
                   )
-                : `0.00 ${VAULT_TOKEN.symbol}`}
+                : `0.00 ${SCORE_TOKEN.symbol}`}
             </p>
           </div>
         </div>
@@ -161,8 +161,8 @@ export const DividendVaultWidget = ({
                   <div className="text-right">
                     <p className="pixel-font font-bold">
                       {formatTokenAmount(
-                        contribution * Math.pow(10, VAULT_TOKEN.decimals),
-                        VAULT_TOKEN
+                        contribution * Math.pow(10, SCORE_TOKEN.decimals),
+                        SCORE_TOKEN
                       )}
                     </p>
                     <div className="w-16 h-1 bg-muted rounded-full overflow-hidden">
@@ -184,8 +184,8 @@ export const DividendVaultWidget = ({
             已累计分发：{" "}
             {formatTokenAmount(
               clan.dividendVault.totalDistributed *
-                Math.pow(10, VAULT_TOKEN.decimals),
-              VAULT_TOKEN
+                Math.pow(10, SCORE_TOKEN.decimals),
+              SCORE_TOKEN
             )}
           </p>
         </div>
@@ -199,8 +199,8 @@ export const DividendVaultWidget = ({
             领取{" "}
             {formatTokenAmount(
               clan.dividendVault.userClaimable *
-                Math.pow(10, VAULT_TOKEN.decimals),
-              VAULT_TOKEN
+                Math.pow(10, SCORE_TOKEN.decimals),
+              SCORE_TOKEN
             )}
           </Button>
         )}
