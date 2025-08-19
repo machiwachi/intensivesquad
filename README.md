@@ -8,6 +8,24 @@
 ## 文档
 [设计文档](https://hackmd.io/@h_oI-bBpTxKWqPlaZTQ1Lw/rJXoW_eFeg)
 
+## 开始开发
+
+### Fork
+1. Fork 一份代码到你的代码库
+2. 改好之后，在 `https://github.com/machiwachi/intensivesquad` 创建 Pull Request
+3. base 选 main 就好
+4. 群里叫 @wachi
+
+### 启动
+```
+$ git clone git@github.com:machiwachi/intensivesquad.git
+$ cd intensivesquad
+$ npm i
+$ npm run dev
+```
+
+
+
 ## 团队
 
 |角色|id|
