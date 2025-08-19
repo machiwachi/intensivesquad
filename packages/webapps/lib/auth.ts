@@ -36,17 +36,16 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
-          const nextAuthUrl = new URL(
+          const nextAuthDomain =
             process.env.VERCEL_URL ||
-              process.env.VERCEL_BRANCH_URL ||
-              "http://localhost:3000"
-          );
+            process.env.VERCEL_BRANCH_URL ||
+            "localhost:3000";
 
           const siwe = new SiweMessage(credentials.message);
 
           const result = await siwe.verify({
             signature: credentials.signature,
-            domain: nextAuthUrl.host,
+            domain: nextAuthDomain,
             nonce: await getCsrfToken({ req }),
           });
 
