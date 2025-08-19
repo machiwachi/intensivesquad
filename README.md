@@ -79,3 +79,10 @@ pnpm hardhat run scripts/deploy.ts --network localhost
 | 合约       |             |
 | 宣讲、设计 |             |
 | 队长       | @machiwachi |
+
+
+协议
+---
+2025-09-01 前是 MIT，之后为 CC0。
+
+本项目初衷是参加一个自娱自乐的Hackthon的，赛友们别直接拷贝代码然后打败我们就好。之后就无所谓啦。
