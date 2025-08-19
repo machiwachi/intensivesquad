@@ -39,7 +39,6 @@ export default function ClansLeaderboard() {
 
   const { address: walletAddress, isConnected: isWalletConnected } =
     useAccount();
-  const [selectedTimeframe, setSelectedTimeframe] = useState("week");
   const [showCreateClan, setShowCreateClan] = useState(false);
   const [showRankings, setShowRankings] = useState(false);
 
@@ -63,29 +62,9 @@ export default function ClansLeaderboard() {
               残酷学分！
             </h1>
             <p className="text-muted-foreground pixel-font">为了部落！⛺️</p>
-            <Link
-              href="/auth-test"
-              className="text-sm text-blue-500 hover:text-blue-700 underline"
-            >
-              🔐 测试 SIWE 身份验证
-            </Link>
           </div>
 
           <div className="flex items-center gap-4">
-            <Select
-              value={selectedTimeframe}
-              onValueChange={setSelectedTimeframe}
-            >
-              <SelectTrigger className="w-48 pixel-border pixel-font">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="week">本周</SelectItem>
-                <SelectItem value="month">本月</SelectItem>
-                <SelectItem value="all">全部时间</SelectItem>
-              </SelectContent>
-            </Select>
-
             <Button
               onClick={() => setShowRankings(true)}
               variant="outline"
