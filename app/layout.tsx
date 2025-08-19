@@ -28,7 +28,7 @@ export default async function RootLayout({
   const session = await getServerSession(authOptions);
 
   return (
-    <html lang="en" className={`${orbitron.variable} antialiased`}>
+    <html lang="en" className={`${orbitron.variable} antialiased`} suppressHydrationWarning>
       <body className="scanlines">
         <Providers session={session}>{children}</Providers>
       </body>
