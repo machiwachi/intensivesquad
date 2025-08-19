@@ -12,8 +12,7 @@
 ✅ **配置 RainbowKit**
 
 - 创建了 `lib/wagmi.ts` 配置文件
-- 支持多个主网络（Ethereum, Polygon, Optimism, Arbitrum, Base）
-- 开发环境包含 Sepolia 测试网
+- 支持 Sepolia 测试网
 
 ✅ **创建 Providers**
 
