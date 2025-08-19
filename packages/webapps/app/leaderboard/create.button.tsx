@@ -3,13 +3,14 @@
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { useAccount } from "wagmi";
 import { CreateClanDialog } from "./create-clan.dialog";
+import { useSession } from "next-auth/react";
 
 export const CreateButton = () => {
   const [showCreateClan, setShowCreateClan] = useState(false);
-  const { isConnected: isWalletConnected } = useAccount();
-  if (!isWalletConnected) return null;
+  const { data: session } = useSession();
+
+  if (!session) return null;
 
   return (
     <>
