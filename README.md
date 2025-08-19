@@ -1,30 +1,22 @@
-# Empty conversation
+# 残酷小队
+2025休闲黑客松参赛作品 
+[预览地址](https://intensivesquad.vercel.app)
 
-*Automatically synced with your [v0.app](https://v0.app) deployments*
+## 我们在做什么（一句话）
+残酷学分：把“残酷共学”的活动积分上链，做成有团队协作增益与退出惩罚的游戏化积分系统。
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/0xmachiwachi-gmailcoms-projects/v0-empty-conversation)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.app-black?style=for-the-badge)](https://v0.app/chat/projects/QoClb2x2gIX)
+## 文档
+[设计文档](https://hackmd.io/@h_oI-bBpTxKWqPlaZTQ1Lw/rJXoW_eFeg)
 
-## Overview
+## 团队
 
-This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
-
-## Deployment
-
-Your project is live at:
-
-**[https://vercel.com/0xmachiwachi-gmailcoms-projects/v0-empty-conversation](https://vercel.com/0xmachiwachi-gmailcoms-projects/v0-empty-conversation)**
-
-## Build your app
-
-Continue building your app on:
-
-**[https://v0.app/chat/projects/QoClb2x2gIX](https://v0.app/chat/projects/QoClb2x2gIX)**
-
-## How It Works
-
-1. Create and modify your project using [v0.app](https://v0.app)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+|角色|id|
+|---|---|
+|前端||
+|前端||
+|后端||
+|后端||
+|合约||
+|合约||
+|宣讲、设计||
+|队长|@machiwachi|
