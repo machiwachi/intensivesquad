@@ -15,8 +15,8 @@ const orbitron = Orbitron({
 });
 
 export const metadata: Metadata = {
-  title: "Clans Leaderboard - Study Warriors",
-  description: "Gamified study app clan rankings and member status",
+  title: "部落排行榜 - 学习勇士",
+  description: "游戏化学习应用的部落排名与成员状态",
   generator: "v0.app",
 };
 
@@ -28,7 +28,7 @@ export default async function RootLayout({
   const session = await getServerSession(authOptions);
 
   return (
-    <html lang="en" className={`${orbitron.variable} antialiased`}>
+    <html lang="en" className={`${orbitron.variable} antialiased`} suppressHydrationWarning>
       <body className="scanlines">
         <Providers session={session}>{children}</Providers>
       </body>
