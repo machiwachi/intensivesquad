@@ -37,7 +37,9 @@ export const authOptions: NextAuthOptions = {
           }
 
           const nextAuthUrl = new URL(
-            process.env.NEXTAUTH_URL || "http://localhost:3000"
+            process.env.VERCEL_URL ||
+              process.env.VERCEL_BRANCH_URL ||
+              "http://localhost:3000"
           );
 
           const siwe = new SiweMessage(credentials.message);
