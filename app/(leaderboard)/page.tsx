@@ -42,481 +42,28 @@ import {
   BarChart3,
   Skull,
 } from "lucide-react";
-
-const SCORE_TOKEN = {
-  symbol: "STUDY",
-  name: "StudyPoints",
-  decimals: 18,
-  address: "0x1234...5678",
-};
-
-const VAULT_TOKEN = {
-  symbol: "STUDY",
-  name: "StudyToken",
-  decimals: 18,
-  address: "0xabcd...efgh",
-};
-
-const mockUsers = [
-  { id: 1, name: "Alex", score: 3420, clanId: 1, avatar: "/pixel-warrior.png" },
-  { id: 2, name: "Sam", score: 3200, clanId: 1, avatar: "/pixel-mage.png" },
-  {
-    id: 7,
-    name: "Taylor",
-    score: 3100,
-    clanId: 2,
-    avatar: "/placeholder-4jpab.png",
-  },
-  {
-    id: 13,
-    name: "Phoenix",
-    score: 2980,
-    clanId: 3,
-    avatar: "/placeholder.svg?height=32&width=32",
-  },
-  {
-    id: 3,
-    name: "Jordan",
-    score: 2850,
-    clanId: 1,
-    avatar: "/pixel-archer.png",
-  },
-  {
-    id: 8,
-    name: "Blake",
-    score: 2750,
-    clanId: 2,
-    avatar: "/pixel-warrior.png",
-  },
-  {
-    id: 19,
-    name: "Echo",
-    score: 2650,
-    clanId: 4,
-    avatar: "/placeholder.svg?height=32&width=32",
-  },
-  {
-    id: 25,
-    name: "Orion",
-    score: 2580,
-    clanId: 5,
-    avatar: "/pixel-knight.png",
-  },
-  { id: 4, name: "Casey", score: 2450, clanId: 1, avatar: "/pixel-knight.png" },
-  {
-    id: 14,
-    name: "Sage",
-    score: 2380,
-    clanId: 3,
-    avatar: "/placeholder.svg?height=32&width=32",
-  },
-  { id: 9, name: "Avery", score: 2320, clanId: 2, avatar: "/pixel-shield.png" },
-  {
-    id: 20,
-    name: "Storm",
-    score: 2280,
-    clanId: 4,
-    avatar: "/placeholder.svg?height=32&width=32",
-  },
-  {
-    id: 31,
-    name: "Sage",
-    score: 2150,
-    clanId: 6,
-    avatar: "/placeholder.svg?height=32&width=32",
-  },
-  { id: 5, name: "Riley", score: 2100, clanId: 1, avatar: "/pixel-rogue.png" },
-  {
-    id: 26,
-    name: "Vega",
-    score: 2050,
-    clanId: 5,
-    avatar: "/placeholder.svg?height=32&width=32",
-  },
-];
-
-// Mock data for clans
-const mockClans = [
-  {
-    id: 1,
-    name: "Code Crusaders",
-    flag: "⚔️",
-    rank: 1,
-    previousRank: 2,
-    totalScore: 15420,
-    remainingMembers: 5,
-    totalMembers: 6,
-    leverage: 2.4,
-    dividendVault: {
-      totalBalance: 2450.75,
-      userClaimable: 408.46,
-      lastDistribution: "2 days ago",
-      totalDistributed: 12340.5,
-    },
-    members: [
-      { id: 1, name: "Alex", avatar: "/pixel-warrior.png", status: "active" },
-      { id: 2, name: "Sam", avatar: "/pixel-mage.png", status: "active" },
-      { id: 3, name: "Jordan", avatar: "/pixel-archer.png", status: "active" },
-      { id: 4, name: "Casey", avatar: "/pixel-knight.png", status: "active" },
-      { id: 5, name: "Riley", avatar: "/pixel-rogue.png", status: "active" },
-      {
-        id: 6,
-        name: "Morgan",
-        avatar: "/pixel-paladin.png",
-        status: "eliminated",
-      },
-    ],
-    scoreHistory: [12000, 13500, 14200, 15420],
-    activities: [
-      {
-        user: "Alex",
-        action: "Completed Math Quiz",
-        points: 150,
-        time: "2 hours ago",
-      },
-      {
-        user: "Sam",
-        action: "Study Session",
-        points: 200,
-        time: "4 hours ago",
-      },
-      {
-        user: "Jordan",
-        action: "Flashcard Review",
-        points: 100,
-        time: "6 hours ago",
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: "Study Spartans",
-    flag: "🛡️",
-    rank: 2,
-    previousRank: 1,
-    totalScore: 14890,
-    remainingMembers: 4,
-    totalMembers: 6,
-    leverage: 1.8,
-    dividendVault: {
-      totalBalance: 1890.25,
-      userClaimable: 0,
-      lastDistribution: "1 day ago",
-      totalDistributed: 8750.3,
-    },
-    members: [
-      {
-        id: 7,
-        name: "Taylor",
-        avatar: "/placeholder-4jpab.png",
-        status: "active",
-      },
-      { id: 8, name: "Blake", avatar: "/pixel-warrior.png", status: "active" },
-      { id: 9, name: "Avery", avatar: "/pixel-shield.png", status: "active" },
-      { id: 10, name: "Quinn", avatar: "/pixel-spear.png", status: "active" },
-      { id: 11, name: "Sage", avatar: "/pixel-helm.png", status: "eliminated" },
-      {
-        id: 12,
-        name: "River",
-        avatar: "/pixel-armor.png",
-        status: "eliminated",
-      },
-    ],
-    scoreHistory: [15200, 14800, 14500, 14890],
-    activities: [
-      {
-        user: "Taylor",
-        action: "Physics Problem Set",
-        points: 180,
-        time: "1 hour ago",
-      },
-      {
-        user: "Blake",
-        action: "Literature Essay",
-        points: 220,
-        time: "3 hours ago",
-      },
-    ],
-  },
-  {
-    id: 3,
-    name: "Brain Busters",
-    flag: "🧠",
-    rank: 3,
-    previousRank: 4,
-    totalScore: 13750,
-    remainingMembers: 6,
-    totalMembers: 6,
-    leverage: 3.2,
-    dividendVault: {
-      totalBalance: 3250.8,
-      userClaimable: 0,
-      lastDistribution: "3 days ago",
-      totalDistributed: 15670.9,
-    },
-    members: [
-      {
-        id: 13,
-        name: "Phoenix",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "active",
-      },
-      {
-        id: 14,
-        name: "Sage",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "active",
-      },
-      {
-        id: 15,
-        name: "Nova",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "active",
-      },
-      {
-        id: 16,
-        name: "Zara",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "active",
-      },
-      {
-        id: 17,
-        name: "Kai",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "active",
-      },
-      {
-        id: 18,
-        name: "Luna",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "active",
-      },
-    ],
-    scoreHistory: [12800, 13200, 13400, 13750],
-    activities: [
-      {
-        user: "Phoenix",
-        action: "Chemistry Lab",
-        points: 190,
-        time: "30 minutes ago",
-      },
-      {
-        user: "Nova",
-        action: "History Timeline",
-        points: 160,
-        time: "2 hours ago",
-      },
-    ],
-  },
-  {
-    id: 4,
-    name: "Quiz Questers",
-    flag: "🏆",
-    rank: 4,
-    previousRank: 3,
-    totalScore: 12980,
-    remainingMembers: 3,
-    totalMembers: 6,
-    leverage: 1.5,
-    dividendVault: {
-      totalBalance: 980.45,
-      userClaimable: 0,
-      lastDistribution: "5 days ago",
-      totalDistributed: 4520.75,
-    },
-    members: [
-      {
-        id: 19,
-        name: "Echo",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "active",
-      },
-      {
-        id: 20,
-        name: "Storm",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "active",
-      },
-      {
-        id: 21,
-        name: "Blaze",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "active",
-      },
-      {
-        id: 22,
-        name: "Frost",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "eliminated",
-      },
-      {
-        id: 23,
-        name: "Ember",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "eliminated",
-      },
-      {
-        id: 24,
-        name: "Mist",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "eliminated",
-      },
-    ],
-    scoreHistory: [13500, 13200, 12800, 12980],
-    activities: [
-      { user: "Echo", action: "Biology Quiz", points: 140, time: "1 hour ago" },
-      {
-        user: "Storm",
-        action: "Vocabulary Test",
-        points: 120,
-        time: "5 hours ago",
-      },
-    ],
-  },
-  {
-    id: 5,
-    name: "Knowledge Knights",
-    flag: "⚡",
-    rank: 5,
-    previousRank: 6,
-    totalScore: 11650,
-    remainingMembers: 4,
-    totalMembers: 6,
-    leverage: 2.1,
-    dividendVault: {
-      totalBalance: 1650.3,
-      userClaimable: 0,
-      lastDistribution: "4 days ago",
-      totalDistributed: 7890.25,
-    },
-    members: [
-      { id: 25, name: "Orion", avatar: "/pixel-knight.png", status: "active" },
-      {
-        id: 26,
-        name: "Vega",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "active",
-      },
-      {
-        id: 27,
-        name: "Atlas",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "active",
-      },
-      {
-        id: 28,
-        name: "Iris",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "active",
-      },
-      {
-        id: 29,
-        name: "Zephyr",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "eliminated",
-      },
-      {
-        id: 30,
-        name: "Cosmos",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "eliminated",
-      },
-    ],
-    scoreHistory: [10800, 11200, 11400, 11650],
-    activities: [
-      {
-        user: "Orion",
-        action: "Algebra Practice",
-        points: 130,
-        time: "3 hours ago",
-      },
-      {
-        user: "Vega",
-        action: "Science Fair Project",
-        points: 250,
-        time: "7 hours ago",
-      },
-    ],
-  },
-  {
-    id: 6,
-    name: "Wisdom Warriors",
-    flag: "📚",
-    rank: 6,
-    previousRank: 5,
-    totalScore: 10420,
-    remainingMembers: 2,
-    totalMembers: 6,
-    leverage: 1.2,
-    dividendVault: {
-      totalBalance: 420.15,
-      userClaimable: 0,
-      lastDistribution: "6 days ago",
-      totalDistributed: 2340.8,
-    },
-    members: [
-      {
-        id: 31,
-        name: "Sage",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "active",
-      },
-      {
-        id: 32,
-        name: "Raven",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "active",
-      },
-      {
-        id: 33,
-        name: "Willow",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "eliminated",
-      },
-      {
-        id: 34,
-        name: "Cedar",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "eliminated",
-      },
-      {
-        id: 35,
-        name: "Rowan",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "eliminated",
-      },
-      {
-        id: 36,
-        name: "Aspen",
-        avatar: "/placeholder.svg?height=32&width=32",
-        status: "eliminated",
-      },
-    ],
-    scoreHistory: [11200, 10800, 10500, 10420],
-    activities: [
-      {
-        user: "Sage",
-        action: "Reading Comprehension",
-        points: 110,
-        time: "4 hours ago",
-      },
-      {
-        user: "Raven",
-        action: "Essay Writing",
-        points: 180,
-        time: "8 hours ago",
-      },
-    ],
-  },
-];
+import { useQuery } from "@tanstack/react-query";
+import { mockClans, SCORE_TOKEN, VAULT_TOKEN, type Clan } from "@/lib/data";
+import { UserRankingsChart } from "./user-rankings-chart";
+import { formatTokenAmount } from "@/lib/utils";
 
 export default function ClansLeaderboard() {
+  const { data: users } = useQuery({
+    queryKey: ["users"],
+    queryFn: () => fetch("/api/users").then((res) => res.json()),
+  });
+
+  const { data: clans } = useQuery({
+    queryKey: ["clans"],
+    queryFn: () => fetch("/api/clans").then((res) => res.json()),
+  });
+
+  console.log(users);
+
   const { address: walletAddress, isConnected: isWalletConnected } =
     useAccount();
   const [selectedTimeframe, setSelectedTimeframe] = useState("week");
-  const [selectedClan, setSelectedClan] = useState<
-    (typeof mockClans)[0] | null
-  >(null);
+  const [selectedClan, setSelectedClan] = useState<Clan | null>(null);
   const [userClanId, setUserClanId] = useState<number | null>(1); // Mock: user is in Code Crusaders
   const [joinedClans, setJoinedClans] = useState<Set<number>>(new Set([1])); // Mock: already joined clan 1
   const [claimedRewards, setClaimedRewards] = useState<Set<number>>(new Set()); // Track claimed rewards
@@ -533,14 +80,6 @@ export default function ClansLeaderboard() {
   const avgScore = Math.round(
     mockClans.reduce((sum, clan) => sum + clan.totalScore, 0) / totalClans
   );
-
-  const formatTokenAmount = (
-    amount: number,
-    token: typeof SCORE_TOKEN | typeof VAULT_TOKEN
-  ) => {
-    const formatted = (amount / Math.pow(10, token.decimals)).toFixed(2);
-    return `${formatted} ${token.symbol}`;
-  };
 
   const handleJoinClan = (clanId: number, event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent opening clan details
@@ -666,74 +205,6 @@ export default function ClansLeaderboard() {
             }}
           />
         ))}
-      </div>
-    );
-  };
-
-  const UserRankingsChart = () => {
-    const sortedUsers = [...mockUsers].sort((a, b) => b.score - a.score);
-    const maxScore = Math.max(...sortedUsers.map((u) => u.score));
-
-    return (
-      <div className="space-y-3">
-        <h3 className="pixel-font font-bold text-lg flex items-center gap-2">
-          <BarChart3 className="w-5 h-5" />
-          用户排行榜（{SCORE_TOKEN.symbol}）
-        </h3>
-        <div className="space-y-2">
-          {sortedUsers.slice(0, 10).map((user, index) => {
-            const clan = mockClans.find((c) => c.id === user.clanId);
-            const barWidth = (user.score / maxScore) * 100;
-
-            return (
-              <div
-                key={user.id}
-                className="flex items-center gap-3 p-2 bg-muted/20 rounded pixel-border"
-              >
-                <div className="flex items-center gap-2 w-20">
-                  <span className="pixel-font text-sm font-bold">
-                    #{index + 1}
-                  </span>
-                  <Avatar className="w-6 h-6">
-                    <AvatarImage
-                      src={user.avatar || "/placeholder.svg"}
-                      alt={user.name}
-                    />
-                    <AvatarFallback className="pixel-font text-xs">
-                      {user.name.slice(0, 2)}
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
-
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                      <span className="pixel-font text-sm font-medium">
-                        {user.name}
-                      </span>
-                      <span className="pixel-font text-xs text-muted-foreground">
-                        {clan?.flag} {clan?.name}
-                      </span>
-                    </div>
-                    <span className="pixel-font text-sm font-bold text-primary">
-                      {formatTokenAmount(
-                        user.score * Math.pow(10, SCORE_TOKEN.decimals),
-                        SCORE_TOKEN
-                      )}
-                    </span>
-                  </div>
-
-                  <div className="w-full bg-muted/30 h-3 rounded pixel-border overflow-hidden">
-                    <div
-                      className="h-full bg-primary/80 transition-all duration-500 pixel-border"
-                      style={{ width: `${barWidth}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
       </div>
     );
   };
@@ -981,7 +452,7 @@ export default function ClansLeaderboard() {
               className="w-full pixel-border pixel-font"
             >
               <Gift className="w-4 h-4 mr-2" />
-              领取 {" "}
+              领取{" "}
               {formatTokenAmount(
                 clan.dividendVault.userClaimable *
                   Math.pow(10, VAULT_TOKEN.decimals),
@@ -1064,6 +535,13 @@ export default function ClansLeaderboard() {
             )}
 
             <div className="pixel-border rounded-lg overflow-hidden">
+              <Button
+                onClick={() => {
+                  fetch("/api/hello");
+                }}
+              >
+                Try
+              </Button>
               <ConnectButton
                 chainStatus="icon"
                 accountStatus={{
@@ -1389,9 +867,7 @@ export default function ClansLeaderboard() {
             </div>
 
             <div className="bg-muted/20 p-3 rounded pixel-border">
-              <h4 className="pixel-font font-bold text-sm mb-2">
-                创建成本
-              </h4>
+              <h4 className="pixel-font font-bold text-sm mb-2">创建成本</h4>
               <div className="flex items-center justify-between text-sm pixel-font">
                 <span>平台费用：</span>
                 <span className="font-bold">0.1 ETH</span>
@@ -1529,9 +1005,7 @@ export default function ClansLeaderboard() {
 
                 {/* Recent Activities */}
                 <div>
-                  <h4 className="pixel-font font-bold mb-3">
-                    最近活动
-                  </h4>
+                  <h4 className="pixel-font font-bold mb-3">最近活动</h4>
                   <div className="space-y-2">
                     {selectedClan.activities.map((activity, index) => {
                       const dividendContribution = activity.points * 0.1;
