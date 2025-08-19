@@ -5,6 +5,7 @@ import type React from "react";
 import { useState } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
+import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -1019,6 +1020,12 @@ export default function ClansLeaderboard() {
               残酷学分！
             </h1>
             <p className="text-muted-foreground pixel-font">为了部落！⛺️</p>
+            <Link
+              href="/auth-test"
+              className="text-sm text-blue-500 hover:text-blue-700 underline"
+            >
+              🔐 测试 SIWE 身份验证
+            </Link>
           </div>
 
           <div className="flex items-center gap-4">
