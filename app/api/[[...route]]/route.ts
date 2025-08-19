@@ -1,4 +1,4 @@
-import { getUsers } from "@/lib/data";
+import { getClans, getUsers } from "@/lib/data";
 import { Hono } from "hono";
 import { getCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";
@@ -31,6 +31,11 @@ const app = new Hono()
     const users = await getUsers();
 
     return c.json(users);
+  })
+  .get("/clans", async (c) => {
+    const clans = await getClans();
+
+    return c.json(clans);
   });
 
 export const GET = handle(app);

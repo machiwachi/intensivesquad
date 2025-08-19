@@ -43,22 +43,25 @@ import {
   Skull,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { mockClans, SCORE_TOKEN, VAULT_TOKEN, type Clan } from "@/lib/data";
+import { SCORE_TOKEN, VAULT_TOKEN, type Clan, type User } from "@/lib/data";
 import { UserRankingsChart } from "./user-rankings-chart";
 import { formatTokenAmount } from "@/lib/utils";
+import { MemberRing } from "./member-ring";
+import { RankIcon } from "./rank";
+import { RankChange } from "./rank";
+import { ClanRankingsChart } from "./clan-rankings-chart";
+import { DividendVaultWidget } from "./dividend-vault-widget";
 
 export default function ClansLeaderboard() {
-  const { data: users } = useQuery({
+  const { data: users } = useQuery<User[]>({
     queryKey: ["users"],
     queryFn: () => fetch("/api/users").then((res) => res.json()),
   });
 
-  const { data: clans } = useQuery({
+  const { data: clans } = useQuery<Clan[]>({
     queryKey: ["clans"],
     queryFn: () => fetch("/api/clans").then((res) => res.json()),
   });
-
-  console.log(users);
 
   const { address: walletAddress, isConnected: isWalletConnected } =
     useAccount();
@@ -76,10 +79,13 @@ export default function ClansLeaderboard() {
     initialLeverage: "1.0",
   });
 
-  const totalClans = mockClans.length;
-  const avgScore = Math.round(
-    mockClans.reduce((sum, clan) => sum + clan.totalScore, 0) / totalClans
-  );
+  const totalClans = clans?.length ?? 0;
+  const avgScore =
+    clans && totalClans > 0
+      ? Math.round(
+          clans.reduce((sum, clan) => sum + clan.totalScore, 0) / totalClans
+        )
+      : 0;
 
   const handleJoinClan = (clanId: number, event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent opening clan details
@@ -89,15 +95,6 @@ export default function ClansLeaderboard() {
       if (!userClanId) {
         setUserClanId(clanId);
       }
-    }
-  };
-
-  const handleClaimRewards = (clanId: number, event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent opening clan details
-    if (isWalletConnected && joinedClans.has(clanId)) {
-      setClaimedRewards((prev) => new Set([...prev, clanId]));
-      // In a real app, this would trigger a blockchain transaction
-      console.log(`[v0] Claiming rewards for clan ${clanId}`);
     }
   };
 
@@ -121,73 +118,6 @@ export default function ClansLeaderboard() {
     alert(`Clan "${newClanForm.name}" created successfully!`);
   };
 
-  const formatAddress = (address: string) => {
-    if (!address) return "";
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
-
-  const getRankIcon = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return <Crown className="w-5 h-5 text-yellow-500" />;
-      case 2:
-        return <Trophy className="w-5 h-5 text-gray-400" />;
-      case 3:
-        return <Star className="w-5 h-5 text-amber-600" />;
-      default:
-        return <Shield className="w-5 h-5 text-muted-foreground" />;
-    }
-  };
-
-  const getRankChange = (current: number, previous: number) => {
-    if (current < previous) {
-      return <TrendingUp className="w-4 h-4 text-accent" />;
-    } else if (current > previous) {
-      return <TrendingDown className="w-4 h-4 text-destructive" />;
-    }
-    return null;
-  };
-
-  const MemberRing = ({
-    members,
-  }: {
-    members: (typeof mockClans)[0]["members"];
-  }) => {
-    const positions = [
-      { top: "0%", left: "50%", transform: "translate(-50%, -50%)" },
-      { top: "25%", left: "93.3%", transform: "translate(-50%, -50%)" },
-      { top: "75%", left: "93.3%", transform: "translate(-50%, -50%)" },
-      { top: "100%", left: "50%", transform: "translate(-50%, -50%)" },
-      { top: "75%", left: "6.7%", transform: "translate(-50%, -50%)" },
-      { top: "25%", left: "6.7%", transform: "translate(-50%, -50%)" },
-    ];
-
-    return (
-      <div className="relative w-24 h-24 mx-auto">
-        <div className="absolute inset-2 bg-primary/10 rounded-full border-2 border-primary/30 pixel-border" />
-        {members.map((member, index) => (
-          <div key={member.id} className="absolute" style={positions[index]}>
-            <Avatar
-              className={`w-8 h-8 border-2 pixel-border ${
-                member.status === "eliminated"
-                  ? "eliminated border-muted"
-                  : "border-primary"
-              }`}
-            >
-              <AvatarImage
-                src={member.avatar || "/placeholder.svg"}
-                alt={member.name}
-              />
-              <AvatarFallback className="pixel-font text-xs">
-                {member.name.slice(0, 2).toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-          </div>
-        ))}
-      </div>
-    );
-  };
-
   const Sparkline = ({ data }: { data: number[] }) => {
     const max = Math.max(...data);
     const min = Math.min(...data);
@@ -209,68 +139,6 @@ export default function ClansLeaderboard() {
     );
   };
 
-  const ClanRankingsChart = () => {
-    const sortedClans = [...mockClans].sort(
-      (a, b) => b.totalScore - a.totalScore
-    );
-    const maxScore = Math.max(...sortedClans.map((c) => c.totalScore));
-
-    return (
-      <div className="space-y-3">
-        <h3 className="pixel-font font-bold text-lg flex items-center gap-2">
-          <BarChart3 className="w-5 h-5" />
-          部落总分排行榜（{SCORE_TOKEN.symbol}）
-        </h3>
-        <div className="space-y-2">
-          {sortedClans.map((clan, index) => {
-            const barWidth = (clan.totalScore / maxScore) * 100;
-
-            return (
-              <div
-                key={clan.id}
-                className="flex items-center gap-3 p-3 bg-muted/20 rounded pixel-border"
-              >
-                <div className="flex items-center gap-2 w-16">
-                  {getRankIcon(index + 1)}
-                  <span className="pixel-font text-sm font-bold">
-                    #{index + 1}
-                  </span>
-                </div>
-
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-2xl">{clan.flag}</span>
-                      <span className="pixel-font text-sm font-medium">
-                        {clan.name}
-                      </span>
-                      <Badge variant="outline" className="pixel-font text-xs">
-                        {clan.remainingMembers}/{clan.totalMembers} active
-                      </Badge>
-                    </div>
-                    <span className="pixel-font text-sm font-bold text-primary">
-                      {formatTokenAmount(
-                        clan.totalScore * Math.pow(10, SCORE_TOKEN.decimals),
-                        SCORE_TOKEN
-                      )}
-                    </span>
-                  </div>
-
-                  <div className="w-full bg-muted/30 h-4 rounded pixel-border overflow-hidden">
-                    <div
-                      className="h-full bg-accent/80 transition-all duration-500 pixel-border"
-                      style={{ width: `${barWidth}%` }}
-                    />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
-
   const isUserClan = (clanId: number) => {
     return userClanId === clanId;
   };
@@ -279,207 +147,7 @@ export default function ClansLeaderboard() {
     return isWalletConnected && !joinedClans.has(clanId);
   };
 
-  const canClaimRewards = (clanId: number) => {
-    const clan = mockClans.find((c) => c.id === clanId);
-    return (
-      isWalletConnected &&
-      joinedClans.has(clanId) &&
-      clan &&
-      clan.dividendVault.userClaimable > 0 &&
-      !claimedRewards.has(clanId)
-    );
-  };
-
-  const DividendVaultWidget = ({
-    clan,
-    isCompact = false,
-  }: {
-    clan: (typeof mockClans)[0];
-    isCompact?: boolean;
-  }) => {
-    const hasClaimableRewards = canClaimRewards(clan.id);
-    const isMember = joinedClans.has(clan.id);
-
-    if (isCompact) {
-      return (
-        <div className="flex items-center justify-between p-2 bg-muted/20 rounded pixel-border">
-          <div className="flex items-center gap-2">
-            <Coins className="w-4 h-4 text-yellow-500" />
-            <span className="pixel-font text-xs text-muted-foreground">
-              奖励金库：
-            </span>
-            <span className="pixel-font text-xs font-bold">
-              {formatTokenAmount(
-                clan.dividendVault.totalBalance *
-                  Math.pow(10, VAULT_TOKEN.decimals),
-                VAULT_TOKEN
-              )}
-            </span>
-          </div>
-          {hasClaimableRewards && (
-            <Button
-              size="sm"
-              onClick={(e) => handleClaimRewards(clan.id, e)}
-              className="pixel-border pixel-font text-xs h-6 px-2"
-            >
-              <Gift className="w-3 h-3 mr-1" />
-              领取
-            </Button>
-          )}
-          {isMember &&
-            clan.dividendVault.userClaimable > 0 &&
-            claimedRewards.has(clan.id) && (
-              <Badge variant="outline" className="pixel-font text-xs">
-                已领取
-              </Badge>
-            )}
-        </div>
-      );
-    }
-
-    return (
-      <Card className="pixel-border">
-        <CardHeader className="pb-2">
-          <div className="flex items-center gap-2">
-            <Coins className="w-5 h-5 text-yellow-500" />
-            <h4 className="pixel-font font-bold">分红金库</h4>
-            <Badge variant="outline" className="pixel-font text-xs">
-              {VAULT_TOKEN.symbol}
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <p className="pixel-font text-xs text-muted-foreground">
-                金库总额
-              </p>
-              <p className="pixel-font text-lg font-bold text-primary pixel-font">
-                {formatTokenAmount(
-                  clan.dividendVault.totalBalance *
-                    Math.pow(10, VAULT_TOKEN.decimals),
-                  VAULT_TOKEN
-                )}
-              </p>
-            </div>
-            <div>
-              <p className="pixel-font text-xs text-muted-foreground">
-                你的份额
-              </p>
-              <p className="pixel-font text-lg font-bold text-accent pixel-font">
-                {isMember
-                  ? formatTokenAmount(
-                      clan.dividendVault.userClaimable *
-                        Math.pow(10, VAULT_TOKEN.decimals),
-                      VAULT_TOKEN
-                    )
-                  : `0.00 ${VAULT_TOKEN.symbol}`}
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <h5 className="pixel-font text-sm font-bold text-muted-foreground">
-              成员贡献
-            </h5>
-            <div className="max-h-32 overflow-y-auto space-y-1">
-              {clan.members.map((member, index) => {
-                const contribution = Math.random() * 50 + 10; // Mock contribution amount
-                const isCurrentUser = member.name === "You" && isMember;
-                return (
-                  <div
-                    key={index}
-                    className={`flex items-center justify-between p-2 rounded pixel-border text-xs ${
-                      isCurrentUser
-                        ? "bg-primary/10 border-primary"
-                        : "bg-muted/10"
-                    } ${
-                      member.status === "eliminated"
-                        ? "opacity-50 grayscale"
-                        : ""
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400" />
-                      <span
-                        className={`pixel-font ${
-                          isCurrentUser ? "font-bold text-primary" : ""
-                        }`}
-                      >
-                        {member.name}
-                      </span>
-                      {member.status === "eliminated" && (
-                        <Badge variant="outline" className="pixel-font text-xs">
-                          已淘汰
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <p className="pixel-font font-bold">
-                        {formatTokenAmount(
-                          contribution * Math.pow(10, VAULT_TOKEN.decimals),
-                          VAULT_TOKEN
-                        )}
-                      </p>
-                      <div className="w-16 h-1 bg-muted rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-cyan-400 to-emerald-400"
-                          style={{ width: `${(contribution / 60) * 100}%` }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="text-xs pixel-font text-muted-foreground">
-            <p>上次分发：{clan.dividendVault.lastDistribution}</p>
-            <p>
-              已累计分发：{" "}
-              {formatTokenAmount(
-                clan.dividendVault.totalDistributed *
-                  Math.pow(10, VAULT_TOKEN.decimals),
-                VAULT_TOKEN
-              )}
-            </p>
-          </div>
-
-          {hasClaimableRewards && (
-            <Button
-              onClick={(e) => handleClaimRewards(clan.id, e)}
-              className="w-full pixel-border pixel-font"
-            >
-              <Gift className="w-4 h-4 mr-2" />
-              领取{" "}
-              {formatTokenAmount(
-                clan.dividendVault.userClaimable *
-                  Math.pow(10, VAULT_TOKEN.decimals),
-                VAULT_TOKEN
-              )}
-            </Button>
-          )}
-
-          {isMember &&
-            clan.dividendVault.userClaimable > 0 &&
-            claimedRewards.has(clan.id) && (
-              <div className="text-center">
-                <Badge variant="outline" className="pixel-font">
-                  奖励领取成功
-                </Badge>
-              </div>
-            )}
-
-          {!isMember && (
-            <div className="text-center text-xs pixel-font text-muted-foreground">
-              加入部落以获取分红奖励
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    );
-  };
+  if (!clans) return null;
 
   return (
     <div className="min-h-screen bg-background p-4 lg:p-8">
@@ -597,7 +265,7 @@ export default function ClansLeaderboard() {
                   <Zap className="w-8 h-8 text-yellow-500" />
                   <div>
                     <p className="text-2xl font-bold pixel-font">
-                      {mockClans.reduce(
+                      {clans.reduce(
                         (sum, clan) => sum + clan.remainingMembers,
                         0
                       )}
@@ -612,7 +280,7 @@ export default function ClansLeaderboard() {
                   <Skull className="w-8 h-8 text-red-500" />
                   <div>
                     <p className="text-2xl font-bold pixel-font text-red-500">
-                      {mockClans.reduce(
+                      {clans.reduce(
                         (sum, clan) =>
                           sum + (clan.totalMembers - clan.remainingMembers),
                         0
@@ -654,7 +322,7 @@ export default function ClansLeaderboard() {
 
       {/* Clans Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {mockClans.map((clan) => (
+        {clans.map((clan) => (
           <Card
             key={clan.id}
             className={`pixel-border hover:shadow-lg transition-all duration-200 hover:-translate-y-1 cursor-pointer group ${
@@ -683,11 +351,14 @@ export default function ClansLeaderboard() {
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                      {getRankIcon(clan.rank)}
+                      <RankIcon rank={clan.rank} />
                       <span className="pixel-font text-sm">
                         排名 #{clan.rank}
                       </span>
-                      {getRankChange(clan.rank, clan.previousRank)}
+                      <RankChange
+                        current={clan.rank}
+                        previous={clan.previousRank}
+                      />
                     </div>
                   </div>
                 </div>
