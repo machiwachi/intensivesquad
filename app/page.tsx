@@ -678,7 +678,7 @@ export default function ClansLeaderboard() {
       <div className="space-y-3">
         <h3 className="pixel-font font-bold text-lg flex items-center gap-2">
           <BarChart3 className="w-5 h-5" />
-          Top Users by {SCORE_TOKEN.symbol} Score
+          用户排行榜（{SCORE_TOKEN.symbol}）
         </h3>
         <div className="space-y-2">
           {sortedUsers.slice(0, 10).map((user, index) => {
@@ -748,7 +748,7 @@ export default function ClansLeaderboard() {
       <div className="space-y-3">
         <h3 className="pixel-font font-bold text-lg flex items-center gap-2">
           <BarChart3 className="w-5 h-5" />
-          Clan Rankings by Total {SCORE_TOKEN.symbol}
+          部落总分排行榜（{SCORE_TOKEN.symbol}）
         </h3>
         <div className="space-y-2">
           {sortedClans.map((clan, index) => {
@@ -835,7 +835,7 @@ export default function ClansLeaderboard() {
           <div className="flex items-center gap-2">
             <Coins className="w-4 h-4 text-yellow-500" />
             <span className="pixel-font text-xs text-muted-foreground">
-              Vault:
+              奖励金库：
             </span>
             <span className="pixel-font text-xs font-bold">
               {formatTokenAmount(
@@ -852,14 +852,14 @@ export default function ClansLeaderboard() {
               className="pixel-border pixel-font text-xs h-6 px-2"
             >
               <Gift className="w-3 h-3 mr-1" />
-              Claim
+              领取
             </Button>
           )}
           {isMember &&
             clan.dividendVault.userClaimable > 0 &&
             claimedRewards.has(clan.id) && (
               <Badge variant="outline" className="pixel-font text-xs">
-                Claimed
+                已领取
               </Badge>
             )}
         </div>
@@ -871,7 +871,7 @@ export default function ClansLeaderboard() {
         <CardHeader className="pb-2">
           <div className="flex items-center gap-2">
             <Coins className="w-5 h-5 text-yellow-500" />
-            <h4 className="pixel-font font-bold">Dividend Vault</h4>
+            <h4 className="pixel-font font-bold">分红金库</h4>
             <Badge variant="outline" className="pixel-font text-xs">
               {VAULT_TOKEN.symbol}
             </Badge>
@@ -881,7 +881,7 @@ export default function ClansLeaderboard() {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <p className="pixel-font text-xs text-muted-foreground">
-                Total Balance
+                金库总额
               </p>
               <p className="pixel-font text-lg font-bold text-primary pixel-font">
                 {formatTokenAmount(
@@ -893,7 +893,7 @@ export default function ClansLeaderboard() {
             </div>
             <div>
               <p className="pixel-font text-xs text-muted-foreground">
-                Your Share
+                你的份额
               </p>
               <p className="pixel-font text-lg font-bold text-accent pixel-font">
                 {isMember
@@ -909,7 +909,7 @@ export default function ClansLeaderboard() {
 
           <div className="space-y-2">
             <h5 className="pixel-font text-sm font-bold text-muted-foreground">
-              Member Contributions
+              成员贡献
             </h5>
             <div className="max-h-32 overflow-y-auto space-y-1">
               {clan.members.map((member, index) => {
@@ -939,7 +939,7 @@ export default function ClansLeaderboard() {
                       </span>
                       {member.status === "eliminated" && (
                         <Badge variant="outline" className="pixel-font text-xs">
-                          Eliminated
+                          已淘汰
                         </Badge>
                       )}
                     </div>
@@ -964,9 +964,9 @@ export default function ClansLeaderboard() {
           </div>
 
           <div className="text-xs pixel-font text-muted-foreground">
-            <p>Last distribution: {clan.dividendVault.lastDistribution}</p>
+            <p>上次分发：{clan.dividendVault.lastDistribution}</p>
             <p>
-              Total distributed:{" "}
+              已累计分发：{" "}
               {formatTokenAmount(
                 clan.dividendVault.totalDistributed *
                   Math.pow(10, VAULT_TOKEN.decimals),
@@ -981,7 +981,7 @@ export default function ClansLeaderboard() {
               className="w-full pixel-border pixel-font"
             >
               <Gift className="w-4 h-4 mr-2" />
-              Claim{" "}
+              领取 {" "}
               {formatTokenAmount(
                 clan.dividendVault.userClaimable *
                   Math.pow(10, VAULT_TOKEN.decimals),
@@ -995,14 +995,14 @@ export default function ClansLeaderboard() {
             claimedRewards.has(clan.id) && (
               <div className="text-center">
                 <Badge variant="outline" className="pixel-font">
-                  Rewards Claimed Successfully
+                  奖励领取成功
                 </Badge>
               </div>
             )}
 
           {!isMember && (
             <div className="text-center text-xs pixel-font text-muted-foreground">
-              Join clan to earn dividend rewards
+              加入部落以获取分红奖励
             </div>
           )}
         </CardContent>
@@ -1037,9 +1037,9 @@ export default function ClansLeaderboard() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="week">This Week</SelectItem>
-                <SelectItem value="month">This Month</SelectItem>
-                <SelectItem value="all">All Time</SelectItem>
+                <SelectItem value="week">本周</SelectItem>
+                <SelectItem value="month">本月</SelectItem>
+                <SelectItem value="all">全部时间</SelectItem>
               </SelectContent>
             </Select>
 
@@ -1049,7 +1049,7 @@ export default function ClansLeaderboard() {
               className="pixel-border pixel-font flex items-center gap-2"
             >
               <BarChart3 className="w-4 h-4" />
-              Rankings
+              排行榜
             </Button>
 
             {isWalletConnected && (
@@ -1059,7 +1059,7 @@ export default function ClansLeaderboard() {
                 className="pixel-border pixel-font flex items-center gap-2"
               >
                 <Plus className="w-4 h-4" />
-                Create Clan
+                创建部落
               </Button>
             )}
 
@@ -1087,7 +1087,7 @@ export default function ClansLeaderboard() {
               <div>
                 <p className="text-2xl font-bold pixel-font">{totalClans}</p>
                 <p className="text-sm text-muted-foreground pixel-font">
-                  Total Clans
+                  部落总数
                 </p>
               </div>
             </CardContent>
@@ -1106,7 +1106,7 @@ export default function ClansLeaderboard() {
                   }
                 </p>
                 <p className="text-sm text-muted-foreground pixel-font">
-                  Avg {SCORE_TOKEN.symbol}
+                  平均 {SCORE_TOKEN.symbol}
                 </p>
               </div>
             </CardContent>
@@ -1125,7 +1125,7 @@ export default function ClansLeaderboard() {
                       )}
                     </p>
                     <p className="text-sm text-muted-foreground pixel-font">
-                      Active Warriors
+                      现役战士
                     </p>
                   </div>
                 </div>
@@ -1141,7 +1141,7 @@ export default function ClansLeaderboard() {
                       )}
                     </p>
                     <p className="text-sm text-muted-foreground pixel-font">
-                      Eliminated
+                      已淘汰
                     </p>
                   </div>
                 </div>
@@ -1150,7 +1150,7 @@ export default function ClansLeaderboard() {
               {/* Mini retention chart */}
               <div className="mt-4 pt-3 border-t border-muted">
                 <p className="text-xs text-muted-foreground pixel-font mb-2">
-                  Daily Retention (Last 7 Days)
+                  每日留存（近7天）
                 </p>
                 <div className="flex items-end gap-1 h-8">
                   {[95, 89, 84, 78, 71, 65, 58].map((percentage, index) => (
@@ -1207,7 +1207,7 @@ export default function ClansLeaderboard() {
                     <div className="flex items-center gap-2">
                       {getRankIcon(clan.rank)}
                       <span className="pixel-font text-sm">
-                        Rank #{clan.rank}
+                        排名 #{clan.rank}
                       </span>
                       {getRankChange(clan.rank, clan.previousRank)}
                     </div>
@@ -1229,12 +1229,12 @@ export default function ClansLeaderboard() {
                       className="pixel-border pixel-font text-xs"
                     >
                       <UserPlus className="w-3 h-3 mr-1" />
-                      Join
+                      加入
                     </Button>
                   )}
                   {joinedClans.has(clan.id) && !isUserClan(clan.id) && (
                     <Badge variant="outline" className="pixel-font text-xs">
-                      Joined
+                      已加入
                     </Badge>
                   )}
                 </div>
@@ -1252,7 +1252,7 @@ export default function ClansLeaderboard() {
                   <span className="text-muted-foreground">
                     /{clan.totalMembers}
                   </span>
-                  <span className="ml-2 text-muted-foreground">remaining</span>
+                  <span className="ml-2 text-muted-foreground">剩余</span>
                 </div>
                 <div className="pixel-font">
                   <span className="text-accent font-bold">
@@ -1263,7 +1263,7 @@ export default function ClansLeaderboard() {
 
               <div className="flex justify-between items-center">
                 <span className="text-xs text-muted-foreground pixel-font">
-                  Score Trend
+                  分数趋势
                 </span>
                 <Sparkline data={clan.scoreHistory} />
               </div>
@@ -1280,7 +1280,7 @@ export default function ClansLeaderboard() {
           <DialogHeader>
             <DialogTitle className="pixel-font text-2xl flex items-center gap-2">
               <BarChart3 className="w-6 h-6" />
-              Leaderboard Rankings
+              排行榜
             </DialogTitle>
           </DialogHeader>
 
@@ -1297,14 +1297,14 @@ export default function ClansLeaderboard() {
           <DialogHeader>
             <DialogTitle className="pixel-font text-2xl flex items-center gap-2">
               <Plus className="w-6 h-6" />
-              Create New Clan
+              创建新部落
             </DialogTitle>
           </DialogHeader>
 
           <form onSubmit={handleCreateClan} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="clan-name" className="pixel-font">
-                Clan Name
+                部落名称
               </Label>
               <Input
                 id="clan-name"
@@ -1312,7 +1312,7 @@ export default function ClansLeaderboard() {
                 onChange={(e) =>
                   setNewClanForm((prev) => ({ ...prev, name: e.target.value }))
                 }
-                placeholder="Enter clan name"
+                placeholder="输入部落名称"
                 className="pixel-border pixel-font"
                 required
                 maxLength={30}
@@ -1321,7 +1321,7 @@ export default function ClansLeaderboard() {
 
             <div className="space-y-2">
               <Label htmlFor="clan-flag" className="pixel-font">
-                Clan Flag (Emoji)
+                部落旗帜（Emoji）
               </Label>
               <Input
                 id="clan-flag"
@@ -1335,13 +1335,13 @@ export default function ClansLeaderboard() {
                 maxLength={2}
               />
               <p className="text-xs text-muted-foreground pixel-font">
-                Choose an emoji to represent your clan
+                选择一个表情符号作为部落旗帜
               </p>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="clan-description" className="pixel-font">
-                Description (Optional)
+                描述（可选）
               </Label>
               <Textarea
                 id="clan-description"
@@ -1352,7 +1352,7 @@ export default function ClansLeaderboard() {
                     description: e.target.value,
                   }))
                 }
-                placeholder="Describe your clan's mission and values..."
+                placeholder="描述你们部落的使命与价值观..."
                 className="pixel-border pixel-font resize-none"
                 rows={3}
                 maxLength={200}
@@ -1361,7 +1361,7 @@ export default function ClansLeaderboard() {
 
             <div className="space-y-2">
               <Label htmlFor="initial-leverage" className="pixel-font">
-                Initial Leverage
+                初始杠杆
               </Label>
               <Select
                 value={newClanForm.initialLeverage}
@@ -1376,33 +1376,33 @@ export default function ClansLeaderboard() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="1.0">1.0x (Conservative)</SelectItem>
-                  <SelectItem value="1.5">1.5x (Balanced)</SelectItem>
-                  <SelectItem value="2.0">2.0x (Aggressive)</SelectItem>
-                  <SelectItem value="2.5">2.5x (High Risk)</SelectItem>
-                  <SelectItem value="3.0">3.0x (Maximum)</SelectItem>
+                  <SelectItem value="1.0">1.0x（保守）</SelectItem>
+                  <SelectItem value="1.5">1.5x（均衡）</SelectItem>
+                  <SelectItem value="2.0">2.0x（激进）</SelectItem>
+                  <SelectItem value="2.5">2.5x（高风险）</SelectItem>
+                  <SelectItem value="3.0">3.0x（最大）</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground pixel-font">
-                Higher leverage = higher rewards but more risk of elimination
+                杠杆越高 = 奖励越高，但被淘汰的风险也越大
               </p>
             </div>
 
             <div className="bg-muted/20 p-3 rounded pixel-border">
               <h4 className="pixel-font font-bold text-sm mb-2">
-                Creation Cost
+                创建成本
               </h4>
               <div className="flex items-center justify-between text-sm pixel-font">
-                <span>Platform Fee:</span>
+                <span>平台费用：</span>
                 <span className="font-bold">0.1 ETH</span>
               </div>
               <div className="flex items-center justify-between text-sm pixel-font">
-                <span>Initial Vault Deposit:</span>
+                <span>初始金库存入：</span>
                 <span className="font-bold">0.5 ETH</span>
               </div>
               <hr className="my-2 border-muted" />
               <div className="flex items-center justify-between text-sm pixel-font font-bold">
-                <span>Total:</span>
+                <span>合计：</span>
                 <span>0.6 ETH</span>
               </div>
             </div>
@@ -1414,14 +1414,14 @@ export default function ClansLeaderboard() {
                 onClick={() => setShowCreateClan(false)}
                 className="flex-1 pixel-border pixel-font"
               >
-                Cancel
+                取消
               </Button>
               <Button
                 type="submit"
                 disabled={!newClanForm.name || !newClanForm.flag}
                 className="flex-1 pixel-border pixel-font"
               >
-                Create Clan
+                创建部落
               </Button>
             </div>
           </form>
@@ -1438,11 +1438,11 @@ export default function ClansLeaderboard() {
                   <span className="text-3xl">{selectedClan.flag}</span>
                   {selectedClan.name}
                   <Badge variant="secondary" className="pixel-font">
-                    Rank #{selectedClan.rank}
+                    排名 #{selectedClan.rank}
                   </Badge>
                   {isUserClan(selectedClan.id) && (
                     <Badge variant="default" className="pixel-font bg-primary">
-                      MY CLAN
+                      我的部落
                     </Badge>
                   )}
                 </DialogTitle>
@@ -1454,7 +1454,7 @@ export default function ClansLeaderboard() {
                   className="w-full pixel-border pixel-font"
                 >
                   <UserPlus className="w-4 h-4 mr-2" />
-                  Join {selectedClan.name}
+                  加入 {selectedClan.name}
                 </Button>
               )}
 
@@ -1467,7 +1467,7 @@ export default function ClansLeaderboard() {
                   <Card className="pixel-border">
                     <CardContent className="p-4">
                       <h4 className="pixel-font font-bold mb-2">
-                        Total {SCORE_TOKEN.symbol}
+                        总计 {SCORE_TOKEN.symbol}
                       </h4>
                       <p className="text-2xl font-bold text-primary pixel-font">
                         {formatTokenAmount(
@@ -1481,7 +1481,7 @@ export default function ClansLeaderboard() {
 
                   <Card className="pixel-border">
                     <CardContent className="p-4">
-                      <h4 className="pixel-font font-bold mb-2">Leverage</h4>
+                      <h4 className="pixel-font font-bold mb-2">杠杆</h4>
                       <p className="text-2xl font-bold text-accent pixel-font">
                         {selectedClan.leverage}x
                       </p>
@@ -1491,7 +1491,7 @@ export default function ClansLeaderboard() {
 
                 {/* Members */}
                 <div>
-                  <h4 className="pixel-font font-bold mb-3">Clan Members</h4>
+                  <h4 className="pixel-font font-bold mb-3">部落成员</h4>
                   <div className="grid grid-cols-2 gap-2">
                     {selectedClan.members.map((member) => (
                       <div
@@ -1520,7 +1520,7 @@ export default function ClansLeaderboard() {
                           }
                           className="pixel-font text-xs ml-auto"
                         >
-                          {member.status}
+                          {member.status === "active" ? "活跃" : "已淘汰"}
                         </Badge>
                       </div>
                     ))}
@@ -1530,7 +1530,7 @@ export default function ClansLeaderboard() {
                 {/* Recent Activities */}
                 <div>
                   <h4 className="pixel-font font-bold mb-3">
-                    Recent Activities
+                    最近活动
                   </h4>
                   <div className="space-y-2">
                     {selectedClan.activities.map((activity, index) => {
@@ -1564,7 +1564,7 @@ export default function ClansLeaderboard() {
                               )}
                             </p>
                             <p className="pixel-font text-xs text-muted-foreground">
-                              Vault: +
+                              金库：+
                               {formatTokenAmount(
                                 dividendContribution *
                                   Math.pow(10, VAULT_TOKEN.decimals),

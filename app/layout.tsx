@@ -15,8 +15,8 @@ const orbitron = Orbitron({
 });
 
 export const metadata: Metadata = {
-  title: "Clans Leaderboard - Study Warriors",
-  description: "Gamified study app clan rankings and member status",
+  title: "部落排行榜 - 学习勇士",
+  description: "游戏化学习应用的部落排名与成员状态",
   generator: "v0.app",
 };
 

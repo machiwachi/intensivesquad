@@ -21,7 +21,7 @@ import { config } from "@/lib/wagmi";
 const queryClient = new QueryClient();
 
 const getSiweMessageOptions: GetSiweMessageOptions = () => ({
-  statement: "Sign in to Intensive Squad - Gamified Study Warriors",
+  statement: "登录 Intensive Squad - 学习勇士（SIWE）",
   domain:
     typeof window !== "undefined" ? window.location.host : "localhost:3000",
 });
