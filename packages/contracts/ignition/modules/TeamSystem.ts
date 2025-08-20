@@ -17,6 +17,12 @@ const TeamSystem = buildModule("TeamSystem", (m) => {
 
   m.call(manager, "setEconomy", [economy]);
 
+  // Grant MINTER_ROLE to admin for IDO token
+  m.call(ido, "grantRole", [
+    "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6", // MINTER_ROLE
+    admin,
+  ]);
+
   return { ido, wedo, manager, economy };
 });
 

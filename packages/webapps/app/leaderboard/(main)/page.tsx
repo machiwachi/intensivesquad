@@ -9,16 +9,19 @@ import { useState } from "react";
 import { ClanCard } from "../clan-card";
 import { ClanDetailDialog } from "../clan-detail.dialog";
 import { useReadIdoTokenBalanceOf } from "@/lib/contracts/generated";
+import { useAccount } from "wagmi";
+import { formatEther, parseEther } from "viem";
 
 export default function ClansLeaderboard() {
   const { data: clans } = useQuery<Clan[]>({
     queryKey: ["clans"],
     queryFn: () => fetch("/api/clans").then((res) => res.json()),
   });
+  const { address } = useAccount();
 
   const [selectedClan, setSelectedClan] = useState<Clan | null>(null);
   const { data: idoTokenBalance } = useReadIdoTokenBalanceOf({
-    args: ["0x0000000000000000000000000000000000000000"],
+    args: [address ?? "0x0000000000000000000000000000000000000000"],
   });
 
   if (!clans) return null;
@@ -29,8 +32,7 @@ export default function ClansLeaderboard() {
   return (
     <div className="">
       {/* Header */}
-      {idoTokenBalance}
-      123
+      Your balance: {idoTokenBalance && formatEther(idoTokenBalance)} IDO
       {/* Global Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <Card className="pixel-border">
