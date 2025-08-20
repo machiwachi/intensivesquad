@@ -27,6 +27,9 @@ importers:
       '@nomicfoundation/hardhat-toolbox-viem':
         specifier: ^5.0.0
         version: 5.0.0(3d66081806901f99094a1f8e951039b9)
+      '@nomicfoundation/hardhat-verify':
+        specifier: ^3.0.0
+        version: 3.0.0(hardhat@3.0.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))
       '@types/node':
         specifier: ^22.8.5
         version: 22.17.2

@@ -1,4 +1,5 @@
 import type React from "react";
+import { Toaster } from "@/components/ui/sonner";
 import type { Metadata } from "next";
 import { Orbitron } from "next/font/google";
 import "./globals.css";
@@ -28,9 +29,14 @@ export default async function RootLayout({
   const session = await getServerSession(authOptions);
 
   return (
-    <html lang="en" className={`${orbitron.variable} antialiased`} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${orbitron.variable} antialiased`}
+      suppressHydrationWarning
+    >
       <body className="scanlines">
         <Providers session={session}>{children}</Providers>
+        <Toaster />
       </body>
     </html>
   );
