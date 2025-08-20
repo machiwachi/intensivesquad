@@ -5,7 +5,7 @@ const TeamSystem = buildModule("TeamSystem", (m) => {
 
   const ido = m.contract("IDOToken", ["IDO Token", "IDO", admin]);
   const wedo = m.contract("WEDOToken", ["WEDO Token", "WEDO", admin]);
-  const manager = m.contract("TeamManager", [admin]);
+  const manager = m.contract("TeamManager", [admin, 6n]);
   const economy = m.contract("TeamEconomy", [
     ido,
     wedo,

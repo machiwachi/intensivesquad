@@ -323,7 +323,7 @@ export const idoTokenAbi = [
 ] as const
 
 export const idoTokenAddress =
-  '0x5FC8d32690cc91D4c39d9d3abcBD16989F875707' as const
+  '0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0' as const
 
 export const idoTokenConfig = {
   address: idoTokenAddress,
@@ -385,6 +385,25 @@ export const teamEconomyAbi = [
       },
     ],
     name: 'Claimed',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'LMin',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'LMax',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'LConfigUpdated',
   },
   {
     type: 'event',
@@ -548,6 +567,20 @@ export const teamEconomyAbi = [
     inputs: [],
     name: 'DISTRIBUTOR_ROLE',
     outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'LMax',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'LMin',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
@@ -721,6 +754,16 @@ export const teamEconomyAbi = [
   },
   {
     type: 'function',
+    inputs: [
+      { name: '_LMin', internalType: 'uint256', type: 'uint256' },
+      { name: '_LMax', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'setLConfig',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     inputs: [{ name: 'newS', internalType: 'uint256', type: 'uint256' }],
     name: 'setStageScalar',
     outputs: [],
@@ -838,7 +881,7 @@ export const teamEconomyAbi = [
 ] as const
 
 export const teamEconomyAddress =
-  '0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6' as const
+  '0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1' as const
 
 export const teamEconomyConfig = {
   address: teamEconomyAddress,
@@ -852,7 +895,10 @@ export const teamEconomyConfig = {
 export const teamManagerAbi = [
   {
     type: 'constructor',
-    inputs: [{ name: 'admin', internalType: 'address', type: 'address' }],
+    inputs: [
+      { name: 'admin', internalType: 'address', type: 'address' },
+      { name: '_maxTeamCapacity', internalType: 'uint256', type: 'uint256' },
+    ],
     stateMutability: 'nonpayable',
   },
   { type: 'error', inputs: [], name: 'AccessControlBadConfirmation' },
@@ -999,30 +1045,25 @@ export const teamManagerAbi = [
     anonymous: false,
     inputs: [
       {
+        name: 'maxTeamCapacity',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'TeamConfigUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
         name: 'teamId',
         internalType: 'uint256',
         type: 'uint256',
         indexed: true,
       },
-      { name: 'n0', internalType: 'uint256', type: 'uint256', indexed: false },
-      {
-        name: 'lMin',
-        internalType: 'uint256',
-        type: 'uint256',
-        indexed: false,
-      },
-      {
-        name: 'lMax',
-        internalType: 'uint256',
-        type: 'uint256',
-        indexed: false,
-      },
-      {
-        name: 'flagURI',
-        internalType: 'string',
-        type: 'string',
-        indexed: false,
-      },
+      { name: 'name', internalType: 'string', type: 'string', indexed: false },
     ],
     name: 'TeamCreated',
   },
@@ -1049,15 +1090,9 @@ export const teamManagerAbi = [
   },
   {
     type: 'function',
-    inputs: [
-      { name: 'teamId', internalType: 'uint256', type: 'uint256' },
-      { name: 'n0', internalType: 'uint256', type: 'uint256' },
-      { name: 'lMin', internalType: 'uint256', type: 'uint256' },
-      { name: 'lMax', internalType: 'uint256', type: 'uint256' },
-      { name: 'flagURI', internalType: 'string', type: 'string' },
-    ],
+    inputs: [{ name: 'name', internalType: 'string', type: 'string' }],
     name: 'createTeam',
-    outputs: [],
+    outputs: [{ name: 'teamId', internalType: 'uint256', type: 'uint256' }],
     stateMutability: 'nonpayable',
   },
   {
@@ -1085,6 +1120,13 @@ export const teamManagerAbi = [
     inputs: [{ name: 'role', internalType: 'bytes32', type: 'bytes32' }],
     name: 'getRoleAdmin',
     outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    name: 'getTeamSize',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
@@ -1125,6 +1167,13 @@ export const teamManagerAbi = [
   },
   {
     type: 'function',
+    inputs: [],
+    name: 'maxTeamCapacity',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     inputs: [
       { name: '', internalType: 'uint256', type: 'uint256' },
       { name: '', internalType: 'address', type: 'address' },
@@ -1136,6 +1185,13 @@ export const teamManagerAbi = [
       { name: 'eliminatedAt', internalType: 'uint64', type: 'uint64' },
       { name: 'cooldownEndsAt', internalType: 'uint64', type: 'uint64' },
     ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'nextTeamId',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
@@ -1167,6 +1223,15 @@ export const teamManagerAbi = [
   },
   {
     type: 'function',
+    inputs: [
+      { name: '_maxTeamCapacity', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'setTeamConfig',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     inputs: [{ name: 'interfaceId', internalType: 'bytes4', type: 'bytes4' }],
     name: 'supportsInterface',
     outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
@@ -1177,18 +1242,15 @@ export const teamManagerAbi = [
     inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     name: 'teams',
     outputs: [
-      { name: 'n0', internalType: 'uint256', type: 'uint256' },
-      { name: 'lMin', internalType: 'uint256', type: 'uint256' },
-      { name: 'lMax', internalType: 'uint256', type: 'uint256' },
-      { name: 'flagURI', internalType: 'string', type: 'string' },
-      { name: 'currentR', internalType: 'uint256', type: 'uint256' },
+      { name: 'name', internalType: 'string', type: 'string' },
+      { name: 'activeMemberCount', internalType: 'uint256', type: 'uint256' },
     ],
     stateMutability: 'view',
   },
 ] as const
 
 export const teamManagerAddress =
-  '0x0165878A594ca255338adfa4d48449f69242Eb8F' as const
+  '0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82' as const
 
 export const teamManagerConfig = {
   address: teamManagerAddress,
@@ -1523,7 +1585,7 @@ export const wedoTokenAbi = [
 ] as const
 
 export const wedoTokenAddress =
-  '0xa513E6E4b8f2a923D98304ec87F64353C4D5C853' as const
+  '0x9A676e781A523b5d0C0e43731313A708CB607508' as const
 
 export const wedoTokenConfig = {
   address: wedoTokenAddress,
@@ -1880,6 +1942,24 @@ export const useReadTeamEconomyDistributorRole =
   })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link teamEconomyAbi}__ and `functionName` set to `"LMax"`
+ */
+export const useReadTeamEconomyLMax = /*#__PURE__*/ createUseReadContract({
+  abi: teamEconomyAbi,
+  address: teamEconomyAddress,
+  functionName: 'LMax',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link teamEconomyAbi}__ and `functionName` set to `"LMin"`
+ */
+export const useReadTeamEconomyLMin = /*#__PURE__*/ createUseReadContract({
+  abi: teamEconomyAbi,
+  address: teamEconomyAddress,
+  functionName: 'LMin',
+})
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link teamEconomyAbi}__ and `functionName` set to `"PARAM_ROLE"`
  */
 export const useReadTeamEconomyParamRole = /*#__PURE__*/ createUseReadContract({
@@ -2180,6 +2260,16 @@ export const useWriteTeamEconomyRevokeRole =
   })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link teamEconomyAbi}__ and `functionName` set to `"setLConfig"`
+ */
+export const useWriteTeamEconomySetLConfig =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: teamEconomyAbi,
+    address: teamEconomyAddress,
+    functionName: 'setLConfig',
+  })
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link teamEconomyAbi}__ and `functionName` set to `"setStageScalar"`
  */
 export const useWriteTeamEconomySetStageScalar =
@@ -2319,6 +2409,16 @@ export const useSimulateTeamEconomyRevokeRole =
   })
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link teamEconomyAbi}__ and `functionName` set to `"setLConfig"`
+ */
+export const useSimulateTeamEconomySetLConfig =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: teamEconomyAbi,
+    address: teamEconomyAddress,
+    functionName: 'setLConfig',
+  })
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link teamEconomyAbi}__ and `functionName` set to `"setStageScalar"`
  */
 export const useSimulateTeamEconomySetStageScalar =
@@ -2375,6 +2475,16 @@ export const useWatchTeamEconomyClaimedEvent =
     abi: teamEconomyAbi,
     address: teamEconomyAddress,
     eventName: 'Claimed',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link teamEconomyAbi}__ and `eventName` set to `"LConfigUpdated"`
+ */
+export const useWatchTeamEconomyLConfigUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: teamEconomyAbi,
+    address: teamEconomyAddress,
+    eventName: 'LConfigUpdated',
   })
 
 /**
@@ -2504,6 +2614,16 @@ export const useReadTeamManagerGetRoleAdmin =
   })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link teamManagerAbi}__ and `functionName` set to `"getTeamSize"`
+ */
+export const useReadTeamManagerGetTeamSize =
+  /*#__PURE__*/ createUseReadContract({
+    abi: teamManagerAbi,
+    address: teamManagerAddress,
+    functionName: 'getTeamSize',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link teamManagerAbi}__ and `functionName` set to `"hasRole"`
  */
 export const useReadTeamManagerHasRole = /*#__PURE__*/ createUseReadContract({
@@ -2513,6 +2633,16 @@ export const useReadTeamManagerHasRole = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link teamManagerAbi}__ and `functionName` set to `"maxTeamCapacity"`
+ */
+export const useReadTeamManagerMaxTeamCapacity =
+  /*#__PURE__*/ createUseReadContract({
+    abi: teamManagerAbi,
+    address: teamManagerAddress,
+    functionName: 'maxTeamCapacity',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link teamManagerAbi}__ and `functionName` set to `"members"`
  */
 export const useReadTeamManagerMembers = /*#__PURE__*/ createUseReadContract({
@@ -2520,6 +2650,17 @@ export const useReadTeamManagerMembers = /*#__PURE__*/ createUseReadContract({
   address: teamManagerAddress,
   functionName: 'members',
 })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link teamManagerAbi}__ and `functionName` set to `"nextTeamId"`
+ */
+export const useReadTeamManagerNextTeamId = /*#__PURE__*/ createUseReadContract(
+  {
+    abi: teamManagerAbi,
+    address: teamManagerAddress,
+    functionName: 'nextTeamId',
+  },
+)
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link teamManagerAbi}__ and `functionName` set to `"supportsInterface"`
@@ -2627,6 +2768,16 @@ export const useWriteTeamManagerSetEconomy =
   })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link teamManagerAbi}__ and `functionName` set to `"setTeamConfig"`
+ */
+export const useWriteTeamManagerSetTeamConfig =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: teamManagerAbi,
+    address: teamManagerAddress,
+    functionName: 'setTeamConfig',
+  })
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link teamManagerAbi}__
  */
 export const useSimulateTeamManager = /*#__PURE__*/ createUseSimulateContract({
@@ -2715,6 +2866,16 @@ export const useSimulateTeamManagerSetEconomy =
   })
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link teamManagerAbi}__ and `functionName` set to `"setTeamConfig"`
+ */
+export const useSimulateTeamManagerSetTeamConfig =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: teamManagerAbi,
+    address: teamManagerAddress,
+    functionName: 'setTeamConfig',
+  })
+
+/**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link teamManagerAbi}__
  */
 export const useWatchTeamManagerEvent =
@@ -2791,6 +2952,16 @@ export const useWatchTeamManagerRoleRevokedEvent =
     abi: teamManagerAbi,
     address: teamManagerAddress,
     eventName: 'RoleRevoked',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link teamManagerAbi}__ and `eventName` set to `"TeamConfigUpdated"`
+ */
+export const useWatchTeamManagerTeamConfigUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: teamManagerAbi,
+    address: teamManagerAddress,
+    eventName: 'TeamConfigUpdated',
   })
 
 /**
