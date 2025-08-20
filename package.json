@@ -29,5 +29,9 @@
     "vercel": "pnpm --filter @intensivesquad/webapps vercel",
     "vercel:yolo": "pnpm --filter @intensivesquad/webapps vercel:yolo"
   },
-  "packageManager": "pnpm@10.5.1"
+  "packageManager": "pnpm@10.5.1",
+  "devDependencies": {
+    "@wagmi/cli": "^2.5.0",
+    "viem": "^2.34.0"
+  }
 }
