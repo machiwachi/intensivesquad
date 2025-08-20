@@ -20,6 +20,7 @@ describe("TeamSystem", async () => {
     ]);
     const manager = await viem.deployContract("TeamManager", [
       admin.account.address,
+      10n, // maxTeamCapacity
     ]);
     const economy = await viem.deployContract("TeamEconomy", [
       ido.address,
@@ -59,11 +60,8 @@ describe("TeamSystem", async () => {
   it("end-to-end: create team, join, credit, withdraw, claim", async () => {
     const { ido, wedo, manager, economy } = await deploy();
 
-    // create team 1: n0=6, lMin=1e18, lMax=15e17
-    await manager.write.createTeam(
-      [1n, 6n, 10n ** 18n, 15n * 10n ** 17n, "flag://t1"],
-      { account: admin.account }
-    );
+    // create team 1
+    await manager.write.createTeam(["Team 1"], { account: admin.account });
 
     // join alice & bob
     await manager.write.join([1n], { account: alice.account });
