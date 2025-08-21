@@ -1,38 +1,25 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { SCORE_TOKEN, type Clan } from "@/lib/data";
-import { formatTokenAmount } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
+import { useTeams, type Team } from "@/lib/hooks/useTeams";
 import { Skull, Trophy, Users, Zap } from "lucide-react";
 import { useState } from "react";
 import { ClanCard } from "../clan-card";
 import { ClanDetailDialog } from "../clan-detail.dialog";
-import { useReadIdoTokenBalanceOf } from "@/lib/contracts/generated";
-import { useAccount } from "wagmi";
-import { formatEther, parseEther } from "viem";
 
 export default function ClansLeaderboard() {
-  const { data: clans } = useQuery<Clan[]>({
-    queryKey: ["clans"],
-    queryFn: () => fetch("/api/clans").then((res) => res.json()),
-  });
-  const { address } = useAccount();
+  const { teams, isLoading } = useTeams();
 
-  const [selectedClan, setSelectedClan] = useState<Clan | null>(null);
-  const { data: idoTokenBalance } = useReadIdoTokenBalanceOf({
-    args: [address ?? "0x0000000000000000000000000000000000000000"],
-  });
+  const [selectedClan, setSelectedClan] = useState<Team | null>(null);
 
-  if (!clans) return null;
+  if (isLoading || !teams) return null;
 
-  const totalClans = clans.length;
-  const totalScore = clans.reduce((sum, clan) => sum + clan.totalScore, 0);
+  const totalClans = teams.length;
+  const totalScore = teams.reduce((sum, team) => sum + team.totalScore, 0);
 
   return (
     <div className="">
       {/* Header */}
-      Your balance: {idoTokenBalance && formatEther(idoTokenBalance)} IDO
       {/* Global Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <Card className="pixel-border">
@@ -52,15 +39,10 @@ export default function ClansLeaderboard() {
             <Trophy className="w-8 h-8 text-accent" />
             <div>
               <p className="text-2xl font-bold pixel-font">
-                {
-                  formatTokenAmount(
-                    totalScore * Math.pow(10, SCORE_TOKEN.decimals),
-                    SCORE_TOKEN
-                  ).split(" ")[0]
-                }
+                {totalScore.toFixed(0)}
               </p>
               <p className="text-sm text-muted-foreground pixel-font">
-                总计流通量 {SCORE_TOKEN.symbol}
+                总计流通量 IDO
               </p>
             </div>
           </CardContent>
@@ -73,8 +55,8 @@ export default function ClansLeaderboard() {
                 <Zap className="w-8 h-8 text-yellow-500" />
                 <div>
                   <p className="text-2xl font-bold pixel-font">
-                    {clans.reduce(
-                      (sum, clan) => sum + clan.remainingMembers,
+                    {teams.reduce(
+                      (sum, team) => sum + team.remainingMembers,
                       0
                     )}
                   </p>
@@ -88,9 +70,9 @@ export default function ClansLeaderboard() {
                 <Skull className="w-8 h-8 text-red-500" />
                 <div>
                   <p className="text-2xl font-bold pixel-font text-red-500">
-                    {clans.reduce(
-                      (sum, clan) =>
-                        sum + (clan.totalMembers - clan.remainingMembers),
+                    {teams.reduce(
+                      (sum, team) =>
+                        sum + (team.totalMembers - team.remainingMembers),
                       0
                     )}
                   </p>
@@ -128,11 +110,11 @@ export default function ClansLeaderboard() {
       </div>
       {/* Clans Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {clans.map((clan) => (
+        {teams.map((team) => (
           <ClanCard
-            key={clan.id}
-            clan={clan}
-            onClick={() => setSelectedClan(clan)}
+            key={team.id}
+            clan={team}
+            onClick={() => setSelectedClan(team)}
           />
         ))}
       </div>

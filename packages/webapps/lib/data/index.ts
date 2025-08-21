@@ -1,5 +1,5 @@
 export type User = Awaited<ReturnType<typeof getUsers>>[number];
-export type Clan = Awaited<ReturnType<typeof getClans>>[number];
+export { type Clan } from "@/lib/hooks/useTeams";
 
 export type TokenType = typeof SCORE_TOKEN;
 
@@ -128,7 +128,7 @@ export async function getClans() {
       remainingMembers: 5,
       totalMembers: 6,
       leverage: 2.4,
-      isUserClan: true,
+      isUserTeam: true,
       dividendVault: {
         totalBalance: 2450.75,
         userClaimable: 408.46,

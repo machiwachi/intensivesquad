@@ -54,7 +54,7 @@ export function ClanDetailDialog({
                 <Badge variant="secondary" className="pixel-font">
                   排名 #{clan.rank}
                 </Badge>
-                {clan.isUserClan && (
+                {clan.isUserTeam && (
                   <Badge variant="default" className="pixel-font bg-primary">
                     我的部落
                   </Badge>

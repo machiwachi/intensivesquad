@@ -1,26 +1,21 @@
-import { SCORE_TOKEN, type Clan } from "@/lib/data";
 import { BarChart3 } from "lucide-react";
-import { formatTokenAmount } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { RankIcon } from "./rank";
-import { useQuery } from "@tanstack/react-query";
+import { useTeams, type Team } from "@/lib/hooks/useTeams";
 
 export const ClanRankingsChart = () => {
-  const { data: clans } = useQuery<Clan[]>({
-    queryKey: ["clans"],
-    queryFn: () => fetch("/api/clans").then((res) => res.json()),
-  });
+  const { teams, isLoading } = useTeams();
 
-  if (!clans) return null;
+  if (isLoading || !teams) return null;
 
-  const sortedClans = [...clans].sort((a, b) => b.totalScore - a.totalScore);
+  const sortedClans = [...teams].sort((a, b) => b.totalScore - a.totalScore);
   const maxScore = Math.max(...sortedClans.map((c) => c.totalScore));
 
   return (
     <div className="space-y-3">
       <h3 className="pixel-font font-bold text-lg flex items-center gap-2">
         <BarChart3 className="w-5 h-5" />
-        部落总分排行榜（{SCORE_TOKEN.symbol}）
+        部落总分排行榜（IDO）
       </h3>
       <div className="space-y-2">
         {sortedClans.map((clan, index) => {
@@ -50,10 +45,7 @@ export const ClanRankingsChart = () => {
                     </Badge>
                   </div>
                   <span className="pixel-font text-sm font-bold text-primary">
-                    {formatTokenAmount(
-                      clan.totalScore * Math.pow(10, SCORE_TOKEN.decimals),
-                      SCORE_TOKEN
-                    )}
+                    {clan.totalScore.toFixed(0)} IDO
                   </span>
                 </div>
 
