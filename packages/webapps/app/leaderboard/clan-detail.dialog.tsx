@@ -10,7 +10,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { SCORE_TOKEN, type Clan } from "@/lib/data";
+import { SCORE_TOKEN } from "@/lib/data";
+import type { Clan } from "@/lib/typings";
 import { formatTokenAmount } from "@/lib/utils";
 import { UserMinus, UserPlus } from "lucide-react";
 import { DividendVaultWidget } from "./dividend-vault-widget";
@@ -20,7 +21,7 @@ import {
   useWriteTeamManagerLeave,
   useWriteTeamManagerJoin,
 } from "@/lib/contracts";
-import { apiClient } from "@/lib/hooks";
+import { apiClient } from "@/lib/api";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useReadTeamManagerAccountTeam } from "@/lib/contracts/generated";
@@ -167,14 +168,9 @@ export function ClanDetailDialog({
               <div className="grid grid-cols-2 gap-4">
                 <Card className="pixel-border">
                   <CardContent className="p-4">
-                    <h4 className="pixel-font font-bold mb-2">
-                      总计 {SCORE_TOKEN.symbol}
-                    </h4>
+                    <h4 className="pixel-font font-bold mb-2">总计 IDO</h4>
                     <p className="text-2xl font-bold text-primary pixel-font">
-                      {formatTokenAmount(
-                        clan.totalScore * Math.pow(10, SCORE_TOKEN.decimals),
-                        SCORE_TOKEN
-                      )}
+                      {clan.totalScore}
                     </p>
                   </CardContent>
                 </Card>

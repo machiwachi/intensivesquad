@@ -1,15 +1,15 @@
 import { BarChart3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { RankIcon } from "./rank";
-import { useTeams, type Team } from "@/lib/hooks/useTeams";
+import { useTeams } from "@/lib/hooks/useTeams";
 
 export const ClanRankingsChart = () => {
   const { teams, isLoading } = useTeams();
 
   if (isLoading || !teams) return null;
 
-  const sortedClans = [...teams].sort((a, b) => b.totalScore - a.totalScore);
-  const maxScore = Math.max(...sortedClans.map((c) => c.totalScore));
+  const sortedClans = [...teams].sort((a, b) => b.totalIDO - a.totalIDO);
+  const maxScore = Math.max(...sortedClans.map((c) => c.totalIDO));
 
   return (
     <div className="space-y-3">
@@ -19,7 +19,7 @@ export const ClanRankingsChart = () => {
       </h3>
       <div className="space-y-2">
         {sortedClans.map((clan, index) => {
-          const barWidth = (clan.totalScore / maxScore) * 100;
+          const barWidth = (clan.totalIDO / maxScore) * 100;
 
           return (
             <div
@@ -45,7 +45,7 @@ export const ClanRankingsChart = () => {
                     </Badge>
                   </div>
                   <span className="pixel-font text-sm font-bold text-primary">
-                    {clan.totalScore.toFixed(0)} IDO
+                    {clan.totalIDO.toFixed(0)} IDO
                   </span>
                 </div>
 

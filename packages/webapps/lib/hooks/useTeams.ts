@@ -1,52 +1,22 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useAccount } from "wagmi";
 import {
-  useReadTeamManagerNextTeamId,
-  useReadTeamManagerTeams,
-  useReadTeamManagerGetTeamSize,
-  useReadTeamManagerAccountTeam,
-  useReadTeamEconomyTeamWedoBalance,
   useReadTeamEconomyGetTeamL,
   useReadTeamEconomyPendingIdo,
+  useReadTeamEconomyTeamWedoBalance,
+  useReadTeamManagerAccountTeam,
+  useReadTeamManagerGetTeamSize,
+  useReadTeamManagerNextTeamId,
+  useReadTeamManagerTeams,
 } from "../contracts/generated";
-import { useQuery } from "@tanstack/react-query";
-import { hc, type InferResponseType } from "hono/client";
-import type { Activity, AppType } from "@/app/api/[[...route]]/route";
 
-export const apiClient = hc<AppType>("/").api;
+import { apiClient } from "../api";
+import type { Team } from "../typings";
 
-export type Clan = InferResponseType<typeof apiClient.teams.$get>[number];
-
-export interface TeamMember {
-  address: `0x${string}`;
-  status: "active" | "eliminated" | "cooldown";
-}
-
-export interface Team {
-  id: number;
-  name: string;
-  flag: string;
-  rank: number;
-  previousRank: number;
-  totalScore: number;
-  remainingMembers: number;
-  totalMembers: number;
-  leverage: number;
-  isUserTeam: boolean;
-  dividendVault: {
-    totalBalance: number;
-    userClaimable: number;
-    lastDistribution: string;
-    totalDistributed: number;
-  };
-  members: TeamMember[];
-  scoreHistory: number[];
-  activities: Array<Activity>;
-}
-
-// Hook to get a single team's data
+// Hook to get a single team's datas
 export function useTeam(teamId: number) {
   const { data: teamInfo } = useReadTeamManagerTeams({
     args: [BigInt(teamId)],

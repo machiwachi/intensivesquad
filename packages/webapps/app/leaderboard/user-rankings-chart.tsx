@@ -1,43 +1,43 @@
 "use client";
 
-import { BarChart3 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { apiClient } from "@/lib/api";
+import { formatAddress } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { SCORE_TOKEN } from "@/lib/data";
-import { formatTokenAmount } from "@/lib/utils";
-import type { Clan, User } from "@/lib/data";
+import { blo } from "blo";
+import { BarChart3 } from "lucide-react";
 
 export const UserRankingsChart = () => {
-  const { data: users } = useQuery<User[]>({
-    queryKey: ["users"],
-    queryFn: () => fetch("/api/users").then((res) => res.json()),
+  const {
+    data: sortedUsers,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["leaderboard", "ido", "user"],
+    queryFn: async () => {
+      const res = await apiClient.leaderboard.ido.user.$get();
+      return res.json();
+    },
   });
 
-  const { data: clans } = useQuery<Clan[]>({
-    queryKey: ["clans"],
-    queryFn: () => fetch("/api/clans").then((res) => res.json()),
-  });
+  if (!sortedUsers) return null;
 
-  if (!users) return null;
-  if (!clans) return null;
-
-  const sortedUsers = [...users].sort((a, b) => b.score - a.score);
   const maxScore = Math.max(...sortedUsers.map((u) => u.score));
 
   return (
     <div className="space-y-3">
       <h3 className="pixel-font font-bold text-lg flex items-center gap-2">
         <BarChart3 className="w-5 h-5" />
-        用户排行榜（{SCORE_TOKEN.symbol}）
+        用户排行榜（IDO）
       </h3>
       <div className="space-y-2">
         {sortedUsers.slice(0, 10).map((user, index) => {
-          const clan = clans.find((c) => c.id === user.clanId);
+          // const clan = clans.find((c) => c.id === user.clanId);
           const barWidth = (user.score / maxScore) * 100;
 
           return (
             <div
-              key={user.id}
+              key={user.address}
               className="flex items-center gap-3 p-2 bg-muted/20 rounded pixel-border"
             >
               <div className="flex items-center gap-2 w-20">
@@ -45,12 +45,9 @@ export const UserRankingsChart = () => {
                   #{index + 1}
                 </span>
                 <Avatar className="w-6 h-6">
-                  <AvatarImage
-                    src={user.avatar || "/placeholder.svg"}
-                    alt={user.name}
-                  />
+                  <AvatarImage src={blo(user.address)} alt={user.address} />
                   <AvatarFallback className="pixel-font text-xs">
-                    {user.name.slice(0, 2)}
+                    {user.address.slice(0, 2)}
                   </AvatarFallback>
                 </Avatar>
               </div>
@@ -59,17 +56,14 @@ export const UserRankingsChart = () => {
                 <div className="flex items-center justify-between mb-1">
                   <div className="flex items-center gap-2">
                     <span className="pixel-font text-sm font-medium">
-                      {user.name}
+                      {formatAddress(user.address)}
                     </span>
-                    <span className="pixel-font text-xs text-muted-foreground">
+                    {/* <span className="pixel-font text-xs text-muted-foreground">
                       {clan?.flag} {clan?.name}
-                    </span>
+                    </span> */}
                   </div>
                   <span className="pixel-font text-sm font-bold text-primary">
-                    {formatTokenAmount(
-                      user.score * Math.pow(10, SCORE_TOKEN.decimals),
-                      SCORE_TOKEN
-                    )}
+                    {user.score.toFixed(2)} IDO
                   </span>
                 </div>
 

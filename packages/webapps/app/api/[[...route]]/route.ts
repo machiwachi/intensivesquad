@@ -1,10 +1,12 @@
+import * as R from "ramda";
 import {
   teamEconomyConfig,
   teamManagerConfig,
 } from "@/lib/contracts/generated";
-import { redisClient, teamMemberKey } from "@/lib/redis";
-import { getTeamMembers, getUsers } from "@/lib/data";
-import type { TeamMember } from "@/lib/hooks";
+import { getTeamLeaderboardIDO, getTeamMembers, getUsers } from "@/lib/data";
+import { redisClient, teamMemberKey, userLeaderboardIDOKey } from "@/lib/redis";
+import type { Activity } from "@/lib/typings";
+import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { getCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";
@@ -12,17 +14,16 @@ import { handle } from "hono/vercel";
 import { decode } from "next-auth/jwt";
 import {
   createPublicClient,
+  createWalletClient,
   getContract,
   http,
   parseEther,
   parseEventLogs,
 } from "viem";
-import { readContract } from "viem/actions";
-import { sepolia } from "viem/chains";
-import { zValidator } from "@hono/zod-validator";
-import { z } from "zod";
-import { createWalletClient } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
+import { multicall, readContract } from "viem/actions";
+import { sepolia } from "viem/chains";
+import { z } from "zod";
 
 const zeroxSchema = z
   .string()
@@ -30,13 +31,6 @@ const zeroxSchema = z
   .transform((val) => {
     return val as `0x${string}`;
   });
-
-export type Activity = {
-  user: string;
-  action: string;
-  points: number;
-  time: string;
-};
 
 const chainConfig = {
   chain: sepolia,
@@ -101,50 +95,45 @@ const app = new Hono()
     return c.json(users);
   })
   .get("/teams", async (c) => {
-    const teamCount = Number(await teamManager.read.nextTeamId());
-    const teams = await Promise.all(
-      Array.from({ length: teamCount }, async (_, i) => {
-        const teamId = i + 1;
-        const members = await getTeamMembers(teamId);
-        return readContract(publicClient, {
-          ...teamManager,
-          functionName: "teams",
-          args: [BigInt(teamId)],
-        }).then((res) => {
-          return {
-            id: teamId,
-            name: res[0],
-            remainingMembers: Number(res[1]),
-            members,
-          };
-        });
-      })
-    );
+    // 获取团队排行榜（包含总分和成员信息）
+    const leaderboard = await getTeamLeaderboardIDO();
 
-    // const members: TeamMember[] = [];
+    // 这里可以根据需要补充团队的其他信息，比如活动、旗帜等
     const activities: Activity[] = [];
 
-    const rankedTeams = teams.map((t) => {
-      return {
-        ...t,
-        totalScore: 0,
-        totalMembers: 6,
-        // members,
-        isUserTeam: false,
-        rank: 0,
-        leverage: 1.2,
-        scoreHistory: [1, 2, 3],
-        activities,
-        dividendVault: {
-          totalBalance: 0,
-          userClaimable: 0,
-          lastDistribution: "",
-          totalDistributed: 12340.5,
-        },
-        flag: "🔥",
-        previousRank: 9,
-      };
-    });
+    // 组装返回数据
+    const rankedTeams = await Promise.all(
+      leaderboard.map(async (team, idx) => {
+        // 读取链上团队元数据
+        const res = await readContract(publicClient, {
+          ...teamManager,
+          functionName: "teams",
+          args: [BigInt(team.teamId)],
+        });
+
+        return {
+          id: team.teamId,
+          name: res[0],
+          remainingMembers: Number(res[1]),
+          members: team.members,
+          totalScore: team.score,
+          totalMembers: 6, // TODO: 可根据实际情况调整
+          isUserTeam: false,
+          rank: idx + 1,
+          leverage: 1.2,
+          scoreHistory: [1, 2, 3],
+          activities,
+          dividendVault: {
+            totalBalance: 0,
+            userClaimable: 0,
+            lastDistribution: "",
+            totalDistributed: 12340.5,
+          },
+          flag: "🔥",
+          previousRank: 9,
+        };
+      })
+    );
 
     return c.json(rankedTeams);
   })
@@ -176,6 +165,15 @@ const app = new Hono()
           parseEther(idoAmount.toString()),
         ]);
         console.log("已发送 creditPersonalIDO 交易，hash：", idoTx);
+
+        await redisClient.zadd(
+          userLeaderboardIDOKey,
+          { incr: true },
+          {
+            score: idoAmount,
+            member: account,
+          }
+        );
 
         const wedoTx = await teamEconomy.write.creditTeamWEDO([
           teamId,
@@ -234,7 +232,7 @@ const app = new Hono()
           console.log(
             `检测到 MemberJoined 事件，teamId: ${teamId}, account: ${account}, redis key: ${key}`
           );
-          await redisClient.set(key, "1");
+          await redisClient.set(key, "active");
           persisted++;
         } else if (log.eventName === "MemberLeft") {
           const { teamId, account } = log.args;
@@ -248,7 +246,45 @@ const app = new Hono()
       console.log("处理完成，返回响应");
       return c.json({ message: "processed", persisted });
     }
-  );
+  )
+  .get("/leaderboard/ido/user", async (c) => {
+    const flatRank = await redisClient.zrange(userLeaderboardIDOKey, 0, -1, {
+      withScores: true,
+    });
+    const createMemberScores = R.pipe(
+      R.splitEvery(2),
+      R.map(R.zipObj(["address", "score"]))
+    );
+    const sortedUsers: { address: `0x${string}`; score: number }[] =
+      createMemberScores(flatRank);
+    return c.json(sortedUsers);
+  })
+  .get("/leaderboard/ido/team", async (c) => {
+    const teamLeaderboard = await getTeamLeaderboardIDO();
+    return c.json(teamLeaderboard);
+  })
+  .get("/teamEconomy", async (c) => {
+    const leaderboard = await getTeamLeaderboardIDO();
+
+    const teamWedoBalances = await multicall(publicClient, {
+      contracts: leaderboard.map((team) => ({
+        ...teamEconomyConfig,
+        functionName: "teamWedoBalance",
+        args: [BigInt(team.teamId)],
+      })),
+    });
+    const teamLeverages = await multicall(publicClient, {
+      contracts: leaderboard.map((team) => ({
+        ...teamEconomyConfig,
+        functionName: "getTeamL",
+        args: [BigInt(team.teamId)],
+      })),
+    });
+
+    console.log(teamWedoBalances, teamLeverages);
+    // const res = await teamEconomy.read.stageScalar();
+    return c.json({});
+  });
 
 export const GET = handle(app);
 export const POST = handle(app);

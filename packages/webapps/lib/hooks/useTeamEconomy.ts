@@ -1,5 +1,6 @@
 "use client";
 
+import { isNil } from "ramda";
 import { useMemo } from "react";
 import { useAccount } from "wagmi";
 import {
@@ -119,12 +120,12 @@ export function useUserTokenBalances() {
       args: [BigInt(userTeamId ?? 0)],
     });
 
-  console.log({ idoQueryKey, wedoQueryKey });
-
   return useMemo(() => {
     const balances = {
-      idoBalance: idoBalance ? formatEther(idoBalance) : "-",
-      wedoBalance: wedoBalance ? formatEther(wedoBalance) : "-",
+      idoBalance:
+        typeof idoBalance === "undefined" ? "-" : formatEther(idoBalance),
+      wedoBalance:
+        typeof wedoBalance === "undefined" ? "-" : formatEther(wedoBalance),
       idoQueryKey,
       wedoQueryKey,
     };
