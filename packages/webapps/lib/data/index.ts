@@ -13,6 +13,8 @@ export const SCORE_TOKEN = {
   address: "0x1234...5678",
 };
 
+type TeamMemberStatus = "active" | "eliminated" | "cooldown";
+
 // Mock data for clans
 
 export async function getTeamMembers(teamId: number) {
@@ -24,27 +26,16 @@ export async function getTeamMembers(teamId: number) {
     for (const key of keys) {
       pipeline.get(key);
     }
-    const results: string[] = await pipeline.exec<string[]>();
+    const results: TeamMemberStatus[] = await pipeline.exec<
+      TeamMemberStatus[]
+    >();
 
     return results.map((result, index) => ({
       address: getTeamMemberAddress(keys[index]),
-      status: getTeamMemberStatus(result[1]),
+      status: result,
     }));
   } catch (error) {
     return [];
-  }
-}
-
-function getTeamMemberStatus(status: string): TeamMember["status"] {
-  switch (status) {
-    case "1":
-      return "active";
-    case "2":
-      return "eliminated";
-    case "3":
-      return "cooldown";
-    default:
-      return "active";
   }
 }
 
@@ -54,7 +45,7 @@ export async function getAllTeamMembers() {
   for (const key of keys) {
     pipeline.get(key);
   }
-  const results: string[] = await pipeline.exec<string[]>();
+  const results = await pipeline.exec<TeamMemberStatus[]>();
 
   return results.map((result, index) => {
     console.log({ result });

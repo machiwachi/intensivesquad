@@ -25,6 +25,3 @@ export const activityStreamKey = (
   teamId: number | "*",
   address: `0x${string}` | "*"
 ) => `activities:team:${teamId}:user:${address}`;
-export const globalActivityStreamKey = `activities:global`;
-export const userActivityKey = (address: string) =>
-  `activities:user:${address}`;

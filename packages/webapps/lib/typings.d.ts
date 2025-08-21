@@ -38,6 +38,8 @@ export type Activity = {
   user: `0x${string}`;
   teamId: number;
   action: string;
-  points: number;
-  time: string;
+  idoAmount: number;
+  wedoAmount: number;
+  txHash?: string;
+  timestamp: number;
 };

@@ -3,7 +3,13 @@ import {
   teamManagerConfig,
 } from "@/lib/contracts/generated";
 import { getAllTeamMembers, getTeamLeaderboardIDO } from "@/lib/data";
-import { redisClient, teamMemberKey, userLeaderboardIDOKey } from "@/lib/redis";
+import {
+  activityStreamKey,
+  redisClient,
+  teamMemberKey,
+  userLeaderboardIDOKey,
+} from "@/lib/redis";
+import type { Activity } from "@/lib/typings";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { getCookie } from "hono/cookie";
@@ -221,6 +227,24 @@ const app = new Hono()
         ]);
         console.log("已发送 creditTeamWEDO 交易，hash：", wedoTx);
 
+        // 记录活动到活动流
+        const activity: Activity = {
+          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          user: account,
+          teamId: Number(teamId),
+          action: `获得学习积分`,
+          wedoAmount,
+          idoAmount,
+          timestamp: Date.now(),
+          txHash: idoTx,
+        };
+
+        // 存储到不同的活动流中
+        await redisClient.lpush(
+          activityStreamKey(Number(teamId), account),
+          JSON.stringify(activity)
+        );
+
         return c.json({
           message: "credited",
           wedoAmount,
@@ -273,6 +297,7 @@ const app = new Hono()
             `检测到 MemberJoined 事件，teamId: ${teamId}, account: ${account}, redis key: ${key}`
           );
           await redisClient.set(key, "active");
+
           persisted++;
         } else if (log.eventName === "MemberLeft") {
           const { teamId, account } = log.args;
@@ -305,8 +330,44 @@ const app = new Hono()
   .get("/leaderboard/ido/team", async (c) => {
     const teamLeaderboard = await getTeamLeaderboardIDO();
     return c.json(teamLeaderboard);
-  });
+  })
+  .get(
+    "/teams/:teamId/activities",
+    zValidator("param", z.object({ teamId: z.coerce.number() })),
+    async (c) => {
+      const { teamId } = c.req.valid("param");
 
+      console.log(`[活动查询] 开始获取 teamId: ${teamId} 的活动数据`);
+
+      // 使用 pipeline 批量获取所有匹配 key 的活动数据
+      const keyPattern = activityStreamKey(teamId, "*");
+      const keys = await redisClient.keys(keyPattern);
+
+      let activities: Activity[] = [];
+      if (keys.length > 0) {
+        const pipeline = redisClient.pipeline();
+        for (const key of keys) {
+          console.log(`[活动查询] 获取 key: ${key}`);
+          pipeline.lrange(key, 0, -1);
+        }
+        const results = await pipeline.exec<unknown[][]>();
+        // results 是一个二维数组，需扁平化
+        activities = results.flatMap((r) =>
+          r.map((x) => {
+            console.log(x);
+            const activity = x as Activity;
+            return activity;
+          })
+        );
+      }
+
+      console.log(
+        `[活动查询] key: ${keyPattern} 获取到 ${activities.length} 条原始数据`
+      );
+
+      return c.json(activities);
+    }
+  );
 export const GET = handle(app);
 export const POST = handle(app);
 
