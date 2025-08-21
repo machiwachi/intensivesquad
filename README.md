@@ -73,7 +73,7 @@ pnpm hardhat run scripts/deploy.ts --network localhost
 | ---------- | ----------- |
 | 前端       | @RowanWang6 |
 | 前端       |             |
-| 后端       |             |
+| 后端       |fabregas9-Tim|
 | 后端       |             |
 | 合约       |             |
 | 合约       |             |
