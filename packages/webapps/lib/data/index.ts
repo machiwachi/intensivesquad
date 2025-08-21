@@ -1,3 +1,5 @@
+import { redisClient, teamMemberKey } from "../redis";
+
 export type User = Awaited<ReturnType<typeof getUsers>>[number];
 export { type Clan } from "@/lib/hooks/useTeams";
 
@@ -517,4 +519,28 @@ export async function getClans() {
     },
   ];
   return mockClans;
+}
+
+type Member = {
+  address: `0x${string}`;
+  status: "active" | "eliminated" | "cooldown";
+};
+
+export async function getTeamMembers(teamId: number): Promise<Member[]> {
+  try {
+    const keys = await redisClient.keys(teamMemberKey(teamId, "*"));
+    console.log(keys);
+    const pipeline = redisClient.pipeline();
+    for (const key of keys) {
+      pipeline.get(key);
+    }
+    const results: string[] = await pipeline.exec<string[]>();
+
+    return results.map((result, index) => ({
+      address: keys[index],
+      status: result[1] as "active" | "eliminated" | "cooldown",
+    }));
+  } catch (error) {
+    return [];
+  }
 }

@@ -3,7 +3,7 @@ import {
   teamManagerConfig,
 } from "@/lib/contracts/generated";
 import { redisClient, teamMemberKey } from "@/lib/redis";
-import { getUsers } from "@/lib/data";
+import { getTeamMembers, getUsers } from "@/lib/data";
 import type { TeamMember } from "@/lib/hooks";
 import { Hono } from "hono";
 import { getCookie } from "hono/cookie";
@@ -105,6 +105,7 @@ const app = new Hono()
     const teams = await Promise.all(
       Array.from({ length: teamCount }, async (_, i) => {
         const teamId = i + 1;
+        const members = await getTeamMembers(teamId);
         return readContract(publicClient, {
           ...teamManager,
           functionName: "teams",
@@ -114,12 +115,13 @@ const app = new Hono()
             id: teamId,
             name: res[0],
             remainingMembers: Number(res[1]),
+            members,
           };
         });
       })
     );
 
-    const members: TeamMember[] = [];
+    // const members: TeamMember[] = [];
     const activities: Activity[] = [];
 
     const rankedTeams = teams.map((t) => {
@@ -127,7 +129,7 @@ const app = new Hono()
         ...t,
         totalScore: 0,
         totalMembers: 6,
-        members,
+        // members,
         isUserTeam: false,
         rank: 0,
         leverage: 1.2,
@@ -234,6 +236,13 @@ const app = new Hono()
           );
           await redisClient.set(key, "1");
           persisted++;
+        } else if (log.eventName === "MemberLeft") {
+          const { teamId, account } = log.args;
+          const key = teamMemberKey(Number(teamId), account);
+          console.log(
+            `检测到 MemberLeft 事件，teamId: ${teamId}, account: ${account}, redis key: ${key}`
+          );
+          await redisClient.del(key);
         }
       }
       console.log("处理完成，返回响应");

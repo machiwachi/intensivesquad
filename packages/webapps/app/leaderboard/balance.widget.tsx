@@ -1,11 +1,6 @@
 "use client";
 
 import { useUserTokenBalances } from "@/lib/hooks/useTeamEconomy";
-import { useAccount } from "wagmi";
-import {
-  useReadTeamEconomyTeamWedoBalance,
-  useReadTeamManagerAccountTeam,
-} from "@/lib/contracts";
 
 export default function BalanceWidget() {
   const { idoBalance, wedoBalance } = useUserTokenBalances();

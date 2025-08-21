@@ -7,6 +7,10 @@ settings:
 importers:
 
   .:
+    dependencies:
+      blo:
+        specifier: ^2.0.0
+        version: 2.0.0
     devDependencies:
       '@wagmi/cli':
         specifier: ^2.5.0
@@ -153,6 +157,9 @@ importers:
       autoprefixer:
         specifier: ^10.4.21
         version: 10.4.21(postcss@8.5.6)
+      blo:
+        specifier: ^2.0.0
+        version: 2.0.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -2209,6 +2216,9 @@ packages:
 
   big.js@6.2.2:
     resolution: {integrity: sha512-y/ie+Faknx7sZA5MfGA2xKlu0GDv8RWrXGsmlteyJQ2lvoKv9GBK/fpRMc2qlSoBAgNxrixICFCBefIq8WCQpQ==}
+
+  blo@2.0.0:
+    resolution: {integrity: sha512-VUUr1+vWisNSaHVswkbPbk1+GhygClKILkGchae7nsyuJ4ZVz5l1hEW4eR5F/ly/asM5vzigYGXjPnvrd//CVg==}
 
   bn.js@4.12.2:
     resolution: {integrity: sha512-n4DSx829VRTRByMRGdjQ9iqsN0Bh4OolPsFnaZBLcbi8iXcB+kJ9s7EnRt4wILZNV3kPLHkRVfOc/HvhC3ovDw==}
@@ -6895,6 +6905,8 @@ snapshots:
   base64-js@1.5.1: {}
 
   big.js@6.2.2: {}
+
+  blo@2.0.0: {}
 
   bn.js@4.12.2: {}
 

@@ -20,9 +20,7 @@ export const apiClient = hc<AppType>("/").api;
 export type Clan = InferResponseType<typeof apiClient.teams.$get>[number];
 
 export interface TeamMember {
-  id: number;
-  name: string;
-  avatar: string;
+  address: `0x${string}`;
   status: "active" | "eliminated" | "cooldown";
 }
 

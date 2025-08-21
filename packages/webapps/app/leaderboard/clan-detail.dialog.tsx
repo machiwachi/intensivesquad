@@ -24,6 +24,7 @@ import { apiClient } from "@/lib/hooks";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useReadTeamManagerAccountTeam } from "@/lib/contracts/generated";
+import { blo } from "blo";
 
 export function ClanDetailDialog({
   open,
@@ -194,7 +195,7 @@ export function ClanDetailDialog({
                 <div className="grid grid-cols-2 gap-2">
                   {clan.members.map((member) => (
                     <div
-                      key={member.id}
+                      key={member.address}
                       className={`flex items-center gap-3 p-2 rounded pixel-border ${
                         member.status === "eliminated"
                           ? "eliminated bg-muted/50"
@@ -203,14 +204,16 @@ export function ClanDetailDialog({
                     >
                       <Avatar className="w-8 h-8">
                         <AvatarImage
-                          src={member.avatar || "/placeholder.svg"}
-                          alt={member.name}
+                          src={blo(member.address)}
+                          alt={member.address}
                         />
                         <AvatarFallback className="pixel-font text-xs">
-                          {member.name.slice(0, 2).toUpperCase()}
+                          {member.address.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="pixel-font text-sm">{member.name}</span>
+                      <span className="pixel-font text-sm">
+                        {member.address}
+                      </span>
                       <Badge
                         variant={
                           member.status === "active" ? "default" : "secondary"
