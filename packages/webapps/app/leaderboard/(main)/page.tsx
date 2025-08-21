@@ -46,16 +46,11 @@ export default function ClansLeaderboard() {
             <Trophy className="w-8 h-8 text-accent" />
             <div>
               <p className="text-2xl font-bold pixel-font">
-                {isLoadingIDO ? (
-                  "Loading..."
-                ) : // <Skeleton className="w-24 h-6" />
-                isErrorIDO ? (
-                  "--"
-                ) : (
-                  <p className="text-2xl font-bold pixel-font">
-                    {formatEther(idoTokenTotalSupply!)}
-                  </p>
-                )}
+                {isLoadingIDO
+                  ? "Loading..."
+                  : isErrorIDO || !idoTokenTotalSupply
+                  ? "--"
+                  : formatEther(idoTokenTotalSupply)}
               </p>
               <p className="text-sm text-muted-foreground pixel-font">
                 总计流通量 IDO
