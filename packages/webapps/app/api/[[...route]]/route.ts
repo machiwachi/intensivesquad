@@ -201,12 +201,12 @@ const app = new Hono()
     }
   )
   .post(
-    "/members/join",
+    "/members/events",
     zValidator("json", z.object({ txHash: zeroxSchema })),
     async (c) => {
       const { txHash } = c.req.valid("json");
 
-      console.log("收到 /members/join 请求，参数：", { txHash });
+      console.log("收到 /members/events 请求，参数：", { txHash });
 
       const receipt = await publicClient.waitForTransactionReceipt({
         hash: txHash,
@@ -229,12 +229,19 @@ const app = new Hono()
             `检测到 MemberJoined 事件，teamId: ${teamId}, account: ${account}, redis key: ${key}`
           );
           redisClient.set(key, "1");
+        } else if (log.eventName === "MemberLeft") {
+          const { teamId, account } = log.args;
+          const key = teamMemberKey(Number(teamId), account);
+          console.log(
+            `检测到 MemberLeft 事件，teamId: ${teamId}, account: ${account}, redis key: ${key}`
+          );
+          redisClient.del(key);
         }
       });
 
       console.log("处理完成，返回响应");
 
-      return c.json({ message: "joined" });
+      return c.json({ message: "processed" });
     }
   );
 
