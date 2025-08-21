@@ -77,16 +77,6 @@ export function ClanCard({
                 ).split(" ")[0]
               }
             </Badge>
-            {!userTeamId && (
-              <Button
-                size="sm"
-                onClick={(e) => handleJoinClan(clan.id, e)}
-                className="pixel-border pixel-font text-xs"
-              >
-                <UserPlus className="w-3 h-3 mr-1" />
-                加入
-              </Button>
-            )}
           </div>
         </div>
       </CardHeader>
