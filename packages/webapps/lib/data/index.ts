@@ -44,7 +44,7 @@ function getTeamMemberStatus(status: string): TeamMember["status"] {
     case "3":
       return "cooldown";
     default:
-      throw new Error(`Invalid team member status: ${status}`);
+      return "active";
   }
 }
 
@@ -57,11 +57,12 @@ export async function getAllTeamMembers() {
   const results: string[] = await pipeline.exec<string[]>();
 
   return results.map((result, index) => {
+    console.log({ result });
     const parts = keys[index].split(":");
     return {
       teamId: Number(parts[1]),
       address: parts[3] as `0x${string}`,
-      status: getTeamMemberStatus(result[1]),
+      status: result,
     };
   });
 }
