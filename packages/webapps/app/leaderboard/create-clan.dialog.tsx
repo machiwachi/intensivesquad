@@ -9,17 +9,20 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  teamManagerConfig,
+  useWatchTeamManagerTeamCreatedEvent,
+  useWriteTeamManagerCreateTeam,
+  useWriteTeamManagerJoin,
+} from "@/lib/contracts";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { useAccount } from "wagmi";
+import { usePublicClient, useWaitForTransactionReceipt } from "wagmi";
+import { getFilterLogs } from "viem/actions";
+import { getLogs } from "viem/actions";
+import { parseEventLogs } from "viem";
+import { toast } from "sonner";
 
 export function CreateClanDialog({
   open,
@@ -28,8 +31,25 @@ export function CreateClanDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { address: walletAddress, isConnected: isWalletConnected } =
-    useAccount();
+  const {
+    data: createHash,
+    writeContractAsync: createTeamAsync,
+    reset,
+  } = useWriteTeamManagerCreateTeam();
+  const {
+    data: joinHash,
+    writeContractAsync: joinAsync,
+    reset: resetJoinContract,
+  } = useWriteTeamManagerJoin();
+  const { isLoading: isCreating, isSuccess: isCreated } =
+    useWaitForTransactionReceipt({
+      hash: createHash,
+    });
+  const { isLoading: isJoining, isSuccess: isJoined } =
+    useWaitForTransactionReceipt({
+      hash: joinHash,
+    });
+  const publicClient = usePublicClient();
 
   const [newClanForm, setNewClanForm] = useState({
     name: "",
@@ -38,9 +58,8 @@ export function CreateClanDialog({
     initialLeverage: "1.0",
   });
 
-  const handleCreateClan = (event: React.FormEvent) => {
+  const handleCreateClan = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!isWalletConnected) return;
 
     // In a real app, this would create the clan on the blockchain
     console.log("[v0] Creating new clan:", newClanForm);
@@ -52,19 +71,62 @@ export function CreateClanDialog({
       description: "",
       initialLeverage: "1.0",
     });
-    onOpenChange(false);
 
-    // Show success feedback (in a real app, this would be after blockchain confirmation)
-    alert(`Clan "${newClanForm.name}" created successfully!`);
+    if (!publicClient) return;
+
+    const createTx = await createTeamAsync({
+      args: [newClanForm.name],
+    });
+
+    const createReceipt = await publicClient.waitForTransactionReceipt({
+      hash: createTx,
+    });
+    const logs = parseEventLogs({
+      abi: teamManagerConfig.abi,
+      eventName: "TeamCreated",
+      logs: createReceipt.logs,
+    });
+
+    const { teamId, name } = logs[0].args;
+
+    const joinTx = await joinAsync({
+      args: [teamId],
+    });
+
+    const joinReceipt = await publicClient.waitForTransactionReceipt({
+      hash: joinTx,
+    });
+
+    toast.success(`部落 ${name} 创建成功`, {
+      description: "请等待 5 秒后自动关闭",
+    });
+
+    setTimeout(() => {
+      onOpenChange(false);
+      reset();
+      resetJoinContract();
+    }, 5000);
   };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg pixel-border">
         <DialogHeader>
           <DialogTitle className="pixel-font text-2xl flex items-center gap-2">
             <Plus className="w-6 h-6" />
-            创建新部落
+            创建新部落{" "}
           </DialogTitle>
+          {/* <pre>
+            {JSON.stringify(
+              {
+                isConfirmed,
+                hash,
+                isConfirming,
+              },
+              null,
+              2
+            )}
+          </pre> */}
         </DialogHeader>
 
         <form onSubmit={handleCreateClan} className="space-y-4">
@@ -97,7 +159,6 @@ export function CreateClanDialog({
               }
               placeholder="🏴‍☠️"
               className="pixel-border pixel-font text-center text-2xl"
-              required
               maxLength={2}
             />
             <p className="text-xs text-muted-foreground pixel-font">
@@ -125,35 +186,6 @@ export function CreateClanDialog({
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="initial-leverage" className="pixel-font">
-              初始杠杆
-            </Label>
-            <Select
-              value={newClanForm.initialLeverage}
-              onValueChange={(value) =>
-                setNewClanForm((prev) => ({
-                  ...prev,
-                  initialLeverage: value,
-                }))
-              }
-            >
-              <SelectTrigger className="pixel-border pixel-font">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="1.0">1.0x（保守）</SelectItem>
-                <SelectItem value="1.5">1.5x（均衡）</SelectItem>
-                <SelectItem value="2.0">2.0x（激进）</SelectItem>
-                <SelectItem value="2.5">2.5x（高风险）</SelectItem>
-                <SelectItem value="3.0">3.0x（最大）</SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground pixel-font">
-              杠杆越高 = 奖励越高，但被淘汰的风险也越大
-            </p>
-          </div>
-
           <div className="bg-muted/20 p-3 rounded pixel-border">
             <h4 className="pixel-font font-bold text-sm mb-2">创建成本</h4>
             <div className="flex items-center justify-between text-sm pixel-font">
@@ -175,19 +207,28 @@ export function CreateClanDialog({
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => {
+                onOpenChange(false);
+                reset();
+              }}
               className="flex-1 pixel-border pixel-font"
             >
               取消
             </Button>
             <Button
               type="submit"
-              disabled={!newClanForm.name || !newClanForm.flag}
+              disabled={!newClanForm.name || isCreating}
               className="flex-1 pixel-border pixel-font"
             >
-              创建部落
+              {isCreating ? "创建中..." : "创建部落"}
             </Button>
           </div>
+
+          {isCreated && <div className="flex items-center gap-2">成功创建</div>}
+          {isJoining && (
+            <div className="flex items-center gap-2">加入中...</div>
+          )}
+          {isJoined && <div className="flex items-center gap-2">成功加入</div>}
         </form>
       </DialogContent>
     </Dialog>

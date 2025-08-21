@@ -8,14 +8,21 @@ import { Skull, Trophy, Users, Zap } from "lucide-react";
 import { useState } from "react";
 import { ClanCard } from "../clan-card";
 import { ClanDetailDialog } from "../clan-detail.dialog";
+import { useReadIdoTokenBalanceOf } from "@/lib/contracts/generated";
+import { useAccount } from "wagmi";
+import { formatEther, parseEther } from "viem";
 
 export default function ClansLeaderboard() {
   const { data: clans } = useQuery<Clan[]>({
     queryKey: ["clans"],
     queryFn: () => fetch("/api/clans").then((res) => res.json()),
   });
+  const { address } = useAccount();
 
   const [selectedClan, setSelectedClan] = useState<Clan | null>(null);
+  const { data: idoTokenBalance } = useReadIdoTokenBalanceOf({
+    args: [address ?? "0x0000000000000000000000000000000000000000"],
+  });
 
   if (!clans) return null;
 
@@ -25,7 +32,7 @@ export default function ClansLeaderboard() {
   return (
     <div className="">
       {/* Header */}
-
+      Your balance: {idoTokenBalance && formatEther(idoTokenBalance)} IDO
       {/* Global Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <Card className="pixel-border">
@@ -119,7 +126,6 @@ export default function ClansLeaderboard() {
           </CardContent>
         </Card>
       </div>
-
       {/* Clans Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {clans.map((clan) => (
@@ -130,7 +136,6 @@ export default function ClansLeaderboard() {
           />
         ))}
       </div>
-
       {/* Clan Detail Dialog */}
       <ClanDetailDialog
         open={!!selectedClan}
