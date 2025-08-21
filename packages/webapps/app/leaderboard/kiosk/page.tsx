@@ -1,19 +1,16 @@
 "use client";
 import { Button } from "@/components/ui/button";
+import { apiClient } from "@/lib/api";
+import { cn } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
 import { Heart } from "lucide-react";
-import { apiClient } from "@/lib/hooks/useTeams";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import {
   useAccount,
   usePublicClient,
   useWaitForTransactionReceipt,
 } from "wagmi";
-import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
-import { useUserTokenBalances } from "@/lib/hooks";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { useWatchTeamEconomyTeamWithdrawEvent } from "@/lib/contracts";
-import { useEffect } from "react";
 
 const getBlockchainExplorerUrl = (hash: `0x${string}`) => {
   return `https://sepolia.etherscan.io/tx/${hash}`;

@@ -10,21 +10,22 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { SCORE_TOKEN, type Clan } from "@/lib/data";
-import { formatTokenAmount } from "@/lib/utils";
-import { UserMinus, UserPlus } from "lucide-react";
-import { DividendVaultWidget } from "./dividend-vault-widget";
-import { useAccount } from "wagmi";
-import React, { useState, type MouseEvent } from "react";
+import { apiClient } from "@/lib/api";
 import {
-  useWriteTeamManagerLeave,
   useWriteTeamManagerJoin,
+  useWriteTeamManagerLeave,
 } from "@/lib/contracts";
-import { apiClient } from "@/lib/hooks";
-import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
 import { useReadTeamManagerAccountTeam } from "@/lib/contracts/generated";
+import type { Activity, Team } from "@/lib/typings";
+import { formatAddress } from "@/lib/utils";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { blo } from "blo";
+import { UserMinus, UserPlus } from "lucide-react";
+import React from "react";
+import { toast } from "sonner";
+import { formatEther } from "viem";
+import { useAccount } from "wagmi";
+import { DividendVaultWidget } from "./dividend-vault-widget";
 
 export function ClanDetailDialog({
   open,
@@ -33,7 +34,7 @@ export function ClanDetailDialog({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  clan: Clan | null;
+  clan: Team | null;
 }) {
   const { address, isConnected: isWalletConnected } = useAccount();
   const { isPending: isLeavePending, writeContractAsync: leaveClanAsync } =
@@ -46,6 +47,20 @@ export function ClanDetailDialog({
     useReadTeamManagerAccountTeam({
       args: [address ?? "0x0000000000000000000000000000000000000000"],
     });
+
+  // 获取团队活动数据
+  const { data: activities = [], isLoading: isActivitiesLoading } = useQuery({
+    queryKey: ["activities", "team", clan?.id],
+    queryFn: async () => {
+      if (!clan?.id) return [];
+      const res = await apiClient.teams[":teamId"].activities.$get({
+        param: { teamId: clan.id.toString() },
+      });
+      const data = await res.json();
+      return data;
+    },
+    enabled: !!clan?.id,
+  });
 
   async function handleJoinClan(id: number, e: React.MouseEvent) {
     e.stopPropagation();
@@ -119,7 +134,7 @@ export function ClanDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl pixel-border">
+      <DialogContent className="max-w-3xl sm:max-w-3xl pixel-border">
         {clan && (
           <>
             <DialogHeader>
@@ -167,14 +182,9 @@ export function ClanDetailDialog({
               <div className="grid grid-cols-2 gap-4">
                 <Card className="pixel-border">
                   <CardContent className="p-4">
-                    <h4 className="pixel-font font-bold mb-2">
-                      总计 {SCORE_TOKEN.symbol}
-                    </h4>
+                    <h4 className="pixel-font font-bold mb-2">总计 IDO</h4>
                     <p className="text-2xl font-bold text-primary pixel-font">
-                      {formatTokenAmount(
-                        clan.totalScore * Math.pow(10, SCORE_TOKEN.decimals),
-                        SCORE_TOKEN
-                      )}
+                      {clan.totalScore}
                     </p>
                   </CardContent>
                 </Card>
@@ -183,7 +193,7 @@ export function ClanDetailDialog({
                   <CardContent className="p-4">
                     <h4 className="pixel-font font-bold mb-2">杠杆</h4>
                     <p className="text-2xl font-bold text-accent pixel-font">
-                      {clan.leverage}x
+                      {formatEther(clan.leverage)}x
                     </p>
                   </CardContent>
                 </Card>
@@ -212,7 +222,7 @@ export function ClanDetailDialog({
                         </AvatarFallback>
                       </Avatar>
                       <span className="pixel-font text-sm">
-                        {member.address}
+                        {formatAddress(member.address)}
                       </span>
                       <Badge
                         variant={
@@ -230,53 +240,72 @@ export function ClanDetailDialog({
               {/* Recent Activities */}
               <div>
                 <h4 className="pixel-font font-bold mb-3">最近活动</h4>
-                <div className="space-y-2">
-                  {clan.activities.map((activity, index) => {
-                    const dividendContribution = activity.points * 0.1;
-                    return (
-                      <div
-                        key={index}
-                        className="flex justify-between items-center p-3 bg-muted/30 rounded pixel-border"
-                        onClick={() =>
-                          window.open(
-                            "https://sepolia.etherscan.io/tx/0x7509932b2c6e522df9757ea82a269548fce2a7f2eb4bf1856553a6c387fab02b",
-                            "_blank"
-                          )
-                        }
-                      >
-                        <div>
-                          <p className="pixel-font text-sm font-medium">
-                            {activity.user}
-                          </p>
-                          <p className="pixel-font text-xs text-muted-foreground">
-                            {activity.action}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="pixel-font text-sm font-bold text-accent">
-                            +
-                            {formatTokenAmount(
-                              activity.points *
-                                Math.pow(10, SCORE_TOKEN.decimals),
-                              SCORE_TOKEN
+                {isActivitiesLoading ? (
+                  <div className="p-4 text-center text-muted-foreground pixel-font">
+                    加载中...
+                  </div>
+                ) : activities.length === 0 ? (
+                  <div className="p-4 text-center text-muted-foreground pixel-font">
+                    暂无活动记录
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {activities.map((activity: Activity) => {
+                      const dividendContribution = activity.wedoAmount;
+                      return (
+                        <div
+                          key={activity.id}
+                          className="flex justify-between items-center p-3 bg-muted/30 rounded pixel-border cursor-pointer hover:bg-muted/50 transition-colors"
+                          onClick={() => {
+                            if (activity.txHash) {
+                              window.open(
+                                `https://sepolia.etherscan.io/tx/${activity.txHash}`,
+                                "_blank"
+                              );
+                            }
+                          }}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Avatar>
+                              <AvatarImage src={blo(activity.user)} />
+                              <AvatarFallback>
+                                {activity.user.slice(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+
+                            <div>
+                              <p className="pixel-font text-sm font-medium">
+                                {formatAddress(activity.user)}
+                              </p>
+                              <p className="pixel-font text-xs text-muted-foreground">
+                                {activity.action}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="text-right">
+                            {activity.wedoAmount > 0 && (
+                              <>
+                                <p className="pixel-font text-sm font-bold text-accent">
+                                  +{activity.idoAmount.toFixed(2)}
+                                </p>
+                                <p className="pixel-font text-xs text-muted-foreground">
+                                  金库：+
+                                  {activity.wedoAmount.toFixed(2)}
+                                </p>
+                              </>
                             )}
-                          </p>
-                          <p className="pixel-font text-xs text-muted-foreground">
-                            金库：+
-                            {formatTokenAmount(
-                              dividendContribution *
-                                Math.pow(10, SCORE_TOKEN.decimals),
-                              SCORE_TOKEN
-                            )}
-                          </p>
-                          <p className="pixel-font text-xs text-muted-foreground">
-                            {activity.time}
-                          </p>
+                            <p className="pixel-font text-xs text-muted-foreground">
+                              {new Date(activity.timestamp).toLocaleString(
+                                "zh-CN"
+                              )}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           </>

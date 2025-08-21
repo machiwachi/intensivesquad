@@ -1,38 +1,21 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { SCORE_TOKEN } from "@/lib/data";
-import { formatTokenAmount } from "@/lib/utils";
-import { UserPlus } from "lucide-react";
+import { type Team } from "@/lib/typings";
+import { formatEther } from "viem";
 import { DividendVaultWidget } from "./dividend-vault-widget";
 import { MemberRing } from "./member-ring";
 import { RankChange, RankIcon } from "./rank";
-import { type Clan } from "@/lib/data";
-import { useAccount } from "wagmi";
-import { useState } from "react";
 import { Sparkline } from "./sparkline";
-import { useReadTeamManagerAccountTeam } from "@/lib/contracts";
 
 export function ClanCard({
   clan,
   onClick,
 }: {
-  clan: Clan;
-  onClick: (clan: Clan) => void;
+  clan: Team;
+  onClick: (clan: Team) => void;
 }) {
-  const { address: walletAddress, isConnected: isWalletConnected } =
-    useAccount();
-  const { data: userTeamId } = useReadTeamManagerAccountTeam({
-    args: [walletAddress ?? "0x0000000000000000000000000000000000000000"],
-  });
-
-  const handleJoinClan = (clanId: number, event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent opening clan details
-    console.log("join clan", clanId);
-  };
-
   return (
     <Card
       key={clan.id}
@@ -70,12 +53,7 @@ export function ClanCard({
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="pixel-font text-xs">
-              {
-                formatTokenAmount(
-                  clan.totalScore * Math.pow(10, SCORE_TOKEN.decimals),
-                  SCORE_TOKEN
-                ).split(" ")[0]
-              }
+              {clan.totalScore} IDO
             </Badge>
           </div>
         </div>
@@ -93,7 +71,9 @@ export function ClanCard({
             <span className="ml-2 text-muted-foreground">剩余</span>
           </div>
           <div className="pixel-font">
-            <span className="text-accent font-bold">L{clan.leverage}</span>
+            <span className="text-accent font-bold">
+              L={formatEther(clan.leverage)}
+            </span>
           </div>
         </div>
 

@@ -3,12 +3,13 @@ import { Coins, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { useAccount } from "wagmi";
-import { useState } from "react";
-import { type Team } from "@/lib/hooks";
-import { useTeamEconomy } from "@/lib/hooks/useTeamEconomy";
-import { SCORE_TOKEN } from "@/lib/data";
 import { useReadTeamManagerAccountTeam } from "@/lib/contracts";
+import { SCORE_TOKEN } from "@/lib/data";
+import { useState } from "react";
+import { useAccount } from "wagmi";
+import { useTeamEconomy } from "@/lib/hooks/useTeamEconomy";
+import { type Team } from "@/lib/typings";
+import { formatEther } from "viem";
 
 export const DividendVaultWidget = ({
   clan,
@@ -59,11 +60,7 @@ export const DividendVaultWidget = ({
             奖励金库：
           </span>
           <span className="pixel-font text-xs font-bold">
-            {formatTokenAmount(
-              clan.dividendVault.totalBalance *
-                Math.pow(10, SCORE_TOKEN.decimals),
-              SCORE_TOKEN
-            )}
+            {formatEther(clan.dividendVault.totalBalance)} WEDO
           </span>
         </div>
         {hasClaimableRewards && (
@@ -123,7 +120,8 @@ export const DividendVaultWidget = ({
           <div className="max-h-32 overflow-y-auto space-y-1">
             {clan.members.map((member, index) => {
               const contribution = Math.random() * 50 + 10; // Mock contribution amount
-              const isCurrentUser = member.name === "You" && isMember;
+              const isCurrentUser =
+                member.address === walletAddress && isMember;
               return (
                 <div
                   key={index}
@@ -142,7 +140,7 @@ export const DividendVaultWidget = ({
                         isCurrentUser ? "font-bold text-primary" : ""
                       }`}
                     >
-                      {member.name}
+                      {member.address}
                     </span>
                     {member.status === "eliminated" && (
                       <Badge variant="outline" className="pixel-font text-xs">
@@ -171,7 +169,6 @@ export const DividendVaultWidget = ({
         </div>
 
         <div className="text-xs pixel-font text-muted-foreground">
-          <p>上次分发：{clan.dividendVault.lastDistribution}</p>
           <p>
             已累计分发：{" "}
             {formatTokenAmount(

@@ -1,8 +1,8 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import type { Clan } from "@/lib/data";
+import type { TeamMember } from "@/lib/typings";
 import { blo } from "blo";
 
-export const MemberRing = ({ members }: { members: Clan["members"] }) => {
+export const MemberRing = ({ members }: { members: TeamMember[] }) => {
   const positions = [
     { top: "0%", left: "50%", transform: "translate(-50%, -50%)" },
     { top: "25%", left: "93.3%", transform: "translate(-50%, -50%)" },

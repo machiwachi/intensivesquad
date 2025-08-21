@@ -1,7 +1,7 @@
 import { BarChart3 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { RankIcon } from "./rank";
-import { useTeams, type Team } from "@/lib/hooks/useTeams";
+import { useTeams } from "@/lib/hooks/useTeams";
 
 export const ClanRankingsChart = () => {
   const { teams, isLoading } = useTeams();
@@ -27,9 +27,9 @@ export const ClanRankingsChart = () => {
               className="flex items-center gap-3 p-3 bg-muted/20 rounded pixel-border"
             >
               <div className="flex items-center gap-2 w-16">
-                <RankIcon rank={index + 1} />
+                <RankIcon rank={clan.rank} />
                 <span className="pixel-font text-sm font-bold">
-                  #{index + 1}
+                  #{clan.rank}
                 </span>
               </div>
 
