@@ -1,9 +1,28 @@
 import { getClans, getUsers } from "@/lib/data";
+import { sepolia } from "viem/chains";
 import { Hono } from "hono";
 import { getCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";
 import { handle } from "hono/vercel";
 import { decode } from "next-auth/jwt";
+import { createPublicClient, http } from "viem";
+import { getContract } from "viem";
+import {
+  teamEconomyConfig,
+  teamManagerAbi,
+  teamManagerConfig,
+} from "@/lib/contracts/generated";
+import { readContract } from "viem/actions";
+
+const client = createPublicClient({
+  chain: sepolia,
+  transport: http(),
+});
+
+const teamManager = getContract({
+  ...teamManagerConfig,
+  client,
+});
 
 const jwt = createMiddleware<{
   Variables: {
@@ -20,7 +39,7 @@ const jwt = createMiddleware<{
 });
 
 const app = new Hono()
-  .basePath("/api")
+  .basePath("api")
   .use(jwt)
   .get("/hello", async (c) => {
     const address = c.var.address;
@@ -32,11 +51,50 @@ const app = new Hono()
 
     return c.json(users);
   })
-  .get("/clans", async (c) => {
-    const clans = await getClans();
+  .get("/teams", async (c) => {
+    const teamCount = Number(await teamManager.read.nextTeamId());
+    const teams = await Promise.all(
+      Array.from({ length: teamCount }, async (_, i) => {
+        const teamId = i + 1;
+        return readContract(client, {
+          ...teamManager,
+          functionName: "teams",
+          args: [BigInt(teamId)],
+        }).then((res) => {
+          return {
+            id: teamId,
+            name: res[0],
+            remainingMembers: Number(res[1]),
+          };
+        });
+      })
+    );
 
-    return c.json(clans);
+    const rankedTeams = teams.map((t) => {
+      return {
+        ...t,
+        totalScore: 0,
+        totalMembers: 6,
+        members: [],
+        isUserClan: false,
+        rank: 0,
+        leverage: 1.2,
+        scoreHistory: [1, 2, 3],
+        activities: [],
+        dividendVault: {
+          totalBalance: 0,
+          userClaimable: 0,
+          lastDistribution: "",
+        },
+        flag: "🔥",
+        previousRank: 9,
+      };
+    });
+
+    return c.json(rankedTeams);
   });
 
 export const GET = handle(app);
 export const POST = handle(app);
+
+export type AppType = typeof app;

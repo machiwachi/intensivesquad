@@ -9,10 +9,11 @@ import { UserPlus } from "lucide-react";
 import { DividendVaultWidget } from "./dividend-vault-widget";
 import { MemberRing } from "./member-ring";
 import { RankChange, RankIcon } from "./rank";
-import { Clan } from "@/lib/data";
+import { type Clan } from "@/lib/data";
 import { useAccount } from "wagmi";
 import { useState } from "react";
 import { Sparkline } from "./sparkline";
+import { useReadTeamManagerAccountTeam } from "@/lib/contracts";
 
 export function ClanCard({
   clan,
@@ -23,19 +24,15 @@ export function ClanCard({
 }) {
   const { address: walletAddress, isConnected: isWalletConnected } =
     useAccount();
-  const [joinedClans, setJoinedClans] = useState<Set<number>>(new Set([1])); // Mock: already joined clan 1
-  const [userClanId, setUserClanId] = useState<number | null>(null);
+  const { data: userTeamId } = useReadTeamManagerAccountTeam({
+    args: [walletAddress ?? "0x0000000000000000000000000000000000000000"],
+  });
 
   const handleJoinClan = (clanId: number, event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent opening clan details
-    if (isWalletConnected && !joinedClans.has(clanId)) {
-      setJoinedClans((prev) => new Set([...prev, clanId]));
-      // If user doesn't have a primary clan, make this their primary
-      if (!userClanId) {
-        setUserClanId(clanId);
-      }
-    }
+    console.log("join clan", clanId);
   };
+
   return (
     <Card
       key={clan.id}
@@ -80,7 +77,7 @@ export function ClanCard({
                 ).split(" ")[0]
               }
             </Badge>
-            {!clan.isUserClan && (
+            {!userTeamId && (
               <Button
                 size="sm"
                 onClick={(e) => handleJoinClan(clan.id, e)}
@@ -89,11 +86,6 @@ export function ClanCard({
                 <UserPlus className="w-3 h-3 mr-1" />
                 加入
               </Button>
-            )}
-            {clan.isUserClan && (
-              <Badge variant="outline" className="pixel-font text-xs">
-                已加入
-              </Badge>
             )}
           </div>
         </div>

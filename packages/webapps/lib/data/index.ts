@@ -1,5 +1,5 @@
 export type User = Awaited<ReturnType<typeof getUsers>>[number];
-export type Clan = Awaited<ReturnType<typeof getClans>>[number];
+export { type Clan } from "@/lib/hooks/useTeams";
 
 export type TokenType = typeof SCORE_TOKEN;
 

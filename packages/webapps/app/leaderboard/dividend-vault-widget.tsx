@@ -3,33 +3,36 @@ import { Coins, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Clan, SCORE_TOKEN } from "@/lib/data";
 import { useAccount } from "wagmi";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { type Team } from "@/lib/hooks/useTeamsSimple";
+import { useTeamEconomy } from "@/lib/hooks/useTeamEconomy";
+import { SCORE_TOKEN } from "@/lib/data";
+import { useReadTeamManagerAccountTeam } from "@/lib/contracts";
 
 export const DividendVaultWidget = ({
   clan,
   isCompact = false,
 }: {
-  clan: Clan;
+  clan: Team;
   isCompact?: boolean;
 }) => {
   const { address: walletAddress, isConnected: isWalletConnected } =
     useAccount();
-  const { data: clans } = useQuery<Clan[]>({
-    queryKey: ["clans"],
-    queryFn: () => fetch("/api/clans").then((res) => res.json()),
+  const economyData = useTeamEconomy(clan.id);
+  const { data: userTeamId } = useReadTeamManagerAccountTeam({
+    args: [walletAddress ?? "0x0000000000000000000000000000000000000000"],
   });
 
-  if (!clans) return null;
-
-  const [joinedClans, setJoinedClans] = useState<Set<number>>(new Set([1])); // Mock: already joined clan 1
   const [claimedRewards, setClaimedRewards] = useState<Set<number>>(new Set()); // Track claimed rewards
+
+  if (!economyData) return null;
+
+  const isMember = Number(userTeamId) === clan.id;
 
   const handleClaimRewards = (clanId: number, event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent opening clan details
-    if (isWalletConnected && joinedClans.has(clanId)) {
+    if (isWalletConnected && isMember) {
       setClaimedRewards((prev) => new Set([...prev, clanId]));
       // In a real app, this would trigger a blockchain transaction
       console.log(`[v0] Claiming rewards for clan ${clanId}`);
@@ -37,18 +40,15 @@ export const DividendVaultWidget = ({
   };
 
   const canClaimRewards = (clanId: number) => {
-    const clan = clans.find((c) => c.id === clanId);
     return (
       isWalletConnected &&
-      joinedClans.has(clanId) &&
-      clan &&
-      clan.dividendVault.userClaimable > 0 &&
+      isMember &&
+      economyData.userPendingIdo > 0 &&
       !claimedRewards.has(clanId)
     );
   };
 
   const hasClaimableRewards = canClaimRewards(clan.id);
-  const isMember = joinedClans.has(clan.id);
 
   if (isCompact) {
     return (
@@ -94,7 +94,7 @@ export const DividendVaultWidget = ({
           <Coins className="w-5 h-5 text-yellow-500" />
           <h4 className="pixel-font font-bold">分红金库</h4>
           <Badge variant="outline" className="pixel-font text-xs">
-            {SCORE_TOKEN.symbol}
+            IDO
           </Badge>
         </div>
       </CardHeader>
@@ -103,23 +103,15 @@ export const DividendVaultWidget = ({
           <div>
             <p className="pixel-font text-xs text-muted-foreground">金库总额</p>
             <p className="pixel-font text-lg font-bold text-primary pixel-font">
-              {formatTokenAmount(
-                clan.dividendVault.totalBalance *
-                  Math.pow(10, SCORE_TOKEN.decimals),
-                SCORE_TOKEN
-              )}
+              {economyData.teamWedoBalance.toFixed(2)} WEDO
             </p>
           </div>
           <div>
             <p className="pixel-font text-xs text-muted-foreground">你的份额</p>
             <p className="pixel-font text-lg font-bold text-accent pixel-font">
               {isMember
-                ? formatTokenAmount(
-                    clan.dividendVault.userClaimable *
-                      Math.pow(10, SCORE_TOKEN.decimals),
-                    SCORE_TOKEN
-                  )
-                : `0.00 ${SCORE_TOKEN.symbol}`}
+                ? `${economyData.userPendingIdo.toFixed(2)} IDO`
+                : `0.00 IDO`}
             </p>
           </div>
         </div>
