@@ -18,10 +18,48 @@ const TeamSystem = buildModule("TeamSystem", (m) => {
   m.call(manager, "setEconomy", [economy]);
 
   // Grant MINTER_ROLE to admin for IDO token
-  m.call(ido, "grantRole", [
-    "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6", // MINTER_ROLE
-    admin,
-  ]);
+  m.call(
+    ido,
+    "grantRole",
+    [
+      "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6", // MINTER_ROLE
+      admin,
+    ],
+    { id: "grant_ido_minter_role_to_admin" }
+  );
+
+  // Grant MINTER_ROLE to TeamEconomy contract for IDO token
+  m.call(
+    ido,
+    "grantRole",
+    [
+      "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6", // MINTER_ROLE
+      economy,
+    ],
+    { id: "grant_ido_minter_role_to_economy" }
+  );
+
+  // Grant MINTER_ROLE to admin for WEDO token
+  m.call(
+    wedo,
+    "grantRole",
+    [
+      "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6", // MINTER_ROLE
+      admin,
+    ],
+    { id: "grant_wedo_minter_role_to_admin" }
+  );
+
+  // Grant MINTER_ROLE to TeamEconomy contract for WEDO token
+  m.call(
+    wedo,
+    "grantRole",
+    [
+      "0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6", // MINTER_ROLE
+      economy,
+    ],
+    { id: "grant_wedo_minter_role_to_economy" }
+  );
 
   return { ido, wedo, manager, economy };
 });
