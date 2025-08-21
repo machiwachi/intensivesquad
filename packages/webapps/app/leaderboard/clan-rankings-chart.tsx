@@ -29,7 +29,7 @@ export const ClanRankingsChart = () => {
               <div className="flex items-center gap-2 w-16">
                 <RankIcon rank={clan.rank} />
                 <span className="pixel-font text-sm font-bold">
-                  #{index + 1}
+                  #{clan.rank}
                 </span>
               </div>
 
