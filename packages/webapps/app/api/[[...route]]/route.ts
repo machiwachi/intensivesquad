@@ -98,42 +98,77 @@ const app = new Hono()
     // 获取团队排行榜（包含总分和成员信息）
     const leaderboard = await getTeamLeaderboardIDO();
 
-    // 这里可以根据需要补充团队的其他信息，比如活动、旗帜等
-    const activities: Activity[] = [];
+    // 使用 multicall 批量获取团队 WEDO 余额
+    const teamWedoBalances = await multicall(publicClient, {
+      contracts: leaderboard.map((team) => ({
+        ...teamEconomyConfig,
+        functionName: "teamWedoBalance",
+        args: [BigInt(team.teamId)],
+      })),
+    });
+
+    // 使用 multicall 批量获取团队杠杆（L值）
+    const teamLeverages = await multicall(publicClient, {
+      contracts: leaderboard.map((team) => ({
+        ...teamEconomyConfig,
+        functionName: "getTeamL",
+        args: [BigInt(team.teamId)],
+      })),
+    });
+
+    // 使用 multicall 批量获取团队元数据
+    const teamMetadatas = await multicall(publicClient, {
+      contracts: leaderboard.map((team) => ({
+        ...teamManagerConfig,
+        functionName: "teams",
+        args: [BigInt(team.teamId)],
+      })),
+    });
 
     // 组装返回数据
-    const rankedTeams = await Promise.all(
-      leaderboard.map(async (team, idx) => {
-        // 读取链上团队元数据
-        const res = await readContract(publicClient, {
-          ...teamManager,
-          functionName: "teams",
-          args: [BigInt(team.teamId)],
-        });
+    const rankedTeams = leaderboard.map((team, idx) => {
+      // 获取对应的 WEDO 余额和杠杆
+      const wedoBalanceResult = teamWedoBalances[idx];
+      const leverageResult = teamLeverages[idx];
+      const metadataResult = teamMetadatas[idx];
 
-        return {
-          id: team.teamId,
-          name: res[0],
-          remainingMembers: Number(res[1]),
-          members: team.members,
-          totalScore: team.score,
-          totalMembers: 6, // TODO: 可根据实际情况调整
-          isUserTeam: false,
-          rank: idx + 1,
-          leverage: 1.2,
-          scoreHistory: [1, 2, 3],
-          activities,
-          dividendVault: {
-            totalBalance: 0,
-            userClaimable: 0,
-            lastDistribution: "",
-            totalDistributed: 12340.5,
-          },
-          flag: "🔥",
-          previousRank: 9,
-        };
-      })
-    );
+      // 处理 multicall 返回值
+      const wedoBalance =
+        wedoBalanceResult.status === "success" ? wedoBalanceResult.result : 0;
+      const leverageRaw =
+        leverageResult.status === "success"
+          ? BigInt(leverageResult.result)
+          : BigInt(0);
+      const leverage = String(leverageRaw * BigInt(10));
+
+      console.log({ wedoBalance, leverage, metadataResult });
+
+      // 处理团队元数据
+      const teamMetadata: [string, bigint] =
+        metadataResult.status === "success"
+          ? (metadataResult.result as unknown as [string, bigint])
+          : ["", BigInt(0)];
+
+      return {
+        id: team.teamId,
+        name: teamMetadata[0] as string,
+        remainingMembers: Number(teamMetadata[1]),
+        members: team.members,
+        totalScore: team.score,
+        totalMembers: 6, // TODO: 可根据实际情况调整
+        isUserTeam: false,
+        rank: idx + 1,
+        leverage,
+        scoreHistory: [1, 2, 3],
+        dividendVault: {
+          totalBalance: String(wedoBalance), // 这里填充真实的 WEDO 余额
+          userClaimable: 0,
+          totalDistributed: 12340.5,
+        },
+        flag: "🔥",
+        previousRank: 9,
+      };
+    });
 
     return c.json(rankedTeams);
   })

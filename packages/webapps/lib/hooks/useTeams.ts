@@ -4,67 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useAccount } from "wagmi";
 import {
-  useReadTeamEconomyGetTeamL,
   useReadTeamEconomyPendingIdo,
-  useReadTeamEconomyTeamWedoBalance,
   useReadTeamManagerAccountTeam,
-  useReadTeamManagerGetTeamSize,
   useReadTeamManagerNextTeamId,
-  useReadTeamManagerTeams,
 } from "../contracts/generated";
 
 import { apiClient } from "../api";
-import type { Team } from "../typings";
-
-// Hook to get a single team's datas
-export function useTeam(teamId: number) {
-  const { data: teamInfo } = useReadTeamManagerTeams({
-    args: [BigInt(teamId)],
-  });
-
-  const { data: teamSize } = useReadTeamManagerGetTeamSize({
-    args: [BigInt(teamId)],
-  });
-
-  const { data: wedoBalance } = useReadTeamEconomyTeamWedoBalance({
-    args: [BigInt(teamId)],
-  });
-
-  const { data: teamL } = useReadTeamEconomyGetTeamL({
-    args: [BigInt(teamId)],
-  });
-
-  return useMemo(() => {
-    if (!teamInfo || !teamSize || wedoBalance === undefined || !teamL) {
-      return null;
-    }
-
-    // Convert contract data to our Team interface
-    const team: Team = {
-      id: teamId,
-      name: teamInfo[0] || `Team ${teamId}`,
-      flag: "⚔️", // Default flag, could be stored in contract later
-      rank: 1, // Will be calculated based on scores
-      previousRank: 1,
-      totalScore: Number(wedoBalance) / 10 ** 18, // Convert from wei
-      remainingMembers: Number(teamSize),
-      totalMembers: Number(teamInfo[1]) || Number(teamSize), // activeMemberCount
-      leverage: Number(teamL) / 10 ** 18, // Convert from contract precision
-      isUserTeam: false, // Will be set by parent hook
-      dividendVault: {
-        totalBalance: Number(wedoBalance) / 10 ** 18,
-        userClaimable: 0, // Will be calculated per user
-        lastDistribution: "N/A",
-        totalDistributed: 0,
-      },
-      members: [], // Will be populated separately
-      scoreHistory: [],
-      activities: [],
-    };
-
-    return team;
-  }, [teamId, teamInfo, teamSize, wedoBalance, teamL]);
-}
 
 // Hook to get all teams
 export function useTeams() {
@@ -83,9 +28,17 @@ export function useTeams() {
 
   const rankedTeams = useMemo(() => {
     if (!data) return [];
+
     return data.map((team) => {
+      const { leverage, dividendVault } = team;
       return {
         ...team,
+        leverage: BigInt(leverage),
+        dividendVault: {
+          ...dividendVault,
+          totalBalance: BigInt(dividendVault.totalBalance),
+          // userClaimable: BigInt(dividendVault.userClaimable),
+        },
         isUserTeam: Number(userTeamId) === team.id,
       };
     });

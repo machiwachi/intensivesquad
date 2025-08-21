@@ -11,7 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { SCORE_TOKEN } from "@/lib/data";
-import type { Clan } from "@/lib/typings";
+import type { Team } from "@/lib/typings";
 import { formatTokenAmount } from "@/lib/utils";
 import { UserMinus, UserPlus } from "lucide-react";
 import { DividendVaultWidget } from "./dividend-vault-widget";
@@ -26,6 +26,8 @@ import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { useReadTeamManagerAccountTeam } from "@/lib/contracts/generated";
 import { blo } from "blo";
+import { formatAddress } from "@/lib/utils";
+import { formatEther } from "viem";
 
 export function ClanDetailDialog({
   open,
@@ -34,7 +36,7 @@ export function ClanDetailDialog({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  clan: Clan | null;
+  clan: Team | null;
 }) {
   const { address, isConnected: isWalletConnected } = useAccount();
   const { isPending: isLeavePending, writeContractAsync: leaveClanAsync } =
@@ -47,6 +49,14 @@ export function ClanDetailDialog({
     useReadTeamManagerAccountTeam({
       args: [address ?? "0x0000000000000000000000000000000000000000"],
     });
+  const activities = [
+    {
+      user: "0x1234567890",
+      action: "加入部落",
+      points: 100,
+      time: "2021-01-01",
+    },
+  ];
 
   async function handleJoinClan(id: number, e: React.MouseEvent) {
     e.stopPropagation();
@@ -120,7 +130,7 @@ export function ClanDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl pixel-border">
+      <DialogContent className="max-w-3xl sm:max-w-3xl pixel-border">
         {clan && (
           <>
             <DialogHeader>
@@ -179,7 +189,7 @@ export function ClanDetailDialog({
                   <CardContent className="p-4">
                     <h4 className="pixel-font font-bold mb-2">杠杆</h4>
                     <p className="text-2xl font-bold text-accent pixel-font">
-                      {clan.leverage}x
+                      {formatEther(clan.leverage)}x
                     </p>
                   </CardContent>
                 </Card>
@@ -208,7 +218,7 @@ export function ClanDetailDialog({
                         </AvatarFallback>
                       </Avatar>
                       <span className="pixel-font text-sm">
-                        {member.address}
+                        {formatAddress(member.address)}
                       </span>
                       <Badge
                         variant={
@@ -227,7 +237,7 @@ export function ClanDetailDialog({
               <div>
                 <h4 className="pixel-font font-bold mb-3">最近活动</h4>
                 <div className="space-y-2">
-                  {clan.activities.map((activity, index) => {
+                  {activities.map((activity, index) => {
                     const dividendContribution = activity.points * 0.1;
                     return (
                       <div

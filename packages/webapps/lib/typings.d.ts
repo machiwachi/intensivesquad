@@ -17,17 +17,15 @@ export interface Team {
   totalScore: number;
   remainingMembers: number;
   totalMembers: number;
-  leverage: number;
+  leverage: bigint;
   isUserTeam: boolean;
   dividendVault: {
-    totalBalance: number;
+    totalBalance: bigint;
     userClaimable: number;
-    lastDistribution: string;
     totalDistributed: number;
   };
   members: TeamMember[];
   scoreHistory: number[];
-  activities: Array<Activity>;
 }
 
 export interface TeamMember {

@@ -1,7 +1,8 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { useTeams, type Team } from "@/lib/hooks/useTeams";
+import { useTeams } from "@/lib/hooks/useTeams";
+import { type Team } from "@/lib/typings";
 import { Skull, Trophy, Users, Zap } from "lucide-react";
 import { useState } from "react";
 import { ClanCard } from "../clan-card";
@@ -22,7 +23,6 @@ export default function ClansLeaderboard() {
   if (isLoading || !teams) return null;
 
   const totalClans = teams.length;
-  const totalScore = teams.reduce((sum, team) => sum + team.totalIDO, 0);
 
   return (
     <div className="">

@@ -52,8 +52,8 @@ contract TeamEconomy is AccessControl, ReentrancyGuard, ITeamEconomyHooks {
     ITeamManager public teamManager;
 
     // L 值配置
-    uint256 public LMin = 100; // 默认最小 L (1e3 precision)
-    uint256 public LMax = 150; // 默认最大 L (1e3 precision)
+    uint256 public LMin = 1000; // 默认最小 L (1e3 precision)
+    uint256 public LMax = 1500; // 默认最大 L (1e3 precision)
 
     // per team accounting
     mapping(uint256 => uint256) public teamWedoBalance; // raw WEDO units
@@ -66,7 +66,7 @@ contract TeamEconomy is AccessControl, ReentrancyGuard, ITeamEconomyHooks {
     mapping(uint256 => mapping(address => uint8)) public userShares; // 0 or 1 (survivor flag)
 
     // Stage scalar S (1e3) with optional delayed activation
-    uint256 public stageScalar = 100; // current S (1e3)
+    uint256 public stageScalar = 1000; // current S (1e3)
     uint256 public pendingStageScalar; // pending S
     uint256 public stageScalarEffectiveAt; // timestamp when pending takes effect
     uint256 public immutable stageUpdateDelay; // seconds
