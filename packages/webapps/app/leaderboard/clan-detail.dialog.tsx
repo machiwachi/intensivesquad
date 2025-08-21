@@ -17,8 +17,9 @@ import { DividendVaultWidget } from "./dividend-vault-widget";
 import { useAccount } from "wagmi";
 import React, { useState, type MouseEvent } from "react";
 import { useWriteTeamManagerLeave } from "@/lib/contracts";
-import { client } from "@/lib/hooks";
+import { apiClient } from "@/lib/hooks";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function ClanDetailDialog({
   open,
@@ -31,7 +32,9 @@ export function ClanDetailDialog({
 }) {
   const { address: walletAddress, isConnected: isWalletConnected } =
     useAccount();
-  const { writeContractAsync: leaveClanAsync } = useWriteTeamManagerLeave();
+  const { isPending, writeContractAsync: leaveClanAsync } =
+    useWriteTeamManagerLeave();
+  const queryClient = useQueryClient();
 
   const [joinedClans, setJoinedClans] = useState<Set<number>>(new Set([1])); // Mock: already joined clan 1
 
@@ -49,23 +52,33 @@ export function ClanDetailDialog({
   async function handleLeaveClan(id: number, e: React.MouseEvent) {
     e.stopPropagation();
 
+    console.log("尝试离开部落，部落ID:", id);
+
     try {
       const tx = await leaveClanAsync({
         args: [BigInt(0)],
       });
+      console.log("离开部落交易已发送，交易哈希:", tx);
 
-      const verifyRes = await client.members.join.$post({
+      const verifyRes = await apiClient.members.join.$post({
         json: {
           txHash: tx,
         },
       });
 
+      console.log("后端校验结果:", verifyRes);
+
       if (!verifyRes.ok) {
+        console.error("离开部落失败，后端返回非OK:", verifyRes);
         throw new Error("离开部落失败");
       }
 
       toast.success("离开部落成功");
+      console.log("离开部落成功");
+
+      queryClient.invalidateQueries({ queryKey: ["teams"] });
     } catch (err) {
+      console.error("离开部落失败:", err);
       toast.error("离开部落失败");
     }
   }
@@ -104,9 +117,10 @@ export function ClanDetailDialog({
               <Button
                 onClick={(e) => handleLeaveClan(clan.id, e)}
                 className="w-full pixel-border pixel-font"
+                disabled={isPending}
               >
                 <UserMinus className="w-4 h-4 mr-2" />
-                离开 {clan.name}
+                {isPending ? "离开中..." : `离开 ${clan.name}`}
               </Button>
             )}
 

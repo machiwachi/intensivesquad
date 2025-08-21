@@ -15,9 +15,9 @@ import { useQuery } from "@tanstack/react-query";
 import { hc, type InferResponseType } from "hono/client";
 import type { Activity, AppType } from "@/app/api/[[...route]]/route";
 
-export const client = hc<AppType>("/").api;
+export const apiClient = hc<AppType>("/").api;
 
-export type Clan = InferResponseType<typeof client.teams.$get>[number];
+export type Clan = InferResponseType<typeof apiClient.teams.$get>[number];
 
 export interface TeamMember {
   id: number;
@@ -104,7 +104,7 @@ export function useTeams() {
   const { data } = useQuery({
     queryKey: ["teams"],
     queryFn: async () => {
-      const res = await client.teams.$get();
+      const res = await apiClient.teams.$get();
       return res.json();
     },
   });
