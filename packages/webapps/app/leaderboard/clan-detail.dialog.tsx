@@ -12,10 +12,13 @@ import {
 } from "@/components/ui/dialog";
 import { SCORE_TOKEN, type Clan } from "@/lib/data";
 import { formatTokenAmount } from "@/lib/utils";
-import { UserPlus } from "lucide-react";
+import { UserMinus, UserPlus } from "lucide-react";
 import { DividendVaultWidget } from "./dividend-vault-widget";
 import { useAccount } from "wagmi";
-import { useState } from "react";
+import React, { useState, type MouseEvent } from "react";
+import { useWriteTeamManagerLeave } from "@/lib/contracts";
+import { client } from "@/lib/hooks";
+import { toast } from "sonner";
 
 export function ClanDetailDialog({
   open,
@@ -28,6 +31,7 @@ export function ClanDetailDialog({
 }) {
   const { address: walletAddress, isConnected: isWalletConnected } =
     useAccount();
+  const { writeContractAsync: leaveClanAsync } = useWriteTeamManagerLeave();
 
   const [joinedClans, setJoinedClans] = useState<Set<number>>(new Set([1])); // Mock: already joined clan 1
 
@@ -41,6 +45,30 @@ export function ClanDetailDialog({
   const canJoinClan = (clanId: number) => {
     return isWalletConnected && !joinedClans.has(clanId);
   };
+
+  async function handleLeaveClan(id: number, e: React.MouseEvent) {
+    e.stopPropagation();
+
+    try {
+      const tx = await leaveClanAsync({
+        args: [BigInt(0)],
+      });
+
+      const verifyRes = await client.members.join.$post({
+        json: {
+          txHash: tx,
+        },
+      });
+
+      if (!verifyRes.ok) {
+        throw new Error("离开部落失败");
+      }
+
+      toast.success("离开部落成功");
+    } catch (err) {
+      toast.error("离开部落失败");
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -69,6 +97,16 @@ export function ClanDetailDialog({
               >
                 <UserPlus className="w-4 h-4 mr-2" />
                 加入 {clan.name}
+              </Button>
+            )}
+
+            {clan.isUserTeam && (
+              <Button
+                onClick={(e) => handleLeaveClan(clan.id, e)}
+                className="w-full pixel-border pixel-font"
+              >
+                <UserMinus className="w-4 h-4 mr-2" />
+                离开 {clan.name}
               </Button>
             )}
 

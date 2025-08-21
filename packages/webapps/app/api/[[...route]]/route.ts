@@ -2,6 +2,7 @@ import {
   teamEconomyConfig,
   teamManagerConfig,
 } from "@/lib/contracts/generated";
+import { redisClient, teamMemberKey } from "@/lib/redis";
 import { getUsers } from "@/lib/data";
 import type { TeamMember } from "@/lib/hooks";
 import { Hono } from "hono";
@@ -9,7 +10,13 @@ import { getCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";
 import { handle } from "hono/vercel";
 import { decode } from "next-auth/jwt";
-import { createPublicClient, getContract, http, parseEther } from "viem";
+import {
+  createPublicClient,
+  getContract,
+  http,
+  parseEther,
+  parseEventLogs,
+} from "viem";
 import { readContract } from "viem/actions";
 import { sepolia } from "viem/chains";
 import { zValidator } from "@hono/zod-validator";
@@ -68,9 +75,21 @@ const jwt = createMiddleware<{
   await next();
 });
 
+const testRouter = new Hono()
+  .get("/redis/set", async (c) => {
+    const v = c.req.queries("v");
+    const res = await redisClient.incr("test");
+    return c.json({ message: "redis-set", res });
+  })
+  .get("/redis/get", async (c) => {
+    const res = await redisClient.get("test");
+    return c.json({ message: "redis-get", res });
+  });
+
 const app = new Hono()
   .basePath("api")
   .use(jwt)
+  .route("/test", testRouter)
   .get("/hello", async (c) => {
     const address = c.var.address;
 
@@ -179,6 +198,43 @@ const app = new Hono()
           500
         );
       }
+    }
+  )
+  .post(
+    "/members/join",
+    zValidator("json", z.object({ txHash: zeroxSchema })),
+    async (c) => {
+      const { txHash } = c.req.valid("json");
+
+      console.log("收到 /members/join 请求，参数：", { txHash });
+
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash: txHash,
+      });
+
+      console.log("交易回执：", receipt);
+
+      const logs = parseEventLogs({
+        logs: receipt.logs,
+        abi: teamManagerConfig.abi,
+      });
+
+      console.log("解析到的事件日志：", logs);
+
+      logs.forEach((log) => {
+        if (log.eventName === "MemberJoined") {
+          const { teamId, account } = log.args;
+          const key = teamMemberKey(Number(teamId), account);
+          console.log(
+            `检测到 MemberJoined 事件，teamId: ${teamId}, account: ${account}, redis key: ${key}`
+          );
+          redisClient.set(key, "1");
+        }
+      });
+
+      console.log("处理完成，返回响应");
+
+      return c.json({ message: "joined" });
     }
   );
 
