@@ -211,37 +211,33 @@ const app = new Hono()
       const receipt = await publicClient.waitForTransactionReceipt({
         hash: txHash,
       });
-
       console.log("交易回执：", receipt);
-
+      if (receipt.status !== "success") {
+        console.warn("交易回执状态非 success：", receipt.status);
+        return c.json({ message: "tx reverted" }, 400);
+      }
       const logs = parseEventLogs({
         logs: receipt.logs,
         abi: teamManagerConfig.abi,
       });
-
       console.log("解析到的事件日志：", logs);
-
-      logs.forEach((log) => {
+      let persisted = 0;
+      for (const log of logs) {
         if (log.eventName === "MemberJoined") {
           const { teamId, account } = log.args;
+          // 可选：仅允许当前登录地址的事件（提升数据可信度）
+          // const caller = c.var.address?.toLowerCase();
+          // if (caller && caller !== account.toLowerCase()) continue;
           const key = teamMemberKey(Number(teamId), account);
           console.log(
             `检测到 MemberJoined 事件，teamId: ${teamId}, account: ${account}, redis key: ${key}`
           );
-          redisClient.set(key, "1");
-        } else if (log.eventName === "MemberLeft") {
-          const { teamId, account } = log.args;
-          const key = teamMemberKey(Number(teamId), account);
-          console.log(
-            `检测到 MemberLeft 事件，teamId: ${teamId}, account: ${account}, redis key: ${key}`
-          );
-          redisClient.del(key);
+          await redisClient.set(key, "1");
+          persisted++;
         }
-      });
-
+      }
       console.log("处理完成，返回响应");
-
-      return c.json({ message: "processed" });
+      return c.json({ message: "processed", persisted });
     }
   );
 

@@ -41,9 +41,10 @@ export function ClanDetailDialog({
     useWriteTeamManagerJoin();
   const queryClient = useQueryClient();
 
-  const { data: userTeamId } = useReadTeamManagerAccountTeam({
-    args: [address ?? "0x0000000000000000000000000000000000000000"],
-  });
+  const { data: userTeamId, refetch: refetchUserTeamId } =
+    useReadTeamManagerAccountTeam({
+      args: [address ?? "0x0000000000000000000000000000000000000000"],
+    });
 
   async function handleJoinClan(id: number, e: React.MouseEvent) {
     e.stopPropagation();
@@ -73,15 +74,12 @@ export function ClanDetailDialog({
       console.log("加入部落成功");
 
       queryClient.invalidateQueries({ queryKey: ["teams"] });
+      refetchUserTeamId();
     } catch (err) {
       console.error("加入部落失败:", err);
       toast.error("加入部落失败");
     }
   }
-
-  const canJoinClan = (clanId: number) => {
-    return isWalletConnected && Number(userTeamId) !== clanId;
-  };
 
   async function handleLeaveClan(id: number, e: React.MouseEvent) {
     e.stopPropagation();
@@ -111,6 +109,7 @@ export function ClanDetailDialog({
       console.log("离开部落成功");
 
       queryClient.invalidateQueries({ queryKey: ["teams"] });
+      refetchUserTeamId();
     } catch (err) {
       console.error("离开部落失败:", err);
       toast.error("离开部落失败");
@@ -137,7 +136,7 @@ export function ClanDetailDialog({
               </DialogTitle>
             </DialogHeader>
 
-            {canJoinClan(clan.id) && (
+            {!userTeamId && (
               <Button
                 onClick={(e) => handleJoinClan(clan.id, e)}
                 className="w-full pixel-border pixel-font"
@@ -148,7 +147,7 @@ export function ClanDetailDialog({
               </Button>
             )}
 
-            {clan.isUserTeam && (
+            {Number(userTeamId ?? 0) === clan.id && (
               <Button
                 onClick={(e) => handleLeaveClan(clan.id, e)}
                 className="w-full pixel-border pixel-font"
