@@ -8,8 +8,8 @@ export const ClanRankingsChart = () => {
 
   if (isLoading || !teams) return null;
 
-  const sortedClans = [...teams].sort((a, b) => b.totalIDO - a.totalIDO);
-  const maxScore = Math.max(...sortedClans.map((c) => c.totalIDO));
+  const sortedClans = [...teams].sort((a, b) => b.totalScore - a.totalScore);
+  const maxScore = Math.max(...sortedClans.map((c) => c.totalScore));
 
   return (
     <div className="space-y-3">
@@ -19,7 +19,7 @@ export const ClanRankingsChart = () => {
       </h3>
       <div className="space-y-2">
         {sortedClans.map((clan, index) => {
-          const barWidth = (clan.totalIDO / maxScore) * 100;
+          const barWidth = (clan.totalScore / maxScore) * 100;
 
           return (
             <div
@@ -27,7 +27,7 @@ export const ClanRankingsChart = () => {
               className="flex items-center gap-3 p-3 bg-muted/20 rounded pixel-border"
             >
               <div className="flex items-center gap-2 w-16">
-                <RankIcon rank={index + 1} />
+                <RankIcon rank={clan.rank} />
                 <span className="pixel-font text-sm font-bold">
                   #{index + 1}
                 </span>
@@ -45,7 +45,7 @@ export const ClanRankingsChart = () => {
                     </Badge>
                   </div>
                   <span className="pixel-font text-sm font-bold text-primary">
-                    {clan.totalIDO.toFixed(0)} IDO
+                    {clan.totalScore.toFixed(0)} IDO
                   </span>
                 </div>
 

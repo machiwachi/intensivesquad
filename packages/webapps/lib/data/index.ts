@@ -4,6 +4,7 @@ import {
   teamMemberKey,
   userLeaderboardIDOKey,
 } from "../redis";
+import type { TeamMember } from "../typings";
 
 export const SCORE_TOKEN = {
   symbol: "STUDY",
@@ -14,117 +15,7 @@ export const SCORE_TOKEN = {
 
 // Mock data for clans
 
-export async function getUsers() {
-  const mockUsers = [
-    {
-      id: 1,
-      name: "Alex",
-      score: 3420,
-      clanId: 1,
-      avatar: "/pixel-warrior.png",
-    },
-    { id: 2, name: "Sam", score: 3200, clanId: 1, avatar: "/pixel-mage.png" },
-    {
-      id: 7,
-      name: "Taylor",
-      score: 3100,
-      clanId: 2,
-      avatar: "/placeholder-4jpab.png",
-    },
-    {
-      id: 13,
-      name: "Phoenix",
-      score: 2980,
-      clanId: 3,
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      id: 3,
-      name: "Jordan",
-      score: 2850,
-      clanId: 1,
-      avatar: "/pixel-archer.png",
-    },
-    {
-      id: 8,
-      name: "Blake",
-      score: 2750,
-      clanId: 2,
-      avatar: "/pixel-warrior.png",
-    },
-    {
-      id: 19,
-      name: "Echo",
-      score: 2650,
-      clanId: 4,
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      id: 25,
-      name: "Orion",
-      score: 2580,
-      clanId: 5,
-      avatar: "/pixel-knight.png",
-    },
-    {
-      id: 4,
-      name: "Casey",
-      score: 2450,
-      clanId: 1,
-      avatar: "/pixel-knight.png",
-    },
-    {
-      id: 14,
-      name: "Sage",
-      score: 2380,
-      clanId: 3,
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      id: 9,
-      name: "Avery",
-      score: 2320,
-      clanId: 2,
-      avatar: "/pixel-shield.png",
-    },
-    {
-      id: 20,
-      name: "Storm",
-      score: 2280,
-      clanId: 4,
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      id: 31,
-      name: "Sage",
-      score: 2150,
-      clanId: 6,
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      id: 5,
-      name: "Riley",
-      score: 2100,
-      clanId: 1,
-      avatar: "/pixel-rogue.png",
-    },
-    {
-      id: 26,
-      name: "Vega",
-      score: 2050,
-      clanId: 5,
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-  ];
-  return mockUsers;
-}
-
-type Member = {
-  address: `0x${string}`;
-  status: "active" | "eliminated" | "cooldown";
-};
-
-export async function getTeamMembers(teamId: number): Promise<Member[]> {
+export async function getTeamMembers(teamId: number) {
   try {
     const keys = await redisClient.keys(teamMemberKey(teamId, "*"));
 
@@ -137,11 +28,42 @@ export async function getTeamMembers(teamId: number): Promise<Member[]> {
 
     return results.map((result, index) => ({
       address: getTeamMemberAddress(keys[index]),
-      status: result[1] as "active" | "eliminated" | "cooldown",
+      status: getTeamMemberStatus(result[1]),
     }));
   } catch (error) {
     return [];
   }
+}
+
+function getTeamMemberStatus(status: string): TeamMember["status"] {
+  switch (status) {
+    case "1":
+      return "active";
+    case "2":
+      return "eliminated";
+    case "3":
+      return "cooldown";
+    default:
+      throw new Error(`Invalid team member status: ${status}`);
+  }
+}
+
+export async function getAllTeamMembers() {
+  const keys = await redisClient.keys(teamMemberKey("*", "*"));
+  const pipeline = redisClient.pipeline();
+  for (const key of keys) {
+    pipeline.get(key);
+  }
+  const results: string[] = await pipeline.exec<string[]>();
+
+  return results.map((result, index) => {
+    const parts = keys[index].split(":");
+    return {
+      teamId: Number(parts[1]),
+      address: parts[3] as `0x${string}`,
+      status: getTeamMemberStatus(result[1]),
+    };
+  });
 }
 
 export async function getTeamLeaderboardIDO() {

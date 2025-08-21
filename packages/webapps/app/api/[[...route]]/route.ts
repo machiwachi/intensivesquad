@@ -1,17 +1,16 @@
-import * as R from "ramda";
 import {
   teamEconomyConfig,
   teamManagerConfig,
 } from "@/lib/contracts/generated";
-import { getTeamLeaderboardIDO, getTeamMembers, getUsers } from "@/lib/data";
+import { getAllTeamMembers, getTeamLeaderboardIDO } from "@/lib/data";
 import { redisClient, teamMemberKey, userLeaderboardIDOKey } from "@/lib/redis";
-import type { Activity } from "@/lib/typings";
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { getCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";
 import { handle } from "hono/vercel";
 import { decode } from "next-auth/jwt";
+import * as R from "ramda";
 import {
   createPublicClient,
   createWalletClient,
@@ -21,7 +20,7 @@ import {
   parseEventLogs,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { multicall, readContract } from "viem/actions";
+import { multicall } from "viem/actions";
 import { sepolia } from "viem/chains";
 import { z } from "zod";
 
@@ -89,14 +88,10 @@ const app = new Hono()
 
     return c.json({ message: "hello", address });
   })
-  .get("/users", async (c) => {
-    const users = await getUsers();
-
-    return c.json(users);
-  })
   .get("/teams", async (c) => {
     // 获取团队排行榜（包含总分和成员信息）
     const leaderboard = await getTeamLeaderboardIDO();
+    const allTeamMembers = await getAllTeamMembers();
 
     // 使用 multicall 批量获取团队 WEDO 余额
     const teamWedoBalances = await multicall(publicClient, {
@@ -149,11 +144,21 @@ const app = new Hono()
           ? (metadataResult.result as unknown as [string, bigint])
           : ["", BigInt(0)];
 
+      const members = team.members.map((member) => {
+        const memberInfo = allTeamMembers.find(
+          (m) => m.address === member.address
+        );
+        return {
+          ...member,
+          status: memberInfo?.status ?? "active",
+        };
+      });
+
       return {
         id: team.teamId,
         name: teamMetadata[0] as string,
         remainingMembers: Number(teamMetadata[1]),
-        members: team.members,
+        members,
         totalScore: team.score,
         totalMembers: 6, // TODO: 可根据实际情况调整
         isUserTeam: false,
@@ -286,10 +291,13 @@ const app = new Hono()
     const flatRank = await redisClient.zrange(userLeaderboardIDOKey, 0, -1, {
       withScores: true,
     });
+    // @ts-ignore
     const createMemberScores = R.pipe(
       R.splitEvery(2),
+      // @ts-ignore
       R.map(R.zipObj(["address", "score"]))
     );
+    // @ts-ignore
     const sortedUsers: { address: `0x${string}`; score: number }[] =
       createMemberScores(flatRank);
     return c.json(sortedUsers);
@@ -297,28 +305,6 @@ const app = new Hono()
   .get("/leaderboard/ido/team", async (c) => {
     const teamLeaderboard = await getTeamLeaderboardIDO();
     return c.json(teamLeaderboard);
-  })
-  .get("/teamEconomy", async (c) => {
-    const leaderboard = await getTeamLeaderboardIDO();
-
-    const teamWedoBalances = await multicall(publicClient, {
-      contracts: leaderboard.map((team) => ({
-        ...teamEconomyConfig,
-        functionName: "teamWedoBalance",
-        args: [BigInt(team.teamId)],
-      })),
-    });
-    const teamLeverages = await multicall(publicClient, {
-      contracts: leaderboard.map((team) => ({
-        ...teamEconomyConfig,
-        functionName: "getTeamL",
-        args: [BigInt(team.teamId)],
-      })),
-    });
-
-    console.log(teamWedoBalances, teamLeverages);
-    // const res = await teamEconomy.read.stageScalar();
-    return c.json({});
   });
 
 export const GET = handle(app);
