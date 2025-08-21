@@ -1,5 +1,6 @@
 import { teamManagerConfig } from "@/lib/contracts/generated";
 import { getUsers } from "@/lib/data";
+import type { TeamMember } from "@/lib/hooks";
 import { Hono } from "hono";
 import { getCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";
@@ -8,6 +9,13 @@ import { decode } from "next-auth/jwt";
 import { createPublicClient, getContract, http } from "viem";
 import { readContract } from "viem/actions";
 import { sepolia } from "viem/chains";
+
+export type Activity = {
+  user: string;
+  action: string;
+  points: number;
+  time: string;
+};
 
 const client = createPublicClient({
   chain: sepolia,
@@ -65,21 +73,25 @@ const app = new Hono()
       })
     );
 
+    const members: TeamMember[] = [];
+    const activities: Activity[] = [];
+
     const rankedTeams = teams.map((t) => {
       return {
         ...t,
         totalScore: 0,
         totalMembers: 6,
-        members: [],
-        isUserClan: false,
+        members,
+        isUserTeam: false,
         rank: 0,
         leverage: 1.2,
         scoreHistory: [1, 2, 3],
-        activities: [],
+        activities,
         dividendVault: {
           totalBalance: 0,
           userClaimable: 0,
           lastDistribution: "",
+          totalDistributed: 12340.5,
         },
         flag: "🔥",
         previousRank: 9,

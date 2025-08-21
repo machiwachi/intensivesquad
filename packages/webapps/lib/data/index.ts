@@ -128,7 +128,7 @@ export async function getClans() {
       remainingMembers: 5,
       totalMembers: 6,
       leverage: 2.4,
-      isUserClan: true,
+      isUserTeam: true,
       dividendVault: {
         totalBalance: 2450.75,
         userClaimable: 408.46,

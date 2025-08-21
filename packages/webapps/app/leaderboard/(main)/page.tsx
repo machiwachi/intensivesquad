@@ -1,7 +1,6 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { useUserTokenBalances } from "@/lib/hooks/useTeamEconomy";
 import { useTeams, type Team } from "@/lib/hooks/useTeams";
 import { Skull, Trophy, Users, Zap } from "lucide-react";
 import { useState } from "react";

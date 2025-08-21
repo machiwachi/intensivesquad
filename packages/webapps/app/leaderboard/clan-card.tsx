@@ -37,7 +37,7 @@ export function ClanCard({
     <Card
       key={clan.id}
       className={`pixel-border hover:shadow-lg transition-all duration-200 hover:-translate-y-1 cursor-pointer group ${
-        clan.isUserClan
+        clan.isUserTeam
           ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
           : ""
       }`}
@@ -52,7 +52,7 @@ export function ClanCard({
                 <h3 className="font-bold pixel-font text-lg group-hover:text-primary transition-colors">
                   {clan.name}
                 </h3>
-                {clan.isUserClan && (
+                {clan.isUserTeam && (
                   <Badge
                     variant="default"
                     className="pixel-font text-xs bg-primary"

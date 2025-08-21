@@ -13,7 +13,7 @@ import {
 } from "../contracts/generated";
 import { useQuery } from "@tanstack/react-query";
 import { hc, type InferResponseType } from "hono/client";
-import type { AppType } from "@/app/api/[[...route]]/route";
+import type { Activity, AppType } from "@/app/api/[[...route]]/route";
 
 const client = hc<AppType>("/").api;
 
@@ -45,12 +45,7 @@ export interface Team {
   };
   members: TeamMember[];
   scoreHistory: number[];
-  activities: Array<{
-    user: string;
-    action: string;
-    points: number;
-    time: string;
-  }>;
+  activities: Array<Activity>;
 }
 
 // Hook to get a single team's data
@@ -123,7 +118,7 @@ export function useTeams() {
     return data.map((team) => {
       return {
         ...team,
-        isUserClan: Number(userTeamId) === team.id,
+        isUserTeam: Number(userTeamId) === team.id,
       };
     });
   }, [data, userTeamId]);

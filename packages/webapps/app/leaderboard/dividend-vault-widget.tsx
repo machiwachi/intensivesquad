@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useAccount } from "wagmi";
 import { useState } from "react";
-import { type Team } from "@/lib/hooks/useTeamsSimple";
+import { type Team } from "@/lib/hooks";
 import { useTeamEconomy } from "@/lib/hooks/useTeamEconomy";
 import { SCORE_TOKEN } from "@/lib/data";
 import { useReadTeamManagerAccountTeam } from "@/lib/contracts";
