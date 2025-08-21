@@ -13,7 +13,9 @@ import {
   useReadTeamEconomyLMax,
   useReadIdoTokenBalanceOf,
   useReadWedoTokenBalanceOf,
+  useReadTeamManagerAccountTeam,
 } from "../contracts/generated";
+import { formatEther } from "viem";
 
 export interface TeamEconomyData {
   teamId: number;
@@ -104,22 +106,31 @@ export function useTeamEconomy(teamId: number) {
 export function useUserTokenBalances() {
   const { address } = useAccount();
 
-  const { data: idoBalance } = useReadIdoTokenBalanceOf({
+  const { data: idoBalance, queryKey: idoQueryKey } = useReadIdoTokenBalanceOf({
     args: [address ?? "0x0000000000000000000000000000000000000000"],
   });
 
-  const { data: wedoBalance } = useReadWedoTokenBalanceOf({
-    args: [address ?? "0x0000000000000000000000000000000000000000"],
+  const { address: walletAddress } = useAccount();
+  const { data: userTeamId } = useReadTeamManagerAccountTeam({
+    args: [walletAddress ?? "0x0000000000000000000000000000000000000000"],
   });
+  const { data: wedoBalance, queryKey: wedoQueryKey } =
+    useReadTeamEconomyTeamWedoBalance({
+      args: [BigInt(userTeamId ?? 0)],
+    });
+
+  console.log({ idoQueryKey, wedoQueryKey });
 
   return useMemo(() => {
-    const balances: UserTokenBalances = {
-      idoBalance: idoBalance ? Number(idoBalance) / 10 ** 18 : 0,
-      wedoBalance: wedoBalance ? Number(wedoBalance) / 10 ** 18 : 0,
+    const balances = {
+      idoBalance: idoBalance ? formatEther(idoBalance) : "-",
+      wedoBalance: wedoBalance ? formatEther(wedoBalance) : "-",
+      idoQueryKey,
+      wedoQueryKey,
     };
 
     return balances;
-  }, [idoBalance, wedoBalance]);
+  }, [idoBalance, wedoBalance, idoQueryKey, wedoQueryKey]);
 }
 
 // Hook to get global economy parameters

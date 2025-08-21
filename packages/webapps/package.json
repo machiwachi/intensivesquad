@@ -9,6 +9,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@hono/zod-validator": "^0.7.2",
     "@hookform/resolvers": "^5.2.1",
     "@next-auth/prisma-adapter": "^1.0.7",
     "@radix-ui/react-accordion": "1.2.12",

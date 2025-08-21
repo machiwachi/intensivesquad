@@ -15,7 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import { hc, type InferResponseType } from "hono/client";
 import type { Activity, AppType } from "@/app/api/[[...route]]/route";
 
-const client = hc<AppType>("/").api;
+export const client = hc<AppType>("/").api;
 
 export type Clan = InferResponseType<typeof client.teams.$get>[number];
 
