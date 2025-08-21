@@ -1,18 +1,13 @@
-import { getClans, getUsers } from "@/lib/data";
-import { sepolia } from "viem/chains";
+import { teamManagerConfig } from "@/lib/contracts/generated";
+import { getUsers } from "@/lib/data";
 import { Hono } from "hono";
 import { getCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";
 import { handle } from "hono/vercel";
 import { decode } from "next-auth/jwt";
-import { createPublicClient, http } from "viem";
-import { getContract } from "viem";
-import {
-  teamEconomyConfig,
-  teamManagerAbi,
-  teamManagerConfig,
-} from "@/lib/contracts/generated";
+import { createPublicClient, getContract, http } from "viem";
 import { readContract } from "viem/actions";
+import { sepolia } from "viem/chains";
 
 const client = createPublicClient({
   chain: sepolia,

@@ -4,6 +4,7 @@ import { RankButton } from "./rank.button";
 import { Button } from "@/components/ui/button";
 import { Plus, Heart } from "lucide-react";
 import Link from "next/link";
+import BalanceWidget from "./balance.widget";
 export default function LeaderboardLayout({
   children,
 }: {
@@ -36,6 +37,7 @@ export default function LeaderboardLayout({
           </div>
 
           <div className="flex items-center gap-4">
+            <BalanceWidget />
             <RankButton />
             <CreateButton />
 

@@ -10,7 +10,6 @@ import { ClanDetailDialog } from "../clan-detail.dialog";
 
 export default function ClansLeaderboard() {
   const { teams, isLoading } = useTeams();
-  const { idoBalance } = useUserTokenBalances();
 
   const [selectedClan, setSelectedClan] = useState<Team | null>(null);
 
@@ -22,7 +21,6 @@ export default function ClansLeaderboard() {
   return (
     <div className="">
       {/* Header */}
-      Your balance: {idoBalance.toFixed(2)} IDO
       {/* Global Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         <Card className="pixel-border">
