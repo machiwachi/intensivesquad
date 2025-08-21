@@ -34,7 +34,9 @@ export interface TeamMember {
 }
 
 export type Activity = {
-  user: string;
+  id: string;
+  user: `0x${string}`;
+  teamId: number;
   action: string;
   points: number;
   time: string;

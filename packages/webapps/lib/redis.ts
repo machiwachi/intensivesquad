@@ -19,3 +19,12 @@ export const teamKey = (teamId: number) => `team:${teamId}`;
 
 export const userLeaderboardIDOKey = `leaderboard:ido:user`;
 export const userIDOKey = (address: string) => `user:${address}:ido`;
+
+// 活动追踪相关 keys
+export const activityStreamKey = (
+  teamId: number | "*",
+  address: `0x${string}` | "*"
+) => `activities:team:${teamId}:user:${address}`;
+export const globalActivityStreamKey = `activities:global`;
+export const userActivityKey = (address: string) =>
+  `activities:user:${address}`;
