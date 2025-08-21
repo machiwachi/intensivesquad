@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Heart } from "lucide-react";
-import { client } from "@/lib/hooks/useTeams";
+import { apiClient } from "@/lib/hooks/useTeams";
 import {
   useAccount,
   usePublicClient,
@@ -55,7 +55,7 @@ export default function Kiosk() {
 
     try {
       setIsLoading(true);
-      const response = await client.credit.$post({
+      const response = await apiClient.credit.$post({
         json: {
           amount: 10,
           account: address,

@@ -12,10 +12,18 @@ import {
 } from "@/components/ui/dialog";
 import { SCORE_TOKEN, type Clan } from "@/lib/data";
 import { formatTokenAmount } from "@/lib/utils";
-import { UserPlus } from "lucide-react";
+import { UserMinus, UserPlus } from "lucide-react";
 import { DividendVaultWidget } from "./dividend-vault-widget";
 import { useAccount } from "wagmi";
-import { useState } from "react";
+import React, { useState, type MouseEvent } from "react";
+import {
+  useWriteTeamManagerLeave,
+  useWriteTeamManagerJoin,
+} from "@/lib/contracts";
+import { apiClient } from "@/lib/hooks";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { useReadTeamManagerAccountTeam } from "@/lib/contracts/generated";
 
 export function ClanDetailDialog({
   open,
@@ -26,21 +34,87 @@ export function ClanDetailDialog({
   onOpenChange: (open: boolean) => void;
   clan: Clan | null;
 }) {
-  const { address: walletAddress, isConnected: isWalletConnected } =
-    useAccount();
+  const { address, isConnected: isWalletConnected } = useAccount();
+  const { isPending: isLeavePending, writeContractAsync: leaveClanAsync } =
+    useWriteTeamManagerLeave();
+  const { isPending: isJoinPending, writeContractAsync: joinClanAsync } =
+    useWriteTeamManagerJoin();
+  const queryClient = useQueryClient();
 
-  const [joinedClans, setJoinedClans] = useState<Set<number>>(new Set([1])); // Mock: already joined clan 1
+  const { data: userTeamId, refetch: refetchUserTeamId } =
+    useReadTeamManagerAccountTeam({
+      args: [address ?? "0x0000000000000000000000000000000000000000"],
+    });
 
-  const handleJoinClan = (clanId: number, event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent opening clan details
-    if (isWalletConnected && !joinedClans.has(clanId)) {
-      setJoinedClans((prev) => new Set([...prev, clanId]));
+  async function handleJoinClan(id: number, e: React.MouseEvent) {
+    e.stopPropagation();
+
+    console.log("尝试加入部落，部落ID:", id);
+
+    try {
+      const tx = await joinClanAsync({
+        args: [BigInt(id)],
+      });
+      console.log("加入部落交易已发送，交易哈希:", tx);
+
+      const verifyRes = await apiClient.members.events.$post({
+        json: {
+          txHash: tx,
+        },
+      });
+
+      console.log("后端校验结果:", verifyRes);
+
+      if (!verifyRes.ok) {
+        console.error("加入部落失败，后端返回非OK:", verifyRes);
+        throw new Error("加入部落失败");
+      }
+
+      toast.success("加入部落成功");
+      console.log("加入部落成功");
+
+      queryClient.invalidateQueries({ queryKey: ["teams"] });
+      refetchUserTeamId();
+    } catch (err) {
+      console.error("加入部落失败:", err);
+      toast.error("加入部落失败");
     }
-  };
+  }
 
-  const canJoinClan = (clanId: number) => {
-    return isWalletConnected && !joinedClans.has(clanId);
-  };
+  async function handleLeaveClan(id: number, e: React.MouseEvent) {
+    e.stopPropagation();
+
+    console.log("尝试离开部落，部落ID:", id);
+
+    try {
+      const tx = await leaveClanAsync({
+        args: [BigInt(0)],
+      });
+      console.log("离开部落交易已发送，交易哈希:", tx);
+
+      const verifyRes = await apiClient.members.events.$post({
+        json: {
+          txHash: tx,
+        },
+      });
+
+      console.log("后端校验结果:", verifyRes);
+
+      if (!verifyRes.ok) {
+        console.error("离开部落失败，后端返回非OK:", verifyRes);
+        throw new Error("离开部落失败");
+      }
+
+      toast.success("离开部落成功");
+      console.log("离开部落成功");
+
+      queryClient.invalidateQueries({ queryKey: ["teams"] });
+      refetchUserTeamId();
+    } catch (err) {
+      console.error("离开部落失败:", err);
+      toast.error("离开部落失败");
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -62,13 +136,25 @@ export function ClanDetailDialog({
               </DialogTitle>
             </DialogHeader>
 
-            {canJoinClan(clan.id) && (
+            {!userTeamId && (
               <Button
                 onClick={(e) => handleJoinClan(clan.id, e)}
                 className="w-full pixel-border pixel-font"
+                disabled={isJoinPending}
               >
                 <UserPlus className="w-4 h-4 mr-2" />
-                加入 {clan.name}
+                {isJoinPending ? "加入中..." : `加入 ${clan.name}`}
+              </Button>
+            )}
+
+            {Number(userTeamId ?? 0) === clan.id && (
+              <Button
+                onClick={(e) => handleLeaveClan(clan.id, e)}
+                className="w-full pixel-border pixel-font"
+                disabled={isLeavePending}
+              >
+                <UserMinus className="w-4 h-4 mr-2" />
+                {isLeavePending ? "离开中..." : `离开 ${clan.name}`}
               </Button>
             )}
 
