@@ -39,23 +39,33 @@ export async function getTeamMembers(teamId: number) {
   }
 }
 
-export async function getAllTeamMembers() {
-  const keys = await redisClient.keys(teamMemberKey("*", "*"));
-  const pipeline = redisClient.pipeline();
-  for (const key of keys) {
-    pipeline.get(key);
-  }
-  const results = await pipeline.exec<TeamMemberStatus[]>();
+export async function getAllTeamMembers(): Promise<
+  {
+    teamId: number;
+    address: `0x${string}`;
+    status: TeamMemberStatus;
+  }[]
+> {
+  try {
+    const keys = await redisClient.keys(teamMemberKey("*", "*"));
+    const pipeline = redisClient.pipeline();
+    for (const key of keys) {
+      pipeline.get(key);
+    }
+    const results = await pipeline.exec<TeamMemberStatus[]>();
 
-  return results.map((result, index) => {
-    console.log({ result });
-    const parts = keys[index].split(":");
-    return {
-      teamId: Number(parts[1]),
-      address: parts[3] as `0x${string}`,
-      status: result,
-    };
-  });
+    return results.map((result, index) => {
+      console.log({ result });
+      const parts = keys[index].split(":");
+      return {
+        teamId: Number(parts[1]),
+        address: parts[3] as `0x${string}`,
+        status: result,
+      };
+    });
+  } catch (error) {
+    return [];
+  }
 }
 
 export async function getTeamLeaderboardIDO() {
