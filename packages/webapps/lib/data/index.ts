@@ -1,7 +1,10 @@
-export type User = Awaited<ReturnType<typeof getUsers>>[number];
-export { type Clan } from "@/lib/hooks/useTeams";
-
-export type TokenType = typeof SCORE_TOKEN;
+import {
+  getTeamMemberAddress,
+  redisClient,
+  teamMemberKey,
+  userLeaderboardIDOKey,
+} from "../redis";
+import type { TeamMember } from "../typings";
 
 export const SCORE_TOKEN = {
   symbol: "STUDY",
@@ -10,511 +13,100 @@ export const SCORE_TOKEN = {
   address: "0x1234...5678",
 };
 
+type TeamMemberStatus = "active" | "eliminated" | "cooldown";
+
 // Mock data for clans
 
-export async function getUsers() {
-  const mockUsers = [
-    {
-      id: 1,
-      name: "Alex",
-      score: 3420,
-      clanId: 1,
-      avatar: "/pixel-warrior.png",
-    },
-    { id: 2, name: "Sam", score: 3200, clanId: 1, avatar: "/pixel-mage.png" },
-    {
-      id: 7,
-      name: "Taylor",
-      score: 3100,
-      clanId: 2,
-      avatar: "/placeholder-4jpab.png",
-    },
-    {
-      id: 13,
-      name: "Phoenix",
-      score: 2980,
-      clanId: 3,
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      id: 3,
-      name: "Jordan",
-      score: 2850,
-      clanId: 1,
-      avatar: "/pixel-archer.png",
-    },
-    {
-      id: 8,
-      name: "Blake",
-      score: 2750,
-      clanId: 2,
-      avatar: "/pixel-warrior.png",
-    },
-    {
-      id: 19,
-      name: "Echo",
-      score: 2650,
-      clanId: 4,
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      id: 25,
-      name: "Orion",
-      score: 2580,
-      clanId: 5,
-      avatar: "/pixel-knight.png",
-    },
-    {
-      id: 4,
-      name: "Casey",
-      score: 2450,
-      clanId: 1,
-      avatar: "/pixel-knight.png",
-    },
-    {
-      id: 14,
-      name: "Sage",
-      score: 2380,
-      clanId: 3,
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      id: 9,
-      name: "Avery",
-      score: 2320,
-      clanId: 2,
-      avatar: "/pixel-shield.png",
-    },
-    {
-      id: 20,
-      name: "Storm",
-      score: 2280,
-      clanId: 4,
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      id: 31,
-      name: "Sage",
-      score: 2150,
-      clanId: 6,
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-    {
-      id: 5,
-      name: "Riley",
-      score: 2100,
-      clanId: 1,
-      avatar: "/pixel-rogue.png",
-    },
-    {
-      id: 26,
-      name: "Vega",
-      score: 2050,
-      clanId: 5,
-      avatar: "/placeholder.svg?height=32&width=32",
-    },
-  ];
-  return mockUsers;
+export async function getTeamMembers(teamId: number) {
+  try {
+    const keys = await redisClient.keys(teamMemberKey(teamId, "*"));
+
+    console.log(keys);
+    const pipeline = redisClient.pipeline();
+    for (const key of keys) {
+      pipeline.get(key);
+    }
+    const results: TeamMemberStatus[] = await pipeline.exec<
+      TeamMemberStatus[]
+    >();
+
+    return results.map((result, index) => ({
+      address: getTeamMemberAddress(keys[index]),
+      status: result,
+    }));
+  } catch (error) {
+    return [];
+  }
 }
-export async function getClans() {
-  const mockClans = [
+
+export async function getAllTeamMembers() {
+  const keys = await redisClient.keys(teamMemberKey("*", "*"));
+  const pipeline = redisClient.pipeline();
+  for (const key of keys) {
+    pipeline.get(key);
+  }
+  const results = await pipeline.exec<TeamMemberStatus[]>();
+
+  return results.map((result, index) => {
+    console.log({ result });
+    const parts = keys[index].split(":");
+    return {
+      teamId: Number(parts[1]),
+      address: parts[3] as `0x${string}`,
+      status: result,
+    };
+  });
+}
+
+export async function getTeamLeaderboardIDO() {
+  // 获取所有团队成员的 Redis key
+  const keys = await redisClient.keys(teamMemberKey("*", "*"));
+
+  // 解析出所有成员地址和团队ID
+  const memberInfo: { teamId: number; address: `0x${string}` }[] = keys.map(
+    (key: string) => {
+      // key 形如 team:1:member:0xabc...
+      const parts = key.split(":");
+      return {
+        teamId: Number(parts[1]),
+        address: parts[3] as `0x${string}`,
+      };
+    }
+  );
+
+  // 获取所有用户的 IDO 排行分数
+  const idoBalances = await redisClient.zrange(userLeaderboardIDOKey, 0, -1, {
+    withScores: true,
+  });
+  // idoBalances: [address1, score1, address2, score2, ...]
+  const addressToScore: Record<string, number> = {};
+  for (let i = 0; i < idoBalances.length; i += 2) {
+    addressToScore[idoBalances[i] as string] = Number(idoBalances[i + 1]);
+  }
+
+  // 聚合每个团队的总分
+  const teamScores: Record<
+    number,
     {
-      id: 1,
-      name: "Code Crusaders",
-      flag: "⚔️",
-      rank: 1,
-      previousRank: 2,
-      totalScore: 15420,
-      remainingMembers: 5,
-      totalMembers: 6,
-      leverage: 2.4,
-      isUserTeam: true,
-      dividendVault: {
-        totalBalance: 2450.75,
-        userClaimable: 408.46,
-        lastDistribution: "2 days ago",
-        totalDistributed: 12340.5,
-      },
-      members: [
-        { id: 1, name: "Alex", avatar: "/pixel-warrior.png", status: "active" },
-        { id: 2, name: "Sam", avatar: "/pixel-mage.png", status: "active" },
-        {
-          id: 3,
-          name: "Jordan",
-          avatar: "/pixel-archer.png",
-          status: "active",
-        },
-        { id: 4, name: "Casey", avatar: "/pixel-knight.png", status: "active" },
-        { id: 5, name: "Riley", avatar: "/pixel-rogue.png", status: "active" },
-        {
-          id: 6,
-          name: "Morgan",
-          avatar: "/pixel-paladin.png",
-          status: "eliminated",
-        },
-      ],
-      scoreHistory: [12000, 13500, 14200, 15420],
-      activities: [
-        {
-          user: "Alex",
-          action: "Completed Math Quiz",
-          points: 150,
-          time: "2 hours ago",
-        },
-        {
-          user: "Sam",
-          action: "Study Session",
-          points: 200,
-          time: "4 hours ago",
-        },
-        {
-          user: "Jordan",
-          action: "Flashcard Review",
-          points: 100,
-          time: "6 hours ago",
-        },
-      ],
-    },
-    {
-      id: 2,
-      name: "Study Spartans",
-      flag: "🛡️",
-      rank: 2,
-      previousRank: 1,
-      totalScore: 14890,
-      remainingMembers: 4,
-      totalMembers: 6,
-      leverage: 1.8,
-      dividendVault: {
-        totalBalance: 1890.25,
-        userClaimable: 0,
-        lastDistribution: "1 day ago",
-        totalDistributed: 8750.3,
-      },
-      members: [
-        {
-          id: 7,
-          name: "Taylor",
-          avatar: "/placeholder-4jpab.png",
-          status: "active",
-        },
-        {
-          id: 8,
-          name: "Blake",
-          avatar: "/pixel-warrior.png",
-          status: "active",
-        },
-        { id: 9, name: "Avery", avatar: "/pixel-shield.png", status: "active" },
-        { id: 10, name: "Quinn", avatar: "/pixel-spear.png", status: "active" },
-        {
-          id: 11,
-          name: "Sage",
-          avatar: "/pixel-helm.png",
-          status: "eliminated",
-        },
-        {
-          id: 12,
-          name: "River",
-          avatar: "/pixel-armor.png",
-          status: "eliminated",
-        },
-      ],
-      scoreHistory: [15200, 14800, 14500, 14890],
-      activities: [
-        {
-          user: "Taylor",
-          action: "Physics Problem Set",
-          points: 180,
-          time: "1 hour ago",
-        },
-        {
-          user: "Blake",
-          action: "Literature Essay",
-          points: 220,
-          time: "3 hours ago",
-        },
-      ],
-    },
-    {
-      id: 3,
-      name: "Brain Busters",
-      flag: "🧠",
-      rank: 3,
-      previousRank: 4,
-      totalScore: 13750,
-      remainingMembers: 6,
-      totalMembers: 6,
-      leverage: 3.2,
-      dividendVault: {
-        totalBalance: 3250.8,
-        userClaimable: 0,
-        lastDistribution: "3 days ago",
-        totalDistributed: 15670.9,
-      },
-      members: [
-        {
-          id: 13,
-          name: "Phoenix",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "active",
-        },
-        {
-          id: 14,
-          name: "Sage",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "active",
-        },
-        {
-          id: 15,
-          name: "Nova",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "active",
-        },
-        {
-          id: 16,
-          name: "Zara",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "active",
-        },
-        {
-          id: 17,
-          name: "Kai",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "active",
-        },
-        {
-          id: 18,
-          name: "Luna",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "active",
-        },
-      ],
-      scoreHistory: [12800, 13200, 13400, 13750],
-      activities: [
-        {
-          user: "Phoenix",
-          action: "Chemistry Lab",
-          points: 190,
-          time: "30 minutes ago",
-        },
-        {
-          user: "Nova",
-          action: "History Timeline",
-          points: 160,
-          time: "2 hours ago",
-        },
-      ],
-    },
-    {
-      id: 4,
-      name: "Quiz Questers",
-      flag: "🏆",
-      rank: 4,
-      previousRank: 3,
-      totalScore: 12980,
-      remainingMembers: 3,
-      totalMembers: 6,
-      leverage: 1.5,
-      dividendVault: {
-        totalBalance: 980.45,
-        userClaimable: 0,
-        lastDistribution: "5 days ago",
-        totalDistributed: 4520.75,
-      },
-      members: [
-        {
-          id: 19,
-          name: "Echo",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "active",
-        },
-        {
-          id: 20,
-          name: "Storm",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "active",
-        },
-        {
-          id: 21,
-          name: "Blaze",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "active",
-        },
-        {
-          id: 22,
-          name: "Frost",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "eliminated",
-        },
-        {
-          id: 23,
-          name: "Ember",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "eliminated",
-        },
-        {
-          id: 24,
-          name: "Mist",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "eliminated",
-        },
-      ],
-      scoreHistory: [13500, 13200, 12800, 12980],
-      activities: [
-        {
-          user: "Echo",
-          action: "Biology Quiz",
-          points: 140,
-          time: "1 hour ago",
-        },
-        {
-          user: "Storm",
-          action: "Vocabulary Test",
-          points: 120,
-          time: "5 hours ago",
-        },
-      ],
-    },
-    {
-      id: 5,
-      name: "Knowledge Knights",
-      flag: "⚡",
-      rank: 5,
-      previousRank: 6,
-      totalScore: 11650,
-      remainingMembers: 4,
-      totalMembers: 6,
-      leverage: 2.1,
-      dividendVault: {
-        totalBalance: 1650.3,
-        userClaimable: 0,
-        lastDistribution: "4 days ago",
-        totalDistributed: 7890.25,
-      },
-      members: [
-        {
-          id: 25,
-          name: "Orion",
-          avatar: "/pixel-knight.png",
-          status: "active",
-        },
-        {
-          id: 26,
-          name: "Vega",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "active",
-        },
-        {
-          id: 27,
-          name: "Atlas",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "active",
-        },
-        {
-          id: 28,
-          name: "Iris",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "active",
-        },
-        {
-          id: 29,
-          name: "Zephyr",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "eliminated",
-        },
-        {
-          id: 30,
-          name: "Cosmos",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "eliminated",
-        },
-      ],
-      scoreHistory: [10800, 11200, 11400, 11650],
-      activities: [
-        {
-          user: "Orion",
-          action: "Algebra Practice",
-          points: 130,
-          time: "3 hours ago",
-        },
-        {
-          user: "Vega",
-          action: "Science Fair Project",
-          points: 250,
-          time: "7 hours ago",
-        },
-      ],
-    },
-    {
-      id: 6,
-      name: "Wisdom Warriors",
-      flag: "📚",
-      rank: 6,
-      previousRank: 5,
-      totalScore: 10420,
-      remainingMembers: 2,
-      totalMembers: 6,
-      leverage: 1.2,
-      dividendVault: {
-        totalBalance: 420.15,
-        userClaimable: 0,
-        lastDistribution: "6 days ago",
-        totalDistributed: 2340.8,
-      },
-      members: [
-        {
-          id: 31,
-          name: "Sage",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "active",
-        },
-        {
-          id: 32,
-          name: "Raven",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "active",
-        },
-        {
-          id: 33,
-          name: "Willow",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "eliminated",
-        },
-        {
-          id: 34,
-          name: "Cedar",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "eliminated",
-        },
-        {
-          id: 35,
-          name: "Rowan",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "eliminated",
-        },
-        {
-          id: 36,
-          name: "Aspen",
-          avatar: "/placeholder.svg?height=32&width=32",
-          status: "eliminated",
-        },
-      ],
-      scoreHistory: [11200, 10800, 10500, 10420],
-      activities: [
-        {
-          user: "Sage",
-          action: "Reading Comprehension",
-          points: 110,
-          time: "4 hours ago",
-        },
-        {
-          user: "Raven",
-          action: "Essay Writing",
-          points: 180,
-          time: "8 hours ago",
-        },
-      ],
-    },
-  ];
-  return mockClans;
+      teamId: number;
+      score: number;
+      members: { address: `0x${string}`; score: number }[];
+    }
+  > = {};
+
+  for (const { teamId, address } of memberInfo) {
+    const score = addressToScore[address] ?? 0;
+    if (!teamScores[teamId]) {
+      teamScores[teamId] = { teamId, score: 0, members: [] };
+    }
+    teamScores[teamId].score += score;
+    teamScores[teamId].members.push({ address, score });
+  }
+
+  // 转为数组并按分数降序排序
+  const leaderboard = Object.values(teamScores).sort(
+    (a, b) => b.score - a.score
+  );
+
+  return leaderboard;
 }

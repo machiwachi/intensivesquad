@@ -1,21 +1,28 @@
 "use client";
 
 import { Card, CardContent } from "@/components/ui/card";
-import { useTeams, type Team } from "@/lib/hooks/useTeams";
+import { useTeams } from "@/lib/hooks/useTeams";
+import { type Team } from "@/lib/typings";
 import { Skull, Trophy, Users, Zap } from "lucide-react";
 import { useState } from "react";
 import { ClanCard } from "../clan-card";
 import { ClanDetailDialog } from "../clan-detail.dialog";
+import { useReadIdoTokenTotalSupply } from "@/lib/contracts";
+import { formatEther } from "viem";
 
 export default function ClansLeaderboard() {
   const { teams, isLoading } = useTeams();
+  const {
+    data: idoTokenTotalSupply,
+    isLoading: isLoadingIDO,
+    isError: isErrorIDO,
+  } = useReadIdoTokenTotalSupply();
 
   const [selectedClan, setSelectedClan] = useState<Team | null>(null);
 
   if (isLoading || !teams) return null;
 
   const totalClans = teams.length;
-  const totalScore = teams.reduce((sum, team) => sum + team.totalScore, 0);
 
   return (
     <div className="">
@@ -39,7 +46,11 @@ export default function ClansLeaderboard() {
             <Trophy className="w-8 h-8 text-accent" />
             <div>
               <p className="text-2xl font-bold pixel-font">
-                {totalScore.toFixed(0)}
+                {isLoadingIDO
+                  ? "Loading..."
+                  : isErrorIDO || !idoTokenTotalSupply
+                  ? "--"
+                  : formatEther(idoTokenTotalSupply)}
               </p>
               <p className="text-sm text-muted-foreground pixel-font">
                 总计流通量 IDO

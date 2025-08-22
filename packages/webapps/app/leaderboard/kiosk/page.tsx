@@ -1,19 +1,16 @@
-"use client";
-import { Button } from "@/components/retroui/Button";
-import { Heart } from "lucide-react";
-import { client } from "@/lib/hooks/useTeams";
+'use client';
+import { Button } from '@/components/ui/button';
+import { apiClient } from '@/lib/api';
+import { cn } from '@/lib/utils';
+import { useQueryClient } from '@tanstack/react-query';
+import { Heart } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import {
   useAccount,
   usePublicClient,
   useWaitForTransactionReceipt,
-} from "wagmi";
-import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
-import { useUserTokenBalances } from "@/lib/hooks";
-import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { useWatchTeamEconomyTeamWithdrawEvent } from "@/lib/contracts";
-import { useEffect } from "react";
+} from 'wagmi';
 
 const getBlockchainExplorerUrl = (hash: `0x${string}`) => {
   return `https://sepolia.etherscan.io/tx/${hash}`;
@@ -36,9 +33,9 @@ export default function Kiosk() {
 
   useEffect(() => {
     if (isIdoSuccess && isWedoSuccess) {
-      toast.success("发放成功");
+      toast.success('发放成功');
       queryClient.invalidateQueries({
-        queryKey: ["readContract", { functionName: "balanceOf" }],
+        queryKey: ['readContract', { functionName: 'balanceOf' }],
       });
     }
   }, [isIdoSuccess, isWedoSuccess]);
@@ -47,7 +44,7 @@ export default function Kiosk() {
 
   const handleClick = async () => {
     if (!address || !publicClient) {
-      toast.error("请连接钱包");
+      toast.error('请连接钱包');
       return;
     }
 
@@ -55,7 +52,7 @@ export default function Kiosk() {
 
     try {
       setIsLoading(true);
-      const response = await client.credit.$post({
+      const response = await apiClient.credit.$post({
         json: {
           amount: 10,
           account: address,
@@ -68,10 +65,10 @@ export default function Kiosk() {
 
       const data = await response.json();
 
-      setTxs((prev) => [data.idoTx, data.wedoTx]);
+      setTxs(prev => [data.idoTx, data.wedoTx]);
     } catch (error) {
       console.error(error);
-      toast.error("发放失败");
+      toast.error('发放失败');
     } finally {
       setIsLoading(false);
     }
@@ -85,12 +82,11 @@ export default function Kiosk() {
           size="icon"
           className="pixel-border pixel-font rounded-full size-14"
           onClick={handleClick}
-          disabled={isLoading}
-        >
+          disabled={isLoading}>
           <Heart
             className={cn(
-              "size-10 fill-red-500 stroke-0",
-              isLoading && "animate-ping animate-infinite"
+              'size-10 fill-red-500 stroke-0',
+              isLoading && 'animate-ping animate-infinite'
             )}
           />
         </Button>
@@ -99,7 +95,7 @@ export default function Kiosk() {
       <div className="flex flex-col gap-2">
         {txs[0] && (
           <div>
-            IDO 上链{isIdoSuccess ? "成功" : "发送中"}:{" "}
+            IDO 上链{isIdoSuccess ? '成功' : '发送中'}:{' '}
             <a href={getBlockchainExplorerUrl(txs[0])} target="_blank">
               {txs[0]}
             </a>
@@ -107,7 +103,7 @@ export default function Kiosk() {
         )}
         {txs[1] && (
           <div>
-            WEDO 上链{isWedoSuccess ? "成功" : "发送中"}:{" "}
+            WEDO 上链{isWedoSuccess ? '成功' : '发送中'}:{' '}
             <a href={getBlockchainExplorerUrl(txs[1])} target="_blank">
               {txs[1]}
             </a>
