@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/retroui/Button";
+import { Card, CardContent, CardHeader } from "@/components/retroui/Card";
 import { apiClient } from "@/lib/api";
 import { getBlockchainExplorerUrl } from "@/lib/utils";
 import { IDO_TOKEN, WEDO_TOKEN } from "@/lib/constant";
@@ -205,7 +205,7 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
   const hasClaimableRewards = canClaimRewards(clan.id);
 
   return (
-    <Card className="pixel-border">
+    <Card className="w-full hover:shadow-md">
       <CardHeader className="pb-2">
         <div className="flex items-center gap-2">
           <Coins className="w-5 h-5 text-yellow-500" />

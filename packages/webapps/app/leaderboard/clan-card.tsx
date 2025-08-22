@@ -1,7 +1,8 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/retroui/Card";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { type Team } from "@/lib/typings";
 import { formatEther } from "viem";
@@ -22,11 +23,7 @@ export function ClanCard({
   return (
     <Card
       key={clan.id}
-      className={`pixel-border hover:shadow-lg transition-all duration-200 hover:-translate-y-1 cursor-pointer group ${
-        clan.isUserTeam
-          ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
-          : ""
-      }`}
+      className={`${clan.isUserTeam ? "ring-primary " : ""}`}
       onClick={() => onClick(clan)}
     >
       <CardHeader className="pb-3">
@@ -35,7 +32,7 @@ export function ClanCard({
             <div className="text-3xl">{clan.flag}</div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold pixel-font text-lg group-hover:text-primary transition-colors">
+                <h3 className="font-bold text-lg group-hover:text-primary transition-colors">
                   {clan.name}
                 </h3>
                 {clan.isUserTeam && (
@@ -66,14 +63,14 @@ export function ClanCard({
         <MemberRing members={clan.members} />
 
         <div className="flex justify-between items-center text-sm">
-          <div className="pixel-font">
+          <div className="">
             <span className="text-primary font-bold">
               {clan.remainingMembers}
             </span>
             <span className="text-muted-foreground">/{clan.totalMembers}</span>
             <span className="ml-2 text-muted-foreground">剩余</span>
           </div>
-          <div className="pixel-font">
+          <div className="">
             <span className="text-accent font-bold">
               L={formatTokenAmount(clan.leverage, { symbol: "", decimals: 3 })}
             </span>

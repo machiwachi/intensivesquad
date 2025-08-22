@@ -9,10 +9,20 @@ import { Providers } from "@/components/providers";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 
-const orbitron = Orbitron({
+import { Archivo_Black, Space_Grotesk } from "next/font/google";
+
+const archivoBlack = Archivo_Black({
   subsets: ["latin"],
+  weight: "400",
+  variable: "--font-head",
   display: "swap",
-  variable: "--font-orbitron",
+});
+
+const space = Space_Grotesk({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-sans",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -31,7 +41,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${orbitron.variable} antialiased`}
+      className={`${archivoBlack.variable} ${space.variable} antialiased`}
       suppressHydrationWarning
     >
       <body className="scanlines">

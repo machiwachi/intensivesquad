@@ -3,14 +3,13 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/retroui/Dialog";
 import { apiClient } from "@/lib/api";
+import { IDO_TOKEN, WEDO_TOKEN } from "@/lib/constant";
 import {
   useWriteTeamManagerJoin,
   useWriteTeamManagerLeave,
@@ -23,10 +22,8 @@ import { blo } from "blo";
 import { UserMinus, UserPlus } from "lucide-react";
 import React from "react";
 import { toast } from "sonner";
-import { formatEther } from "viem";
 import { useAccount } from "wagmi";
 import { DividendVaultWidget } from "./dividend-vault-widget";
-import { WEDO_TOKEN, IDO_TOKEN } from "@/lib/constant";
 
 export function ClanDetailDialog({
   open,
@@ -139,7 +136,7 @@ export function ClanDetailDialog({
         {clan && (
           <>
             <DialogHeader>
-              <DialogTitle className="flex items-center gap-3 pixel-font text-2xl">
+              <div className="flex items-center gap-3 pixel-font text-2xl">
                 <span className="text-3xl">{clan.flag}</span>
                 {clan.name}
                 <Badge variant="secondary" className="pixel-font">
@@ -150,10 +147,10 @@ export function ClanDetailDialog({
                     我的部落
                   </Badge>
                 )}
-              </DialogTitle>
+              </div>
             </DialogHeader>
 
-            <div className="space-y-6">
+            <div className="space-y-6 p-4">
               {/* Dividend Vault Widget */}
               <DividendVaultWidget clan={clan} />
 
