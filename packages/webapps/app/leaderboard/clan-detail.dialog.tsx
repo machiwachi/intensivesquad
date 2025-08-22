@@ -179,34 +179,11 @@ export function ClanDetailDialog({
               {/* Dividend Vault Widget */}
               <DividendVaultWidget clan={clan} />
 
-              {/* Score Breakdown */}
-              <div className="grid grid-cols-2 gap-4">
-                <Card className="pixel-border">
-                  <CardContent className="p-4">
-                    <h4 className="pixel-font font-bold mb-2">总计 IDO</h4>
-                    <p className="text-2xl font-bold text-primary pixel-font">
-                      {clan.totalScore}
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card className="pixel-border">
-                  <CardContent className="p-4">
-                    <h4 className="pixel-font font-bold mb-2">杠杆</h4>
-                    <p className="text-2xl font-bold text-accent pixel-font">
-                      {formatTokenAmount(clan.leverage, {
-                        symbol: "",
-                        decimals: 3,
-                      })}
-                      x
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-
               {/* Members */}
               <div>
-                <h4 className="pixel-font font-bold mb-3">部落成员</h4>
+                <h4 className="pixel-font font-bold mb-3">
+                  部落成员(总计 {clan.totalScore} IDO)
+                </h4>
                 <div className="grid grid-cols-2 gap-2">
                   {clan.members.map((member) => (
                     <div
