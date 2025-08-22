@@ -26,7 +26,7 @@ import {
   parseEventLogs,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { multicall } from "viem/actions";
+import { multicall, readContract } from "viem/actions";
 import { sepolia } from "viem/chains";
 import { z } from "zod";
 
@@ -91,6 +91,31 @@ const app = new Hono()
   .route("/test", testRouter)
   .get("/hello", async (c) => {
     const address = c.var.address;
+    const results = await multicall(publicClient, {
+      contracts: [
+        {
+          ...teamEconomyConfig,
+          functionName: "getTeamL",
+          args: [BigInt(1)],
+        },
+        {
+          ...teamEconomyConfig,
+          functionName: "getR",
+          args: [BigInt(1)],
+        },
+        {
+          ...teamManagerConfig,
+          functionName: "getTeamSize",
+          args: [BigInt(1)],
+        },
+        {
+          ...teamEconomyConfig,
+          functionName: "getStageScalar",
+        },
+      ],
+    });
+
+    console.log({ results });
 
     return c.json({ message: "hello", address });
   })
