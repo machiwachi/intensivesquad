@@ -1,7 +1,8 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/retroui/Card";
+
 import { Skeleton } from "@/components/ui/skeleton";
 import { type Team } from "@/lib/typings";
 import { formatEther } from "viem";
@@ -22,11 +23,7 @@ export function ClanCard({
   return (
     <Card
       key={clan.id}
-      className={`pixel-border hover:shadow-lg transition-all duration-200 hover:-translate-y-1 cursor-pointer group ${
-        clan.isUserTeam
-          ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
-          : ""
-      }`}
+      className={`${clan.isUserTeam ? "ring-primary " : ""}`}
       onClick={() => onClick(clan)}
     >
       <CardHeader className="pb-3">
@@ -35,27 +32,24 @@ export function ClanCard({
             <div className="text-3xl">{clan.flag}</div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="font-bold pixel-font text-lg group-hover:text-primary transition-colors">
+                <h3 className="font-bold text-lg group-hover:text-primary transition-colors">
                   {clan.name}
                 </h3>
                 {clan.isUserTeam && (
-                  <Badge
-                    variant="default"
-                    className="pixel-font text-xs bg-primary"
-                  >
+                  <Badge variant="default" className=" text-xs bg-primary">
                     我的团队
                   </Badge>
                 )}
               </div>
               <div className="flex items-center gap-2">
                 <RankIcon rank={clan.rank} />
-                <span className="pixel-font text-sm">排名 #{clan.rank}</span>
+                <span className=" text-sm">排名 #{clan.rank}</span>
                 <RankChange current={clan.rank} previous={clan.previousRank} />
               </div>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="pixel-font text-xs">
+            <Badge variant="secondary" className=" text-xs">
               {clan.totalScore} IDO
             </Badge>
           </div>
@@ -66,14 +60,14 @@ export function ClanCard({
         <MemberRing members={clan.members} />
 
         <div className="flex justify-between items-center text-sm">
-          <div className="pixel-font">
+          <div className="">
             <span className="text-primary font-bold">
               {clan.remainingMembers}
             </span>
             <span className="text-muted-foreground">/{clan.totalMembers}</span>
             <span className="ml-2 text-muted-foreground">剩余</span>
           </div>
-          <div className="pixel-font">
+          <div className="">
             <span className="text-accent font-bold">
               L={formatTokenAmount(clan.leverage, { symbol: "", decimals: 3 })}
             </span>
@@ -81,9 +75,7 @@ export function ClanCard({
         </div>
 
         <div className="flex justify-between items-center">
-          <span className="text-xs text-muted-foreground pixel-font">
-            分数趋势
-          </span>
+          <span className="text-xs text-muted-foreground ">分数趋势</span>
           <Sparkline data={clan.scoreHistory} />
         </div>
 
@@ -96,7 +88,7 @@ export function ClanCard({
 
 export function ClanCardSkeleton() {
   return (
-    <Card className="pixel-border">
+    <Card className="">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

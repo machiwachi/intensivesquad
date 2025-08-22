@@ -1,5 +1,5 @@
 "use client";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/retroui/Button";
 import { apiClient } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
@@ -88,7 +88,7 @@ export default function Kiosk() {
         <Button
           variant="outline"
           size="icon"
-          className="pixel-border pixel-font rounded-full size-14"
+          className="  rounded-full size-14"
           onClick={handleClick}
           disabled={isLoading}
         >

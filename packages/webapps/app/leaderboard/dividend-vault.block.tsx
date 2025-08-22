@@ -7,13 +7,11 @@ export const DividendVaultBlock = ({
   wedoBalance: bigint;
 }) => {
   return (
-    <div className="flex items-center justify-between p-2 bg-muted/20 rounded pixel-border">
+    <div className="flex items-center justify-between p-2 bg-muted/20 rounded ">
       <div className="flex items-center gap-2">
         <Coins className="w-4 h-4 text-yellow-500" />
-        <span className="pixel-font text-xs text-muted-foreground">
-          奖励金库：
-        </span>
-        <span className="pixel-font text-xs font-bold">
+        <span className=" text-xs text-muted-foreground">奖励金库：</span>
+        <span className=" text-xs font-bold">
           {formatTokenAmount(wedoBalance, WEDO_TOKEN)}
         </span>
       </div>

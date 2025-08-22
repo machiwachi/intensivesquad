@@ -17,7 +17,7 @@ export default function BalanceWidget() {
   } = useUserTokenBalances();
 
   return (
-    <div className="flex flex-col place-items-end">
+    <div className="font-semibold flex flex-col place-items-end">
       <div className="flex items-center gap-2">
         个人余额{" "}
         {isIdoBalanceLoading ? (
