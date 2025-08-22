@@ -9,6 +9,7 @@ const badgeVariants = cva("font-semibold ", {
       outline: "outline-2 outline-foreground text-foreground",
       solid: "bg-foreground text-background",
       surface: "outline-2 bg-primary text-black",
+      destructive: "bg-destructive text-destructive-foreground",
     },
     size: {
       sm: "px-2 py-1 text-xs",
