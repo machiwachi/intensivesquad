@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/retroui/Button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { SCORE_TOKEN } from "@/lib/data";
 import { formatTokenAmount } from "@/lib/utils";

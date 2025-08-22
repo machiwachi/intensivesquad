@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/retroui/Button";
 import {
   Dialog,
   DialogContent,
@@ -18,7 +18,7 @@ export const RankButton = () => {
     <>
       <Button
         onClick={() => setShowRankings(true)}
-        variant="outline"
+        // variant="primary"
         className="pixel-border pixel-font flex items-center gap-2"
       >
         <BarChart3 className="w-4 h-4" />

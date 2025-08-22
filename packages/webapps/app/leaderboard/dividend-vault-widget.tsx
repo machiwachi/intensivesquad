@@ -1,6 +1,6 @@
 import { formatTokenAmount } from "@/lib/utils";
 import { Coins, Gift } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/retroui/Button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useAccount } from "wagmi";
