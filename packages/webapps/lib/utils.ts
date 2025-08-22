@@ -11,7 +11,9 @@ export const formatTokenAmount = (
   token: TokenType
 ) => {
   const formatted = (
-    Number(amount) / Math.pow(10, token.decimals)
+    typeof amount === "bigint"
+      ? Number(amount) / Math.pow(10, token.decimals)
+      : amount
   ).toLocaleString("en-US", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,

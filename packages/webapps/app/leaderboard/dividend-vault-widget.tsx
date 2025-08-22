@@ -1,19 +1,19 @@
-import { formatTokenAmount } from "@/lib/utils";
-import { Coins, Gift, Download, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { IDO_TOKEN, WEDO_TOKEN } from "@/lib/constant";
 import {
   useReadTeamManagerAccountTeam,
-  useWriteTeamEconomyWithdrawAll,
   useSimulateTeamEconomyWithdrawAll,
+  useWriteTeamEconomyWithdrawAll,
 } from "@/lib/contracts";
 import { SCORE_TOKEN } from "@/lib/data";
-import { useState } from "react";
-import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 import { useTeamEconomy } from "@/lib/hooks/useTeamEconomy";
 import { type Team } from "@/lib/typings";
-import { formatEther } from "viem";
+import { formatTokenAmount } from "@/lib/utils";
+import { Coins, Gift } from "lucide-react";
+import { useState } from "react";
+import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 
 export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
   const { address: walletAddress, isConnected: isWalletConnected } =
@@ -144,10 +144,7 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
                   </div>
                   <div className="text-right">
                     <p className="pixel-font font-bold">
-                      {formatTokenAmount(
-                        contribution * Math.pow(10, SCORE_TOKEN.decimals),
-                        SCORE_TOKEN
-                      )}
+                      {formatTokenAmount(contribution, WEDO_TOKEN)}
                     </p>
                     <div className="w-16 h-1 bg-muted rounded-full overflow-hidden">
                       <div
@@ -165,11 +162,7 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
         <div className="text-xs pixel-font text-muted-foreground">
           <p>
             已累计分发：{" "}
-            {formatTokenAmount(
-              clan.dividendVault.totalDistributed *
-                Math.pow(10, SCORE_TOKEN.decimals),
-              SCORE_TOKEN
-            )}
+            {formatTokenAmount(clan.dividendVault.totalDistributed, IDO_TOKEN)}
           </p>
         </div>
 
