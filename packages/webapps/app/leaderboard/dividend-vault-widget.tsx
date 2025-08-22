@@ -1,43 +1,187 @@
-import { formatTokenAmount } from "@/lib/utils";
-import { Coins, Gift } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { useReadTeamManagerAccountTeam } from "@/lib/contracts";
+import { IDO_TOKEN, WEDO_TOKEN } from "@/lib/constant";
+import { toast } from "sonner";
+import { apiClient } from "@/lib/api";
+import {
+  useReadTeamManagerAccountTeam,
+  useSimulateTeamEconomyWithdrawAll,
+  useWriteTeamEconomyWithdrawAll,
+  useSimulateTeamEconomyClaim,
+  useWriteTeamEconomyClaim,
+} from "@/lib/contracts";
 import { SCORE_TOKEN } from "@/lib/data";
-import { useState } from "react";
-import { useAccount } from "wagmi";
 import { useTeamEconomy } from "@/lib/hooks/useTeamEconomy";
 import { type Team } from "@/lib/typings";
-import { formatEther } from "viem";
+import { formatTokenAmount } from "@/lib/utils";
+import { Coins, Gift, Download, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useAccount, useWaitForTransactionReceipt } from "wagmi";
+import { useQueryClient } from "@tanstack/react-query";
 
-export const DividendVaultWidget = ({
-  clan,
-  isCompact = false,
-}: {
-  clan: Team;
-  isCompact?: boolean;
-}) => {
+export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
   const { address: walletAddress, isConnected: isWalletConnected } =
     useAccount();
-  const economyData = useTeamEconomy(clan.id);
+  const { refetch, data: economyData } = useTeamEconomy(clan.id);
   const { data: userTeamId } = useReadTeamManagerAccountTeam({
     args: [walletAddress ?? "0x0000000000000000000000000000000000000000"],
   });
 
-  const [claimedRewards, setClaimedRewards] = useState<Set<number>>(new Set()); // Track claimed rewards
+  const queryClient = useQueryClient();
 
-  if (!economyData) return null;
+  console.log({ economyData });
+
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
 
   const isMember = Number(userTeamId) === clan.id;
 
-  const handleClaimRewards = (clanId: number, event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent opening clan details
-    if (isWalletConnected && isMember) {
-      setClaimedRewards((prev) => new Set([...prev, clanId]));
-      // In a real app, this would trigger a blockchain transaction
-      console.log(`[v0] Claiming rewards for clan ${clanId}`);
+  // Withdraw functionality
+  const { data: simulateWithdrawAll } = useSimulateTeamEconomyWithdrawAll({
+    args: [BigInt(clan.id)],
+    query: {
+      enabled: !!economyData?.teamWedoBalance && isMember,
+    },
+  });
+
+  const {
+    data: withdrawHash,
+    writeContract: writeWithdrawAll,
+    isPending: isWithdrawPending,
+  } = useWriteTeamEconomyWithdrawAll();
+
+  const { isLoading: isWithdrawConfirming } = useWaitForTransactionReceipt({
+    hash: withdrawHash,
+  });
+
+  // Claim functionality
+  const { data: simulateClaim } = useSimulateTeamEconomyClaim({
+    args: [BigInt(clan.id)],
+    query: {
+      enabled: !!economyData && economyData.userPendingIdo > 0 && isMember,
+    },
+  });
+
+  const {
+    data: claimHash,
+    writeContract: writeClaim,
+    isPending: isClaimPending,
+  } = useWriteTeamEconomyClaim();
+
+  const { isLoading: isClaimConfirming } = useWaitForTransactionReceipt({
+    hash: claimHash,
+  });
+
+  // Reset withdrawing state when transaction is confirmed
+  useEffect(() => {
+    if (withdrawHash && !isWithdrawConfirming && !isWithdrawPending) {
+      setIsWithdrawing(false);
     }
+  }, [withdrawHash, isWithdrawConfirming, isWithdrawPending]);
+
+  if (!economyData) return null;
+
+  const handleClaimRewards = async (
+    clanId: number,
+    event: React.MouseEvent
+  ) => {
+    event.stopPropagation(); // Prevent opening clan details
+    if (!isWalletConnected || !isMember || !simulateClaim || !walletAddress)
+      return;
+
+    writeClaim(simulateClaim.request, {
+      onSuccess: async (hash) => {
+        toast.success("交易已提交，正在确认中...");
+
+        try {
+          // 调用API端点来跟踪交易并更新活动记录
+          const response = await apiClient.claim.track.$post({
+            json: {
+              txHash: hash,
+              teamId: clanId,
+              account: walletAddress,
+            },
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            toast.success(
+              `奖励领取成功！获得 ${result.claimedAmount.toFixed(2)} IDO`
+            );
+            refetch();
+          } else {
+            console.error("API跟踪失败");
+            toast.warning("奖励领取成功，但活动记录更新失败");
+          }
+
+          queryClient.invalidateQueries({
+            queryKey: ["teams"],
+          });
+        } catch (error) {
+          console.error("跟踪Claim交易时出错:", error);
+          toast.warning("奖励领取成功，但活动记录更新失败");
+        }
+      },
+      onError: (error) => {
+        console.error("Claim交易失败:", error);
+        toast.error("奖励领取失败");
+      },
+    });
+  };
+
+  const handleWithdraw = async (event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent opening clan details
+    if (
+      !isWalletConnected ||
+      !isMember ||
+      !simulateWithdrawAll ||
+      !walletAddress
+    )
+      return;
+
+    setIsWithdrawing(true);
+    writeWithdrawAll(simulateWithdrawAll.request, {
+      onSuccess: async (hash) => {
+        toast.success("转换交易已提交，正在确认中...");
+
+        try {
+          // 调用API端点来跟踪交易并更新活动记录
+          const response = await apiClient.withdraw.track.$post({
+            json: {
+              txHash: hash,
+              teamId: clan.id,
+              account: walletAddress,
+            },
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            toast.success(
+              `WEDO转换成功！${result.withdrawnWedoAmount.toFixed(
+                2
+              )} WEDO → ${result.mintedIdoAmount.toFixed(
+                2
+              )} IDO (杠杆: ${result.leverageRatio.toFixed(2)}x)`
+            );
+          } else {
+            console.error("Withdraw API跟踪失败");
+            toast.warning("WEDO转换成功，但活动记录更新失败");
+          }
+          refetch();
+          queryClient.invalidateQueries({
+            queryKey: ["teams"],
+          });
+        } catch (error) {
+          console.error("跟踪Withdraw交易时出错:", error);
+          toast.warning("WEDO转换成功，但活动记录更新失败");
+        }
+      },
+      onError: (error) => {
+        console.error("Withdraw交易失败:", error);
+        toast.error("WEDO转换失败");
+        setIsWithdrawing(false);
+      },
+    });
   };
 
   const canClaimRewards = (clanId: number) => {
@@ -45,44 +189,11 @@ export const DividendVaultWidget = ({
       isWalletConnected &&
       isMember &&
       economyData.userPendingIdo > 0 &&
-      !claimedRewards.has(clanId)
+      !!simulateClaim
     );
   };
 
   const hasClaimableRewards = canClaimRewards(clan.id);
-
-  if (isCompact) {
-    return (
-      <div className="flex items-center justify-between p-2 bg-muted/20 rounded pixel-border">
-        <div className="flex items-center gap-2">
-          <Coins className="w-4 h-4 text-yellow-500" />
-          <span className="pixel-font text-xs text-muted-foreground">
-            奖励金库：
-          </span>
-          <span className="pixel-font text-xs font-bold">
-            {formatEther(clan.dividendVault.totalBalance)} WEDO
-          </span>
-        </div>
-        {hasClaimableRewards && (
-          <Button
-            size="sm"
-            onClick={(e) => handleClaimRewards(clan.id, e)}
-            className="pixel-border pixel-font text-xs h-6 px-2"
-          >
-            <Gift className="w-3 h-3 mr-1" />
-            领取
-          </Button>
-        )}
-        {isMember &&
-          clan.dividendVault.userClaimable > 0 &&
-          claimedRewards.has(clan.id) && (
-            <Badge variant="outline" className="pixel-font text-xs">
-              已领取
-            </Badge>
-          )}
-      </div>
-    );
-  }
 
   return (
     <Card className="pixel-border">
@@ -100,16 +211,33 @@ export const DividendVaultWidget = ({
           <div>
             <p className="pixel-font text-xs text-muted-foreground">金库总额</p>
             <p className="pixel-font text-lg font-bold text-primary pixel-font">
-              {economyData.teamWedoBalance.toFixed(2)} WEDO
+              {formatTokenAmount(economyData.teamWedoBalance, WEDO_TOKEN)}
             </p>
           </div>
           <div>
             <p className="pixel-font text-xs text-muted-foreground">你的份额</p>
-            <p className="pixel-font text-lg font-bold text-accent pixel-font">
+            <div className="pixel-font text-lg font-bold text-accent pixel-font flex items-center gap-2">
               {isMember
-                ? `${economyData.userPendingIdo.toFixed(2)} IDO`
-                : `0.00 IDO`}
-            </p>
+                ? formatTokenAmount(economyData.userPendingIdo, IDO_TOKEN)
+                : "你不是团队成员"}
+              {(hasClaimableRewards || isClaimPending || isClaimConfirming) && (
+                <Button
+                  onClick={(e) => handleClaimRewards(clan.id, e)}
+                  disabled={
+                    isClaimPending || isClaimConfirming || !simulateClaim
+                  }
+                  className="pixel-font"
+                  size="sm"
+                >
+                  {isClaimPending || isClaimConfirming ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Gift className="w-4 h-4" />
+                  )}
+                  {isClaimPending || isClaimConfirming ? "领取中" : "领取"}
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -150,10 +278,7 @@ export const DividendVaultWidget = ({
                   </div>
                   <div className="text-right">
                     <p className="pixel-font font-bold">
-                      {formatTokenAmount(
-                        contribution * Math.pow(10, SCORE_TOKEN.decimals),
-                        SCORE_TOKEN
-                      )}
+                      {formatTokenAmount(contribution, WEDO_TOKEN)}
                     </p>
                     <div className="w-16 h-1 bg-muted rounded-full overflow-hidden">
                       <div
@@ -171,38 +296,48 @@ export const DividendVaultWidget = ({
         <div className="text-xs pixel-font text-muted-foreground">
           <p>
             已累计分发：{" "}
-            {formatTokenAmount(
-              clan.dividendVault.totalDistributed *
-                Math.pow(10, SCORE_TOKEN.decimals),
-              SCORE_TOKEN
-            )}
+            {formatTokenAmount(clan.dividendVault.totalDistributed, IDO_TOKEN)}
           </p>
         </div>
 
-        {hasClaimableRewards && (
+        {/* Withdraw Button */}
+        {isMember && economyData.teamWedoBalance > 0 && (
           <Button
-            onClick={(e) => handleClaimRewards(clan.id, e)}
-            className="w-full pixel-border pixel-font"
+            onClick={handleWithdraw}
+            disabled={
+              isWithdrawPending || isWithdrawConfirming || !simulateWithdrawAll
+            }
+            className="w-full pixel-border pixel-font mb-2"
+            variant="outline"
           >
-            <Gift className="w-4 h-4 mr-2" />
-            领取{" "}
-            {formatTokenAmount(
-              clan.dividendVault.userClaimable *
-                Math.pow(10, SCORE_TOKEN.decimals),
-              SCORE_TOKEN
+            {isWithdrawPending || isWithdrawConfirming ? (
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4 mr-2" />
             )}
+            {isWithdrawPending || isWithdrawConfirming
+              ? "转换中..."
+              : "转换团队WEDO"}
           </Button>
         )}
 
-        {isMember &&
-          clan.dividendVault.userClaimable > 0 &&
-          claimedRewards.has(clan.id) && (
-            <div className="text-center">
-              <Badge variant="outline" className="pixel-font">
-                奖励领取成功
-              </Badge>
-            </div>
-          )}
+        {/* Withdraw success indicator */}
+        {withdrawHash && !isWithdrawPending && !isWithdrawConfirming && (
+          <div className="text-center mb-2">
+            <Badge variant="outline" className="pixel-font text-green-600">
+              WEDO转换成功！
+            </Badge>
+          </div>
+        )}
+
+        {/* Claim success indicator */}
+        {claimHash && !isClaimPending && !isClaimConfirming && (
+          <div className="text-center mb-2">
+            <Badge variant="outline" className="pixel-font text-green-600">
+              奖励领取成功！
+            </Badge>
+          </div>
+        )}
 
         {!isMember && (
           <div className="text-center text-xs pixel-font text-muted-foreground">

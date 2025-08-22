@@ -4,10 +4,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { type Team } from "@/lib/typings";
 import { formatEther } from "viem";
-import { DividendVaultWidget } from "./dividend-vault-widget";
+import { DividendVaultBlock } from "./dividend-vault.block";
 import { MemberRing } from "./member-ring";
 import { RankChange, RankIcon } from "./rank";
 import { Sparkline } from "./sparkline";
+import { formatTokenAmount } from "@/lib/utils";
 
 export function ClanCard({
   clan,
@@ -16,6 +17,7 @@ export function ClanCard({
   clan: Team;
   onClick: (clan: Team) => void;
 }) {
+  console.log(clan);
   return (
     <Card
       key={clan.id}
@@ -40,7 +42,7 @@ export function ClanCard({
                     variant="default"
                     className="pixel-font text-xs bg-primary"
                   >
-                    MY CLAN
+                    我的团队
                   </Badge>
                 )}
               </div>
@@ -72,7 +74,7 @@ export function ClanCard({
           </div>
           <div className="pixel-font">
             <span className="text-accent font-bold">
-              L={formatEther(clan.leverage)}
+              L={formatTokenAmount(clan.leverage, { symbol: "", decimals: 3 })}
             </span>
           </div>
         </div>
@@ -85,7 +87,7 @@ export function ClanCard({
         </div>
 
         {/* Dividend Vault Widget */}
-        <DividendVaultWidget clan={clan} isCompact={true} />
+        <DividendVaultBlock wedoBalance={clan.dividendVault.totalBalance} />
       </CardContent>
     </Card>
   );

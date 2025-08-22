@@ -1,33 +1,31 @@
 "use client";
 
-import { isNil } from "ramda";
 import { useMemo } from "react";
+import { formatEther } from "viem";
 import { useAccount } from "wagmi";
 import {
-  useReadTeamEconomyTeamWedoBalance,
+  useReadIdoTokenBalanceOf,
+  useReadTeamEconomyGetStageScalar,
   useReadTeamEconomyGetTeamL,
+  useReadTeamEconomyLMax,
+  useReadTeamEconomyLMin,
   useReadTeamEconomyPendingIdo,
+  useReadTeamEconomyTeamWedoBalance,
   useReadTeamEconomyUserAccrued,
   useReadTeamEconomyUserShares,
-  useReadTeamEconomyGetStageScalar,
-  useReadTeamEconomyLMin,
-  useReadTeamEconomyLMax,
-  useReadIdoTokenBalanceOf,
-  useReadWedoTokenBalanceOf,
   useReadTeamManagerAccountTeam,
 } from "../contracts/generated";
-import { formatEther } from "viem";
 
 export interface TeamEconomyData {
   teamId: number;
-  teamWedoBalance: number;
-  teamLeverage: number;
-  userPendingIdo: number;
-  userAccrued: number;
+  teamWedoBalance: bigint;
+  teamLeverage: bigint;
+  userPendingIdo: bigint;
+  userAccrued: bigint;
   userShares: number;
-  stageScalar: number;
-  lMin: number;
-  lMax: number;
+  stageScalar: bigint;
+  lMin: bigint;
+  lMax: bigint;
 }
 
 export interface UserTokenBalances {
@@ -39,27 +37,30 @@ export interface UserTokenBalances {
 export function useTeamEconomy(teamId: number) {
   const { address } = useAccount();
 
-  const { data: teamWedoBalance } = useReadTeamEconomyTeamWedoBalance({
-    args: [BigInt(teamId)],
-  });
+  const { data: teamWedoBalance, refetch: refetchTeamWedoBalance } =
+    useReadTeamEconomyTeamWedoBalance({
+      args: [BigInt(teamId)],
+    });
 
   const { data: teamL } = useReadTeamEconomyGetTeamL({
     args: [BigInt(teamId)],
   });
 
-  const { data: pendingIdo } = useReadTeamEconomyPendingIdo({
-    args: [
-      BigInt(teamId),
-      address ?? "0x0000000000000000000000000000000000000000",
-    ],
-  });
+  const { data: pendingIdo, refetch: refetchPendingIdo } =
+    useReadTeamEconomyPendingIdo({
+      args: [
+        BigInt(teamId),
+        address ?? "0x0000000000000000000000000000000000000000",
+      ],
+    });
 
-  const { data: userAccrued } = useReadTeamEconomyUserAccrued({
-    args: [
-      BigInt(teamId),
-      address ?? "0x0000000000000000000000000000000000000000",
-    ],
-  });
+  const { data: userAccrued, refetch: refetchUserAccrued } =
+    useReadTeamEconomyUserAccrued({
+      args: [
+        BigInt(teamId),
+        address ?? "0x0000000000000000000000000000000000000000",
+      ],
+    });
 
   const { data: userShares } = useReadTeamEconomyUserShares({
     args: [
@@ -72,24 +73,26 @@ export function useTeamEconomy(teamId: number) {
   const { data: lMin } = useReadTeamEconomyLMin();
   const { data: lMax } = useReadTeamEconomyLMax();
 
-  return useMemo(() => {
-    if (teamWedoBalance === undefined || !teamL) {
-      return null;
-    }
+  const refetch = () => {
+    refetchTeamWedoBalance();
+    refetchPendingIdo();
+    refetchUserAccrued();
+  };
 
+  return useMemo(() => {
     const economy: TeamEconomyData = {
       teamId,
-      teamWedoBalance: Number(teamWedoBalance) / 10 ** 18,
-      teamLeverage: Number(teamL) / 10 ** 18,
-      userPendingIdo: pendingIdo ? Number(pendingIdo) / 10 ** 18 : 0,
-      userAccrued: userAccrued ? Number(userAccrued) / 10 ** 18 : 0,
-      userShares: userShares ? Number(userShares) : 0,
-      stageScalar: stageScalar ? Number(stageScalar) / 10 ** 18 : 1,
-      lMin: lMin ? Number(lMin) / 10 ** 18 : 1,
-      lMax: lMax ? Number(lMax) / 10 ** 18 : 1.5,
+      teamWedoBalance: teamWedoBalance ?? BigInt(0),
+      teamLeverage: teamL ?? BigInt(0),
+      userPendingIdo: pendingIdo ?? BigInt(0),
+      userAccrued: userAccrued ?? BigInt(0),
+      userShares: Number(userShares),
+      stageScalar: stageScalar ?? BigInt(1),
+      lMin: lMin ?? BigInt(1),
+      lMax: lMax ?? BigInt(1.5),
     };
 
-    return economy;
+    return { data: economy, refetch };
   }, [
     teamId,
     teamWedoBalance,

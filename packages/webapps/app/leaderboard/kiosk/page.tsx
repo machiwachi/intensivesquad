@@ -37,6 +37,9 @@ export default function Kiosk() {
       queryClient.invalidateQueries({
         queryKey: ["readContract", { functionName: "balanceOf" }],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["readContract", { functionName: "teamWedoBalance" }],
+      });
     }
   }, [isIdoSuccess, isWedoSuccess]);
 
