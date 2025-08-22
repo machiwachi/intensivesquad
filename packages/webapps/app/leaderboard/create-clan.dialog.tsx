@@ -3,27 +3,23 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/retroui/Dialog";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/retroui/Button";
+import { Input } from "@/components/retroui/Input";
+import { Label } from "@/components/retroui/Label";
+import { Textarea } from "@/components/retroui/Textarea";
+import { apiClient } from "@/lib/api";
 import {
   teamManagerConfig,
-  useWatchTeamManagerTeamCreatedEvent,
   useWriteTeamManagerCreateTeam,
   useWriteTeamManagerJoin,
 } from "@/lib/contracts";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { usePublicClient, useWaitForTransactionReceipt } from "wagmi";
-import { getFilterLogs } from "viem/actions";
-import { getLogs } from "viem/actions";
-import { parseEventLogs } from "viem";
 import { toast } from "sonner";
-import { apiClient } from "@/lib/api";
+import { parseEventLogs } from "viem";
+import { usePublicClient, useWaitForTransactionReceipt } from "wagmi";
 
 export function CreateClanDialog({
   open,
@@ -115,10 +111,10 @@ export function CreateClanDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg ">
         <DialogHeader>
-          <DialogTitle className=" text-2xl flex items-center gap-2">
+          <div className=" text-2xl flex items-center gap-2">
             <Plus className="w-6 h-6" />
             创建新部落{" "}
-          </DialogTitle>
+          </div>
           {/* <pre>
             {JSON.stringify(
               {
@@ -132,7 +128,7 @@ export function CreateClanDialog({
           </pre> */}
         </DialogHeader>
 
-        <form onSubmit={handleCreateClan} className="space-y-4">
+        <form onSubmit={handleCreateClan} className="space-y-4 p-4">
           <div className="space-y-2">
             <Label htmlFor="clan-name" className="">
               部落名称
@@ -144,7 +140,6 @@ export function CreateClanDialog({
                 setNewClanForm((prev) => ({ ...prev, name: e.target.value }))
               }
               placeholder="输入部落名称"
-              className=" "
               required
               maxLength={30}
             />
@@ -176,7 +171,7 @@ export function CreateClanDialog({
             <Textarea
               id="clan-description"
               value={newClanForm.description}
-              onChange={(e) =>
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                 setNewClanForm((prev) => ({
                   ...prev,
                   description: e.target.value,
@@ -214,7 +209,7 @@ export function CreateClanDialog({
                 onOpenChange(false);
                 reset();
               }}
-              className="flex-1  "
+              className="flex-1 "
             >
               取消
             </Button>

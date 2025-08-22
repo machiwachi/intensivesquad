@@ -205,7 +205,7 @@ export function ClanDetailDialog({
                       </span>
                       <Badge
                         variant={
-                          member.status === "active" ? "default" : "secondary"
+                          member.status === "active" ? "solid" : "surface"
                         }
                         className=" text-xs ml-auto"
                       >
@@ -265,7 +265,7 @@ export function ClanDetailDialog({
                           <div className="text-right">
                             {
                               <>
-                                <p className=" text-sm font-semibold text-accent">
+                                <p className=" text-sm font-semibold text-green-800">
                                   {activity.idoAmount > 0 ? "+" : ""}
                                   {formatTokenAmount(
                                     activity.idoAmount,
