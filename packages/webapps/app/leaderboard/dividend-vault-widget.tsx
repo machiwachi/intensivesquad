@@ -106,11 +106,20 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
           </div>
           <div>
             <p className="pixel-font text-xs text-muted-foreground">你的份额</p>
-            <p className="pixel-font text-lg font-bold text-accent pixel-font">
+            <div className="pixel-font text-lg font-bold text-accent pixel-font flex items-center gap-2">
               {isMember
                 ? formatTokenAmount(economyData.userPendingIdo, IDO_TOKEN)
                 : "你不是团队成员"}
-            </p>
+              {hasClaimableRewards && (
+                <Button
+                  onClick={(e) => handleClaimRewards(clan.id, e)}
+                  className="pixel-font"
+                >
+                  <Gift className="w-4 h-4" />
+                  领取
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
@@ -191,16 +200,6 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
             {isWithdrawPending || isWithdrawConfirming
               ? "转换中..."
               : "转换团队WEDO"}
-          </Button>
-        )}
-
-        {hasClaimableRewards && (
-          <Button
-            onClick={(e) => handleClaimRewards(clan.id, e)}
-            className="w-full pixel-border pixel-font"
-          >
-            <Gift className="w-4 h-4 mr-2" />
-            领取 {formatTokenAmount(economyData.userPendingIdo, IDO_TOKEN)}
           </Button>
         )}
 
