@@ -8,6 +8,7 @@ import { DividendVaultBlock } from "./dividend-vault.block";
 import { MemberRing } from "./member-ring";
 import { RankChange, RankIcon } from "./rank";
 import { Sparkline } from "./sparkline";
+import { formatTokenAmount } from "@/lib/utils";
 
 export function ClanCard({
   clan,
@@ -41,7 +42,7 @@ export function ClanCard({
                     variant="default"
                     className="pixel-font text-xs bg-primary"
                   >
-                    MY CLAN
+                    我的团队
                   </Badge>
                 )}
               </div>
@@ -73,7 +74,7 @@ export function ClanCard({
           </div>
           <div className="pixel-font">
             <span className="text-accent font-bold">
-              L={formatEther(clan.leverage)}
+              L={formatTokenAmount(clan.leverage, { symbol: "", decimals: 3 })}
             </span>
           </div>
         </div>

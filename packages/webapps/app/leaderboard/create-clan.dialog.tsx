@@ -23,6 +23,7 @@ import { getFilterLogs } from "viem/actions";
 import { getLogs } from "viem/actions";
 import { parseEventLogs } from "viem";
 import { toast } from "sonner";
+import { apiClient } from "@/lib/api";
 
 export function CreateClanDialog({
   open,
@@ -93,8 +94,10 @@ export function CreateClanDialog({
       args: [teamId],
     });
 
-    const joinReceipt = await publicClient.waitForTransactionReceipt({
-      hash: joinTx,
+    const verifyRes = await apiClient.members.events.$post({
+      json: {
+        txHash: joinTx,
+      },
     });
 
     toast.success(`部落 ${name} 创建成功`, {

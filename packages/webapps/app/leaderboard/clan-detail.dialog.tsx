@@ -17,7 +17,7 @@ import {
 } from "@/lib/contracts";
 import { useReadTeamManagerAccountTeam } from "@/lib/contracts/generated";
 import type { Activity, Team } from "@/lib/typings";
-import { formatAddress } from "@/lib/utils";
+import { formatAddress, formatTokenAmount } from "@/lib/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { blo } from "blo";
 import { UserMinus, UserPlus } from "lucide-react";
@@ -193,7 +193,11 @@ export function ClanDetailDialog({
                   <CardContent className="p-4">
                     <h4 className="pixel-font font-bold mb-2">杠杆</h4>
                     <p className="text-2xl font-bold text-accent pixel-font">
-                      {formatEther(clan.leverage)}x
+                      {formatTokenAmount(clan.leverage, {
+                        symbol: "",
+                        decimals: 3,
+                      })}
+                      x
                     </p>
                   </CardContent>
                 </Card>

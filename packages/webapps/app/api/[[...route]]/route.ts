@@ -39,7 +39,7 @@ const zeroxSchema = z
 
 const chainConfig = {
   chain: sepolia,
-  transport: http(),
+  transport: http(process.env.RPC_URL_SEPOLIA),
 };
 
 const publicClient = createPublicClient(chainConfig);
@@ -123,6 +123,7 @@ const app = new Hono()
     // 获取团队排行榜（包含总分和成员信息）
     const leaderboard = await getTeamLeaderboardIDO();
     const allTeamMembers = await getAllTeamMembers();
+    console.log({ allTeamMembers, leaderboard });
 
     // 使用 multicall 批量获取团队 WEDO 余额
     const teamWedoBalances = await multicall(publicClient, {
@@ -167,7 +168,7 @@ const app = new Hono()
         leverageResult.status === "success"
           ? BigInt(leverageResult.result)
           : BigInt(0);
-      const leverage = String(leverageRaw * BigInt(10));
+      const leverage = String(leverageRaw);
 
       console.log({ wedoBalance, leverage, metadataResult });
 
