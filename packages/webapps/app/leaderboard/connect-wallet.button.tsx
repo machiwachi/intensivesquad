@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useConnect, useAccount, useDisconnect } from "wagmi";
-import { Button } from "@/components/retroui/Button";
-import { Wallet, LogOut } from "lucide-react";
-import { useState } from "react";
+import { useConnect, useAccount, useDisconnect } from 'wagmi';
+import { Button } from '@/components/retroui/Button';
+import { Wallet, LogOut } from 'lucide-react';
+import { useState } from 'react';
 
 export const ConnectWalletButton = () => {
   const { isConnected, address } = useAccount();
@@ -14,13 +14,20 @@ export const ConnectWalletButton = () => {
   const handleConnect = async () => {
     setIsConnecting(true);
     try {
-      // 尝试连接第一个可用的连接器（通常是MetaMask）
-      const connector = connectors[0];
-      if (connector.ready) {
-        await connect({ connector });
+      if (connectors.length === 0) {
+        alert('没有检测到钱包连接器，请确保已安装MetaMask或其他支持的钱包');
+        return;
       }
+
+      // 优先选择MetaMask连接器，否则选择第一个可用的
+      const connector =
+        connectors.find(c => c.name.toLowerCase().includes('metamask')) ||
+        connectors[0];
+
+      await connect({ connector });
     } catch (error) {
-      console.error("连接失败:", error);
+      console.error('连接失败:', error);
+      alert(`连接失败: ${error instanceof Error ? error.message : '未知错误'}`);
     } finally {
       setIsConnecting(false);
     }
@@ -36,8 +43,7 @@ export const ConnectWalletButton = () => {
           onClick={() => disconnect()}
           variant="outline"
           size="sm"
-          className="pixel-border pixel-font"
-        >
+          className="pixel-border pixel-font">
           <LogOut className="w-4 h-4" />
         </Button>
       </div>
@@ -49,10 +55,9 @@ export const ConnectWalletButton = () => {
       onClick={handleConnect}
       variant="outline"
       disabled={isConnecting}
-      className="pixel-border pixel-font flex items-center gap-2"
-    >
+      className="pixel-border pixel-font flex items-center gap-2">
       <Wallet className="w-4 h-4" />
-      {isConnecting ? "连接中..." : "连接钱包"}
+      {isConnecting ? '连接中...' : '连接钱包'}
     </Button>
   );
 };
