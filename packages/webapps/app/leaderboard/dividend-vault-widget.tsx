@@ -1,24 +1,23 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { IDO_TOKEN, WEDO_TOKEN } from "@/lib/constant";
-import { toast } from "sonner";
 import { apiClient } from "@/lib/api";
+import { IDO_TOKEN, WEDO_TOKEN } from "@/lib/constant";
 import {
   useReadTeamManagerAccountTeam,
-  useSimulateTeamEconomyWithdrawAll,
-  useWriteTeamEconomyWithdrawAll,
   useSimulateTeamEconomyClaim,
+  useSimulateTeamEconomyWithdrawAll,
   useWriteTeamEconomyClaim,
+  useWriteTeamEconomyWithdrawAll,
 } from "@/lib/contracts";
-import { SCORE_TOKEN } from "@/lib/data";
 import { useTeamEconomy } from "@/lib/hooks/useTeamEconomy";
 import { type Team } from "@/lib/typings";
 import { formatTokenAmount } from "@/lib/utils";
-import { Coins, Gift, Download, Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 import { useQueryClient } from "@tanstack/react-query";
+import { Coins, Download, Gift, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 
 export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
   const { address: walletAddress, isConnected: isWalletConnected } =

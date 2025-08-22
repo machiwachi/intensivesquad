@@ -514,7 +514,7 @@ const app = new Hono()
                 teamId: teamId,
                 action: "转换团队WEDO",
                 wedoAmount: -withdrawnWedoAmount, // 负数表示转出
-                idoAmount: mintedIdoAmount,
+                idoAmount: 0,
                 timestamp: Date.now(),
                 txHash: txHash,
               };

@@ -15,6 +15,8 @@ import {
   useReadTeamEconomyUserShares,
   useReadTeamManagerAccountTeam,
 } from "../contracts/generated";
+import { formatTokenAmount } from "../utils";
+import { IDO_TOKEN, WEDO_TOKEN } from "../constant";
 
 export interface TeamEconomyData {
   teamId: number;
@@ -126,9 +128,13 @@ export function useUserTokenBalances() {
   return useMemo(() => {
     const balances = {
       idoBalance:
-        typeof idoBalance === "undefined" ? "-" : formatEther(idoBalance),
+        typeof idoBalance === "undefined"
+          ? "-"
+          : formatTokenAmount(idoBalance, IDO_TOKEN),
       wedoBalance:
-        typeof wedoBalance === "undefined" ? "-" : formatEther(wedoBalance),
+        typeof wedoBalance === "undefined"
+          ? "-"
+          : formatTokenAmount(wedoBalance, WEDO_TOKEN),
       idoQueryKey,
       wedoQueryKey,
     };

@@ -17,7 +17,7 @@ import {
 } from "@/lib/contracts";
 import { useReadTeamManagerAccountTeam } from "@/lib/contracts/generated";
 import type { Activity, Team } from "@/lib/typings";
-import { formatAddress, formatTokenAmount } from "@/lib/utils";
+import { cn, formatAddress, formatTokenAmount } from "@/lib/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { blo } from "blo";
 import { UserMinus, UserPlus } from "lucide-react";
@@ -26,6 +26,7 @@ import { toast } from "sonner";
 import { formatEther } from "viem";
 import { useAccount } from "wagmi";
 import { DividendVaultWidget } from "./dividend-vault-widget";
+import { WEDO_TOKEN, IDO_TOKEN } from "@/lib/constant";
 
 export function ClanDetailDialog({
   open,
@@ -288,17 +289,30 @@ export function ClanDetailDialog({
                           </div>
 
                           <div className="text-right">
-                            {activity.wedoAmount > 0 && (
+                            {
                               <>
-                                <p className="pixel-font text-sm font-bold text-accent">
-                                  +{activity.idoAmount.toFixed(2)}
+                                <p className="pixel-font text-sm font-semibold text-accent">
+                                  {activity.idoAmount > 0 ? "+" : ""}
+                                  {formatTokenAmount(
+                                    activity.idoAmount,
+                                    IDO_TOKEN
+                                  )}
                                 </p>
-                                <p className="pixel-font text-xs text-muted-foreground">
-                                  金库：+
-                                  {activity.wedoAmount.toFixed(2)}
+                                <p
+                                  className={cn(
+                                    "pixel-font text-xs text-muted-foreground",
+                                    activity.wedoAmount > 0 && "text-green-800",
+                                    activity.wedoAmount < 0 && "text-red-800"
+                                  )}
+                                >
+                                  金库：{activity.wedoAmount > 0 ? "+" : ""}
+                                  {formatTokenAmount(
+                                    activity.wedoAmount,
+                                    WEDO_TOKEN
+                                  )}
                                 </p>
                               </>
-                            )}
+                            }
                             <p className="pixel-font text-xs text-muted-foreground">
                               {new Date(activity.timestamp).toLocaleString(
                                 "zh-CN"
