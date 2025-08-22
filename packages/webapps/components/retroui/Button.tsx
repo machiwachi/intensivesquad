@@ -14,6 +14,8 @@ const buttonVariants = cva(
         outline:
           "shadow-md hover:shadow-none bg-transparent border-2 transition hover:translate-y-1 disabled:hover:bg-transparent disabled:hover:translate-y-0",
         link: "bg-transparent hover:underline disabled:hover:no-underline",
+        destructive:
+          "shadow-md hover:shadow-none bg-destructive text-destructive-foreground border-2 border-destructive transition hover:translate-y-1 disabled:hover:bg-destructive disabled:hover:translate-y-0",
       },
       size: {
         sm: "px-3 py-1 text-sm shadow hover:shadow-none disabled:shadow-none",
