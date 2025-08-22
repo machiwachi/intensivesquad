@@ -38,7 +38,7 @@ export const UserRankingsChart = () => {
           return (
             <div
               key={user.address}
-              className="flex items-center gap-3 p-2 bg-muted/20 rounded "
+              className="flex items-center gap-3 p-4 bg-muted/20"
             >
               <div className="flex items-center gap-2 w-20">
                 <span className=" text-sm font-bold">#{index + 1}</span>
@@ -60,7 +60,7 @@ export const UserRankingsChart = () => {
                       {clan?.flag} {clan?.name}
                     </span> */}
                   </div>
-                  <span className=" text-sm font-bold text-primary">
+                  <span className=" text-sm font-bold">
                     {user.score.toFixed(2)} IDO
                   </span>
                 </div>

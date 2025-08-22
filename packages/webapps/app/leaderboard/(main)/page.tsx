@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/retroui/Card";
 import { useTeams } from "@/lib/hooks/useTeams";
 import { type Team } from "@/lib/typings";
 import { Skull, Trophy, Users, Zap } from "lucide-react";
@@ -29,7 +29,7 @@ export default function ClansLeaderboard() {
       {/* Header */}
       {/* Global Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <Card className="">
+        <Card className="shadow-none hover:shadow-md">
           <CardContent className="p-4 flex items-center gap-3">
             <Users className="w-8 h-8 text-primary" />
             <div>
@@ -39,7 +39,7 @@ export default function ClansLeaderboard() {
           </CardContent>
         </Card>
 
-        <Card className="">
+        <Card className="shadow-none hover:shadow-md">
           <CardContent className="p-4 flex items-center gap-3">
             <Trophy className="w-8 h-8 text-accent" />
             <div>
@@ -55,7 +55,7 @@ export default function ClansLeaderboard() {
           </CardContent>
         </Card>
 
-        <Card className="">
+        <Card className="shadow-none hover:shadow-md">
           <CardContent className="p-4">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-3">

@@ -1,5 +1,5 @@
 import { BarChart3 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/retroui/Badge";
 import { RankIcon } from "./rank";
 import { useTeams } from "@/lib/hooks/useTeams";
 
@@ -24,7 +24,7 @@ export const ClanRankingsChart = () => {
           return (
             <div
               key={clan.id}
-              className="flex items-center gap-3 p-3 bg-muted/20 rounded "
+              className="flex items-center gap-3 p-4 bg-muted/20"
             >
               <div className="flex items-center gap-2 w-16">
                 <RankIcon rank={clan.rank} />
@@ -36,11 +36,11 @@ export const ClanRankingsChart = () => {
                   <div className="flex items-center gap-2">
                     <span className="text-2xl">{clan.flag}</span>
                     <span className=" text-sm font-medium">{clan.name}</span>
-                    <Badge variant="outline" className=" text-xs">
+                    <Badge size="sm" className="text-xs">
                       {clan.remainingMembers}/{clan.totalMembers} active
                     </Badge>
                   </div>
-                  <span className=" text-sm font-bold text-primary">
+                  <span className=" text-sm font-bold">
                     {clan.totalScore.toFixed(0)} IDO
                   </span>
                 </div>

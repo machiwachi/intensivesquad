@@ -1,8 +1,8 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/retroui/Badge";
+import { Button } from "@/components/retroui/Button";
 import {
   Dialog,
   DialogContent,
@@ -139,14 +139,10 @@ export function ClanDetailDialog({
               <div className="flex items-center gap-3 text-2xl">
                 <span className="text-3xl">{clan.flag}</span>
                 {clan.name}
-                <Badge variant="secondary" className="">
+                <Badge variant="solid" className="">
                   排名 #{clan.rank}
                 </Badge>
-                {clan.isUserTeam && (
-                  <Badge variant="default" className=" bg-primary">
-                    我的部落
-                  </Badge>
-                )}
+                {clan.isUserTeam && <Badge variant="surface">我的部落</Badge>}
               </div>
             </DialogHeader>
 
@@ -176,10 +172,10 @@ export function ClanDetailDialog({
                     <Button
                       size="sm"
                       onClick={(e) => handleLeaveClan(clan.id, e)}
-                      className=" "
+                      className="bg-destructive text-white hover:bg-destructive/9"
                       disabled={isLeavePending}
                     >
-                      <UserMinus className="w-4 h-4" />
+                      <UserMinus className="w-4 h-4 mr-2" />
                       {isLeavePending ? "离开中..." : `离开 ${clan.name}`}
                     </Button>
                   )}
