@@ -14,7 +14,7 @@ import { useTeamEconomy } from "@/lib/hooks/useTeamEconomy";
 import { type Team } from "@/lib/typings";
 import { formatTokenAmount } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
-import { Coins, Download, Gift, Loader2 } from "lucide-react";
+import { ArrowRightIcon, Coins, Download, Gift, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
@@ -200,19 +200,69 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
         <div className="flex items-center gap-2">
           <Coins className="w-5 h-5 text-yellow-500" />
           <h4 className="pixel-font font-bold">分红金库</h4>
-          <Badge variant="outline" className="pixel-font text-xs">
-            IDO
-          </Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           <div>
             <p className="pixel-font text-xs text-muted-foreground">金库总额</p>
             <p className="pixel-font text-lg font-bold text-primary pixel-font">
               {formatTokenAmount(economyData.teamWedoBalance, WEDO_TOKEN)}
             </p>
+            <div>
+              <p className="pixel-font text-xs text-muted-foreground">兑换率</p>
+              <p className="pixel-font text-lg font-bold text-amber-400 pixel-font">
+                {formatTokenAmount(economyData.teamLeverage, {
+                  symbol: "IDO/WEDO",
+                  decimals: 3,
+                })}
+              </p>
+            </div>
           </div>
+
+          <div className="flex justify-center items-center">
+            {/* Withdraw Button */}
+            {isMember && economyData.teamWedoBalance > 0 && (
+              <Button
+                onClick={handleWithdraw}
+                disabled={
+                  isWithdrawPending ||
+                  isWithdrawConfirming ||
+                  !simulateWithdrawAll
+                }
+                className="pixel-border pixel-font mb-2"
+                variant="outline"
+              >
+                {isWithdrawPending || isWithdrawConfirming ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <ArrowRightIcon className="w-4 h-4" />
+                )}
+                {isWithdrawPending || isWithdrawConfirming
+                  ? "转换中..."
+                  : "转换 WEDO 为 IDO"}
+              </Button>
+            )}
+
+            {/* Withdraw success indicator */}
+            {withdrawHash && !isWithdrawPending && !isWithdrawConfirming && (
+              <div className="text-center mb-2">
+                <Badge variant="outline" className="pixel-font text-green-600">
+                  WEDO转换成功！
+                </Badge>
+              </div>
+            )}
+
+            {/* Claim success indicator */}
+            {claimHash && !isClaimPending && !isClaimConfirming && (
+              <div className="text-center mb-2">
+                <Badge variant="outline" className="pixel-font text-green-600">
+                  奖励领取成功！
+                </Badge>
+              </div>
+            )}
+          </div>
+
           <div>
             <p className="pixel-font text-xs text-muted-foreground">你的份额</p>
             <div className="pixel-font text-lg font-bold text-accent pixel-font flex items-center gap-2">
@@ -298,45 +348,6 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
             {formatTokenAmount(clan.dividendVault.totalDistributed, IDO_TOKEN)}
           </p>
         </div>
-
-        {/* Withdraw Button */}
-        {isMember && economyData.teamWedoBalance > 0 && (
-          <Button
-            onClick={handleWithdraw}
-            disabled={
-              isWithdrawPending || isWithdrawConfirming || !simulateWithdrawAll
-            }
-            className="w-full pixel-border pixel-font mb-2"
-            variant="outline"
-          >
-            {isWithdrawPending || isWithdrawConfirming ? (
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            ) : (
-              <Download className="w-4 h-4 mr-2" />
-            )}
-            {isWithdrawPending || isWithdrawConfirming
-              ? "转换中..."
-              : "转换团队WEDO"}
-          </Button>
-        )}
-
-        {/* Withdraw success indicator */}
-        {withdrawHash && !isWithdrawPending && !isWithdrawConfirming && (
-          <div className="text-center mb-2">
-            <Badge variant="outline" className="pixel-font text-green-600">
-              WEDO转换成功！
-            </Badge>
-          </div>
-        )}
-
-        {/* Claim success indicator */}
-        {claimHash && !isClaimPending && !isClaimConfirming && (
-          <div className="text-center mb-2">
-            <Badge variant="outline" className="pixel-font text-green-600">
-              奖励领取成功！
-            </Badge>
-          </div>
-        )}
 
         {!isMember && (
           <div className="text-center text-xs pixel-font text-muted-foreground">
