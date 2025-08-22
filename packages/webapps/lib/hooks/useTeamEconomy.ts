@@ -18,14 +18,14 @@ import {
 
 export interface TeamEconomyData {
   teamId: number;
-  teamWedoBalance: number;
-  teamLeverage: number;
-  userPendingIdo: number;
-  userAccrued: number;
+  teamWedoBalance: bigint;
+  teamLeverage: bigint;
+  userPendingIdo: bigint;
+  userAccrued: bigint;
   userShares: number;
-  stageScalar: number;
-  lMin: number;
-  lMax: number;
+  stageScalar: bigint;
+  lMin: bigint;
+  lMax: bigint;
 }
 
 export interface UserTokenBalances {
@@ -77,14 +77,14 @@ export function useTeamEconomy(teamId: number) {
 
     const economy: TeamEconomyData = {
       teamId,
-      teamWedoBalance: Number(teamWedoBalance) / 10 ** 18,
-      teamLeverage: Number(teamL) / 10 ** 18,
-      userPendingIdo: pendingIdo ? Number(pendingIdo) / 10 ** 18 : 0,
-      userAccrued: userAccrued ? Number(userAccrued) / 10 ** 18 : 0,
-      userShares: userShares ? Number(userShares) : 0,
-      stageScalar: stageScalar ? Number(stageScalar) / 10 ** 18 : 1,
-      lMin: lMin ? Number(lMin) / 10 ** 18 : 1,
-      lMax: lMax ? Number(lMax) / 10 ** 18 : 1.5,
+      teamWedoBalance: teamWedoBalance,
+      teamLeverage: teamL,
+      userPendingIdo: (pendingIdo ?? BigInt(0)) / BigInt(10 ** 14),
+      userAccrued: (userAccrued ?? BigInt(0)) / BigInt(10 ** 14),
+      userShares: Number(userShares),
+      stageScalar: stageScalar ?? BigInt(1),
+      lMin: lMin ?? BigInt(1),
+      lMax: lMax ?? BigInt(1.5),
     };
 
     return economy;
