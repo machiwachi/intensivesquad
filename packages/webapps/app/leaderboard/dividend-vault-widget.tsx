@@ -2,10 +2,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { IDO_TOKEN, WEDO_TOKEN } from "@/lib/constant";
+import { toast } from "sonner";
 import {
   useReadTeamManagerAccountTeam,
   useSimulateTeamEconomyWithdrawAll,
   useWriteTeamEconomyWithdrawAll,
+  useSimulateTeamEconomyClaim,
+  useWriteTeamEconomyClaim,
 } from "@/lib/contracts";
 import { SCORE_TOKEN } from "@/lib/data";
 import { useTeamEconomy } from "@/lib/hooks/useTeamEconomy";
@@ -25,7 +28,6 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
 
   console.log({ economyData });
 
-  const [claimedRewards, setClaimedRewards] = useState<Set<number>>(new Set()); // Track claimed rewards
   const [isWithdrawing, setIsWithdrawing] = useState(false);
 
   const isMember = Number(userTeamId) === clan.id;
@@ -48,6 +50,24 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
     hash: withdrawHash,
   });
 
+  // Claim functionality
+  const { data: simulateClaim } = useSimulateTeamEconomyClaim({
+    args: [BigInt(clan.id)],
+    query: {
+      enabled: !!economyData && economyData.userPendingIdo > 0 && isMember,
+    },
+  });
+
+  const {
+    data: claimHash,
+    writeContract: writeClaim,
+    isPending: isClaimPending,
+  } = useWriteTeamEconomyClaim();
+
+  const { isLoading: isClaimConfirming } = useWaitForTransactionReceipt({
+    hash: claimHash,
+  });
+
   // Reset withdrawing state when transaction is confirmed
   useEffect(() => {
     if (withdrawHash && !isWithdrawConfirming && !isWithdrawPending) {
@@ -59,11 +79,16 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
 
   const handleClaimRewards = (clanId: number, event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent opening clan details
-    if (isWalletConnected && isMember) {
-      setClaimedRewards((prev) => new Set([...prev, clanId]));
-      // In a real app, this would trigger a blockchain transaction
-      console.log(`[v0] Claiming rewards for clan ${clanId}`);
-    }
+    if (!isWalletConnected || !isMember || !simulateClaim) return;
+
+    writeClaim(simulateClaim.request, {
+      onSuccess: () => {
+        toast.success("奖励领取成功");
+      },
+      onError: () => {
+        toast.error("奖励领取失败");
+      },
+    });
   };
 
   const handleWithdraw = (event: React.MouseEvent) => {
@@ -79,7 +104,7 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
       isWalletConnected &&
       isMember &&
       economyData.userPendingIdo > 0 &&
-      !claimedRewards.has(clanId)
+      !!simulateClaim
     );
   };
 
@@ -110,13 +135,21 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
               {isMember
                 ? formatTokenAmount(economyData.userPendingIdo, IDO_TOKEN)
                 : "你不是团队成员"}
-              {hasClaimableRewards && (
+              {(hasClaimableRewards || isClaimPending || isClaimConfirming) && (
                 <Button
                   onClick={(e) => handleClaimRewards(clan.id, e)}
+                  disabled={
+                    isClaimPending || isClaimConfirming || !simulateClaim
+                  }
                   className="pixel-font"
+                  size="sm"
                 >
-                  <Gift className="w-4 h-4" />
-                  领取
+                  {isClaimPending || isClaimConfirming ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Gift className="w-4 h-4" />
+                  )}
+                  {isClaimPending || isClaimConfirming ? "领取中" : "领取"}
                 </Button>
               )}
             </div>
@@ -212,15 +245,14 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
           </div>
         )}
 
-        {isMember &&
-          clan.dividendVault.userClaimable > 0 &&
-          claimedRewards.has(clan.id) && (
-            <div className="text-center">
-              <Badge variant="outline" className="pixel-font">
-                奖励领取成功
-              </Badge>
-            </div>
-          )}
+        {/* Claim success indicator */}
+        {claimHash && !isClaimPending && !isClaimConfirming && (
+          <div className="text-center mb-2">
+            <Badge variant="outline" className="pixel-font text-green-600">
+              奖励领取成功！
+            </Badge>
+          </div>
+        )}
 
         {!isMember && (
           <div className="text-center text-xs pixel-font text-muted-foreground">
