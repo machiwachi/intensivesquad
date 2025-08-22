@@ -3,7 +3,15 @@ import { Button } from "@/components/ui/button";
 import { apiClient } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
-import { Heart } from "lucide-react";
+import {
+  Badge,
+  CheckIcon,
+  CopyIcon,
+  ExternalLinkIcon,
+  Heart,
+  Loader2,
+} from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
@@ -98,20 +106,30 @@ export default function Kiosk() {
 
       <div className="flex flex-col gap-2">
         {txs[0] && (
-          <div>
-            IDO 上链{isIdoSuccess ? "成功" : "发送中"}:{" "}
-            <a href={getBlockchainExplorerUrl(txs[0])} target="_blank">
-              {txs[0]}
-            </a>
-          </div>
+          <Link href={getBlockchainExplorerUrl(txs[0])} target="_blank">
+            <div className="flex gap-2 items-center ">
+              <ExternalLinkIcon className="w-4 h-4" />
+              发放 IDO
+              {isIdoSuccess ? (
+                <CheckIcon className="w-4 h-4 text-green-500" />
+              ) : (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              )}
+            </div>
+          </Link>
         )}
         {txs[1] && (
-          <div>
-            WEDO 上链{isWedoSuccess ? "成功" : "发送中"}:{" "}
-            <a href={getBlockchainExplorerUrl(txs[1])} target="_blank">
-              {txs[1]}
-            </a>
-          </div>
+          <Link href={getBlockchainExplorerUrl(txs[1])} target="_blank">
+            <div className="flex gap-2 items-center justify-between">
+              <ExternalLinkIcon className="w-4 h-4" />
+              发放 WEDO
+              {isWedoSuccess ? (
+                <CheckIcon className="w-4 h-4 text-green-500" />
+              ) : (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              )}
+            </div>
+          </Link>
         )}
       </div>
     </div>
