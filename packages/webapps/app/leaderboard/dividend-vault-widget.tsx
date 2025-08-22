@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { IDO_TOKEN, WEDO_TOKEN } from "@/lib/constant";
 import { toast } from "sonner";
+import { apiClient } from "@/lib/api";
 import {
   useReadTeamManagerAccountTeam,
   useSimulateTeamEconomyWithdrawAll,
@@ -77,26 +78,98 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
 
   if (!economyData) return null;
 
-  const handleClaimRewards = (clanId: number, event: React.MouseEvent) => {
+  const handleClaimRewards = async (
+    clanId: number,
+    event: React.MouseEvent
+  ) => {
     event.stopPropagation(); // Prevent opening clan details
-    if (!isWalletConnected || !isMember || !simulateClaim) return;
+    if (!isWalletConnected || !isMember || !simulateClaim || !walletAddress)
+      return;
 
     writeClaim(simulateClaim.request, {
-      onSuccess: () => {
-        toast.success("奖励领取成功");
+      onSuccess: async (hash) => {
+        toast.success("交易已提交，正在确认中...");
+
+        try {
+          // 调用API端点来跟踪交易并更新活动记录
+          const response = await apiClient.claim.track.$post({
+            json: {
+              txHash: hash,
+              teamId: clanId,
+              account: walletAddress,
+            },
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            toast.success(
+              `奖励领取成功！获得 ${result.claimedAmount.toFixed(2)} IDO`
+            );
+          } else {
+            console.error("API跟踪失败");
+            toast.warning("奖励领取成功，但活动记录更新失败");
+          }
+        } catch (error) {
+          console.error("跟踪Claim交易时出错:", error);
+          toast.warning("奖励领取成功，但活动记录更新失败");
+        }
       },
-      onError: () => {
+      onError: (error) => {
+        console.error("Claim交易失败:", error);
         toast.error("奖励领取失败");
       },
     });
   };
 
-  const handleWithdraw = (event: React.MouseEvent) => {
+  const handleWithdraw = async (event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent opening clan details
-    if (!isWalletConnected || !isMember || !simulateWithdrawAll) return;
+    if (
+      !isWalletConnected ||
+      !isMember ||
+      !simulateWithdrawAll ||
+      !walletAddress
+    )
+      return;
 
     setIsWithdrawing(true);
-    writeWithdrawAll(simulateWithdrawAll.request);
+    writeWithdrawAll(simulateWithdrawAll.request, {
+      onSuccess: async (hash) => {
+        toast.success("转换交易已提交，正在确认中...");
+
+        try {
+          // 调用API端点来跟踪交易并更新活动记录
+          const response = await apiClient.withdraw.track.$post({
+            json: {
+              txHash: hash,
+              teamId: clan.id,
+              account: walletAddress,
+            },
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            toast.success(
+              `WEDO转换成功！${result.withdrawnWedoAmount.toFixed(
+                2
+              )} WEDO → ${result.mintedIdoAmount.toFixed(
+                2
+              )} IDO (杠杆: ${result.leverageRatio.toFixed(2)}x)`
+            );
+          } else {
+            console.error("Withdraw API跟踪失败");
+            toast.warning("WEDO转换成功，但活动记录更新失败");
+          }
+        } catch (error) {
+          console.error("跟踪Withdraw交易时出错:", error);
+          toast.warning("WEDO转换成功，但活动记录更新失败");
+        }
+      },
+      onError: (error) => {
+        console.error("Withdraw交易失败:", error);
+        toast.error("WEDO转换失败");
+        setIsWithdrawing(false);
+      },
+    });
   };
 
   const canClaimRewards = (clanId: number) => {

@@ -314,6 +314,225 @@ const app = new Hono()
       return c.json({ message: "processed", persisted });
     }
   )
+  .post(
+    "/claim/track",
+    zValidator(
+      "json",
+      z.object({
+        txHash: zeroxSchema,
+        teamId: z.number(),
+        account: zeroxSchema,
+      })
+    ),
+    async (c) => {
+      const { txHash, teamId, account } = c.req.valid("json");
+
+      console.log("收到 /claim/track 请求，参数：", {
+        txHash,
+        teamId,
+        account,
+      });
+
+      try {
+        const receipt = await publicClient.waitForTransactionReceipt({
+          hash: txHash,
+        });
+        console.log("Claim交易回执：", receipt);
+
+        if (receipt.status !== "success") {
+          console.warn("Claim交易回执状态非 success：", receipt.status);
+          return c.json({ message: "tx reverted" }, 400);
+        }
+
+        const logs = parseEventLogs({
+          logs: receipt.logs,
+          abi: teamEconomyConfig.abi,
+        });
+        console.log("解析到的Claim事件日志：", logs);
+
+        let claimedAmount = 0;
+        for (const log of logs) {
+          if (log.eventName === "Claimed") {
+            const {
+              teamId: eventTeamId,
+              account: eventAccount,
+              amount,
+            } = log.args;
+
+            // 验证事件是否匹配请求参数
+            if (
+              Number(eventTeamId) === teamId &&
+              eventAccount.toLowerCase() === account.toLowerCase()
+            ) {
+              claimedAmount = Number(amount) / 10 ** 18; // 转换为以太单位
+              console.log(
+                `检测到 Claimed 事件，teamId: ${teamId}, account: ${account}, amount: ${claimedAmount}`
+              );
+
+              // 记录活动到活动流
+              const activity: Activity = {
+                id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                user: account,
+                teamId: teamId,
+                action: "领取奖励",
+                wedoAmount: 0,
+                idoAmount: claimedAmount,
+                timestamp: Date.now(),
+                txHash: txHash,
+              };
+
+              // 存储到活动流中
+              await redisClient.lpush(
+                activityStreamKey(teamId, account),
+                JSON.stringify(activity)
+              );
+
+              console.log(`已记录Claim活动到Redis，金额: ${claimedAmount} IDO`);
+              break;
+            }
+          }
+        }
+
+        if (claimedAmount === 0) {
+          console.warn("未找到匹配的Claimed事件");
+          return c.json({ message: "no matching claim event found" }, 400);
+        }
+
+        return c.json({
+          message: "claim tracked successfully",
+          claimedAmount,
+          txHash,
+          teamId,
+          account,
+        });
+      } catch (error) {
+        console.error("处理 /claim/track 时发生错误：", error);
+        return c.json(
+          {
+            message: "error tracking claim",
+            error: error instanceof Error ? error.message : String(error),
+          },
+          500
+        );
+      }
+    }
+  )
+  .post(
+    "/withdraw/track",
+    zValidator(
+      "json",
+      z.object({
+        txHash: zeroxSchema,
+        teamId: z.number(),
+        account: zeroxSchema,
+      })
+    ),
+    async (c) => {
+      const { txHash, teamId, account } = c.req.valid("json");
+
+      console.log("收到 /withdraw/track 请求，参数：", {
+        txHash,
+        teamId,
+        account,
+      });
+
+      try {
+        const receipt = await publicClient.waitForTransactionReceipt({
+          hash: txHash,
+        });
+        console.log("Withdraw交易回执：", receipt);
+
+        if (receipt.status !== "success") {
+          console.warn("Withdraw交易回执状态非 success：", receipt.status);
+          return c.json({ message: "tx reverted" }, 400);
+        }
+
+        const logs = parseEventLogs({
+          logs: receipt.logs,
+          abi: teamEconomyConfig.abi,
+        });
+        console.log("解析到的Withdraw事件日志：", logs);
+
+        let withdrawnWedoAmount = 0;
+        let mintedIdoAmount = 0;
+        let leverageRatio = 0;
+
+        for (const log of logs) {
+          if (log.eventName === "TeamWithdraw") {
+            const {
+              teamId: eventTeamId,
+              caller,
+              amountWEDO,
+              L,
+              mintIdo,
+              R,
+            } = log.args;
+
+            // 验证事件是否匹配请求参数
+            if (
+              Number(eventTeamId) === teamId &&
+              caller.toLowerCase() === account.toLowerCase()
+            ) {
+              withdrawnWedoAmount = Number(amountWEDO) / 10 ** 18;
+              mintedIdoAmount = Number(mintIdo) / 10 ** 18;
+              leverageRatio = Number(L) / 10 ** 18;
+
+              console.log(
+                `检测到 TeamWithdraw 事件，teamId: ${teamId}, caller: ${account}, withdrawnWEDO: ${withdrawnWedoAmount}, mintedIDO: ${mintedIdoAmount}, L: ${leverageRatio}`
+              );
+
+              // 记录活动到活动流
+              const activity: Activity = {
+                id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                user: account,
+                teamId: teamId,
+                action: "转换团队WEDO",
+                wedoAmount: -withdrawnWedoAmount, // 负数表示转出
+                idoAmount: mintedIdoAmount,
+                timestamp: Date.now(),
+                txHash: txHash,
+              };
+
+              // 存储到活动流中
+              await redisClient.lpush(
+                activityStreamKey(teamId, account),
+                JSON.stringify(activity)
+              );
+
+              console.log(
+                `已记录Withdraw活动到Redis，转换 ${withdrawnWedoAmount} WEDO -> ${mintedIdoAmount} IDO`
+              );
+              break;
+            }
+          }
+        }
+
+        if (withdrawnWedoAmount === 0) {
+          console.warn("未找到匹配的TeamWithdraw事件");
+          return c.json({ message: "no matching withdraw event found" }, 400);
+        }
+
+        return c.json({
+          message: "withdraw tracked successfully",
+          withdrawnWedoAmount,
+          mintedIdoAmount,
+          leverageRatio,
+          txHash,
+          teamId,
+          account,
+        });
+      } catch (error) {
+        console.error("处理 /withdraw/track 时发生错误：", error);
+        return c.json(
+          {
+            message: "error tracking withdraw",
+            error: error instanceof Error ? error.message : String(error),
+          },
+          500
+        );
+      }
+    }
+  )
   .get("/leaderboard/ido/user", async (c) => {
     const flatRank = await redisClient.zrange(userLeaderboardIDOKey, 0, -1, {
       withScores: true,
