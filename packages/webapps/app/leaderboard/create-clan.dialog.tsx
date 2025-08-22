@@ -113,9 +113,9 @@ export function CreateClanDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg pixel-border">
+      <DialogContent className="max-w-lg ">
         <DialogHeader>
-          <DialogTitle className="pixel-font text-2xl flex items-center gap-2">
+          <DialogTitle className=" text-2xl flex items-center gap-2">
             <Plus className="w-6 h-6" />
             创建新部落{" "}
           </DialogTitle>
@@ -134,7 +134,7 @@ export function CreateClanDialog({
 
         <form onSubmit={handleCreateClan} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="clan-name" className="pixel-font">
+            <Label htmlFor="clan-name" className="">
               部落名称
             </Label>
             <Input
@@ -144,14 +144,14 @@ export function CreateClanDialog({
                 setNewClanForm((prev) => ({ ...prev, name: e.target.value }))
               }
               placeholder="输入部落名称"
-              className="pixel-border pixel-font"
+              className=" "
               required
               maxLength={30}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="clan-flag" className="pixel-font">
+            <Label htmlFor="clan-flag" className="">
               部落旗帜（Emoji）
             </Label>
             <Input
@@ -161,16 +161,16 @@ export function CreateClanDialog({
                 setNewClanForm((prev) => ({ ...prev, flag: e.target.value }))
               }
               placeholder="🏴‍☠️"
-              className="pixel-border pixel-font text-center text-2xl"
+              className="  text-center text-2xl"
               maxLength={2}
             />
-            <p className="text-xs text-muted-foreground pixel-font">
+            <p className="text-xs text-muted-foreground ">
               选择一个表情符号作为部落旗帜
             </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="clan-description" className="pixel-font">
+            <Label htmlFor="clan-description" className="">
               描述（可选）
             </Label>
             <Textarea
@@ -183,24 +183,24 @@ export function CreateClanDialog({
                 }))
               }
               placeholder="描述你们部落的使命与价值观..."
-              className="pixel-border pixel-font resize-none"
+              className="  resize-none"
               rows={3}
               maxLength={200}
             />
           </div>
 
-          <div className="bg-muted/20 p-3 rounded pixel-border">
-            <h4 className="pixel-font font-bold text-sm mb-2">创建成本</h4>
-            <div className="flex items-center justify-between text-sm pixel-font">
+          <div className="bg-muted/20 p-3 rounded ">
+            <h4 className=" font-bold text-sm mb-2">创建成本</h4>
+            <div className="flex items-center justify-between text-sm ">
               <span>平台费用：</span>
               <span className="font-bold">0.1 ETH</span>
             </div>
-            <div className="flex items-center justify-between text-sm pixel-font">
+            <div className="flex items-center justify-between text-sm ">
               <span>初始金库存入：</span>
               <span className="font-bold">0.5 ETH</span>
             </div>
             <hr className="my-2 border-muted" />
-            <div className="flex items-center justify-between text-sm pixel-font font-bold">
+            <div className="flex items-center justify-between text-sm  font-bold">
               <span>合计：</span>
               <span>0.6 ETH</span>
             </div>
@@ -214,14 +214,14 @@ export function CreateClanDialog({
                 onOpenChange(false);
                 reset();
               }}
-              className="flex-1 pixel-border pixel-font"
+              className="flex-1  "
             >
               取消
             </Button>
             <Button
               type="submit"
               disabled={!newClanForm.name || isCreating}
-              className="flex-1 pixel-border pixel-font"
+              className="flex-1  "
             >
               {isCreating ? "创建中..." : "创建部落"}
             </Button>

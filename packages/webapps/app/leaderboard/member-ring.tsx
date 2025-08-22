@@ -14,18 +14,18 @@ export const MemberRing = ({ members }: { members: TeamMember[] }) => {
 
   return (
     <div className="relative w-24 h-24 mx-auto">
-      <div className="absolute inset-2 bg-primary/10 rounded-full border-2 border-primary/30 pixel-border" />
+      <div className="absolute inset-2 bg-primary/10 rounded-full border-2 border-primary/30 " />
       {members.map((member, index) => (
         <div key={member.address} className="absolute" style={positions[index]}>
           <Avatar
-            className={`w-8 h-8 border-2 pixel-border ${
+            className={`w-8 h-8 border-2  ${
               member.status === "eliminated"
                 ? "eliminated border-muted"
                 : "border-primary"
             }`}
           >
             <AvatarImage src={blo(member.address)} alt={member.address} />
-            <AvatarFallback className="pixel-font text-xs">
+            <AvatarFallback className=" text-xs">
               {member.address.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>

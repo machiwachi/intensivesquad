@@ -36,23 +36,20 @@ export function ClanCard({
                   {clan.name}
                 </h3>
                 {clan.isUserTeam && (
-                  <Badge
-                    variant="default"
-                    className="pixel-font text-xs bg-primary"
-                  >
+                  <Badge variant="default" className=" text-xs bg-primary">
                     我的团队
                   </Badge>
                 )}
               </div>
               <div className="flex items-center gap-2">
                 <RankIcon rank={clan.rank} />
-                <span className="pixel-font text-sm">排名 #{clan.rank}</span>
+                <span className=" text-sm">排名 #{clan.rank}</span>
                 <RankChange current={clan.rank} previous={clan.previousRank} />
               </div>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="pixel-font text-xs">
+            <Badge variant="secondary" className=" text-xs">
               {clan.totalScore} IDO
             </Badge>
           </div>
@@ -78,9 +75,7 @@ export function ClanCard({
         </div>
 
         <div className="flex justify-between items-center">
-          <span className="text-xs text-muted-foreground pixel-font">
-            分数趋势
-          </span>
+          <span className="text-xs text-muted-foreground ">分数趋势</span>
           <Sparkline data={clan.scoreHistory} />
         </div>
 
@@ -93,7 +88,7 @@ export function ClanCard({
 
 export function ClanCardSkeleton() {
   return (
-    <Card className="pixel-border">
+    <Card className="">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

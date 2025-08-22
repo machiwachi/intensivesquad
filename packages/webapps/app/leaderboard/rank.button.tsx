@@ -19,15 +19,15 @@ export const RankButton = () => {
       <Button
         onClick={() => setShowRankings(true)}
         variant="outline"
-        className="pixel-border pixel-font flex items-center gap-2"
+        className="  flex items-center gap-2"
       >
         <BarChart3 className="w-4 h-4" />
         排行榜
       </Button>
       <Dialog open={showRankings} onOpenChange={setShowRankings}>
-        <DialogContent className="max-w-4xl sm:max-w-6xl pixel-border max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl sm:max-w-6xl  max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="pixel-font text-2xl flex items-center gap-2">
+            <DialogTitle className=" text-2xl flex items-center gap-2">
               <BarChart3 className="w-6 h-6" />
               排行榜
             </DialogTitle>

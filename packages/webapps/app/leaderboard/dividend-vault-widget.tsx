@@ -209,19 +209,19 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
       <CardHeader className="pb-2">
         <div className="flex items-center gap-2">
           <Coins className="w-5 h-5 text-yellow-500" />
-          <h4 className="pixel-font font-bold">分红金库</h4>
+          <h4 className=" font-bold">分红金库</h4>
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="grid grid-cols-3 gap-3">
           <div>
-            <p className="pixel-font text-xs text-muted-foreground">金库总额</p>
-            <p className="pixel-font text-lg font-bold text-primary pixel-font">
+            <p className=" text-xs text-muted-foreground">金库总额</p>
+            <p className=" text-lg font-bold text-primary ">
               {formatTokenAmount(economyData.teamWedoBalance, WEDO_TOKEN)}
             </p>
             <div>
-              <p className="pixel-font text-xs text-muted-foreground">兑换率</p>
-              <p className="pixel-font text-lg font-bold text-amber-400 pixel-font">
+              <p className=" text-xs text-muted-foreground">兑换率</p>
+              <p className=" text-lg font-bold text-amber-400 ">
                 {formatTokenAmount(economyData.teamLeverage, {
                   symbol: "IDO/WEDO",
                   decimals: 3,
@@ -240,7 +240,7 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
                   isWithdrawConfirming ||
                   !simulateWithdrawAll
                 }
-                className="pixel-border pixel-font mb-2"
+                className="  mb-2"
               >
                 {isWithdrawPending || isWithdrawConfirming ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -286,8 +286,8 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
           </div>
 
           <div>
-            <p className="pixel-font text-xs text-muted-foreground">你的份额</p>
-            <div className="pixel-font text-lg font-bold text-accent pixel-font flex items-center gap-2">
+            <p className=" text-xs text-muted-foreground">你的份额</p>
+            <div className=" text-lg font-bold text-accent  flex items-center gap-2">
               {isMember
                 ? formatTokenAmount(economyData.userPendingIdo, IDO_TOKEN)
                 : "你不是团队成员"}
@@ -297,7 +297,7 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
                   disabled={
                     isClaimPending || isClaimConfirming || !simulateClaim
                   }
-                  className="pixel-font"
+                  className=""
                   size="sm"
                 >
                   {isClaimPending || isClaimConfirming ? (
@@ -313,9 +313,7 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
         </div>
 
         <div className="space-y-2">
-          <h5 className="pixel-font text-sm font-bold text-muted-foreground">
-            成员贡献
-          </h5>
+          <h5 className=" text-sm font-bold text-muted-foreground">成员贡献</h5>
           <div className="max-h-32 overflow-y-auto space-y-1">
             {clan.members.map((member, index) => {
               const contribution = Math.random() * 50 + 10; // Mock contribution amount
@@ -324,7 +322,7 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
               return (
                 <div
                   key={index}
-                  className={`flex items-center justify-between p-2 rounded pixel-border text-xs ${
+                  className={`flex items-center justify-between p-2 rounded  text-xs ${
                     isCurrentUser
                       ? "bg-primary/10 border-primary"
                       : "bg-muted/10"
@@ -335,20 +333,20 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400" />
                     <span
-                      className={`pixel-font ${
+                      className={` ${
                         isCurrentUser ? "font-bold text-primary" : ""
                       }`}
                     >
                       {member.address}
                     </span>
                     {member.status === "eliminated" && (
-                      <Badge variant="outline" className="pixel-font text-xs">
+                      <Badge variant="outline" className=" text-xs">
                         已淘汰
                       </Badge>
                     )}
                   </div>
                   <div className="text-right">
-                    <p className="pixel-font font-bold">
+                    <p className=" font-bold">
                       {formatTokenAmount(contribution, WEDO_TOKEN)}
                     </p>
                     <div className="w-16 h-1 bg-muted rounded-full overflow-hidden">
@@ -364,7 +362,7 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
           </div>
         </div>
 
-        <div className="text-xs pixel-font text-muted-foreground">
+        <div className="text-xs  text-muted-foreground">
           <p>
             已累计分发：{" "}
             {formatTokenAmount(clan.dividendVault.totalDistributed, IDO_TOKEN)}
@@ -372,7 +370,7 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
         </div>
 
         {!isMember && (
-          <div className="text-center text-xs pixel-font text-muted-foreground">
+          <div className="text-center text-xs  text-muted-foreground">
             加入部落以获取分红奖励
           </div>
         )}

@@ -18,7 +18,7 @@ export default function LeaderboardLayout({
           <div>
             <div className="flex items-center gap-2">
               <Link href="/leaderboard">
-                <h1 className="text-4xl lg:text-5xl font-bold pixel-font text-primary mb-2">
+                <h1 className="text-4xl lg:text-5xl font-bold  text-primary mb-2">
                   残酷学分！
                 </h1>
               </Link>
@@ -33,7 +33,7 @@ export default function LeaderboardLayout({
                 </Link>
               </Button>
             </div>
-            <p className="text-muted-foreground pixel-font">为了部落！⛺️</p>
+            <p className="text-muted-foreground ">为了部落！⛺️</p>
           </div>
 
           <div className="flex items-center gap-4">

@@ -88,7 +88,7 @@ export default function Kiosk() {
         <Button
           variant="outline"
           size="icon"
-          className="pixel-border pixel-font rounded-full size-14"
+          className="  rounded-full size-14"
           onClick={handleClick}
           disabled={isLoading}
         >

@@ -8,7 +8,7 @@ export function Sparkline({ data }: { data: number[] }) {
       {data.map((value, index) => (
         <div
           key={index}
-          className="bg-primary/60 w-2 pixel-border"
+          className="bg-primary/60 w-2 "
           style={{
             height: `${((value - min) / range) * 100}%`,
             minHeight: "2px",

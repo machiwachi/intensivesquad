@@ -132,18 +132,18 @@ export function ClanDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl sm:max-w-3xl pixel-border">
+      <DialogContent className="max-w-3xl sm:max-w-3xl ">
         {clan && (
           <>
             <DialogHeader>
-              <div className="flex items-center gap-3 pixel-font text-2xl">
+              <div className="flex items-center gap-3 text-2xl">
                 <span className="text-3xl">{clan.flag}</span>
                 {clan.name}
-                <Badge variant="secondary" className="pixel-font">
+                <Badge variant="secondary" className="">
                   排名 #{clan.rank}
                 </Badge>
                 {clan.isUserTeam && (
-                  <Badge variant="default" className="pixel-font bg-primary">
+                  <Badge variant="default" className=" bg-primary">
                     我的部落
                   </Badge>
                 )}
@@ -157,14 +157,14 @@ export function ClanDetailDialog({
               {/* Members */}
               <div>
                 <div className="flex justify-between items-center">
-                  <h4 className="pixel-font font-bold mb-3">
+                  <h4 className=" font-bold mb-3">
                     部落成员(总计 {clan.totalScore} IDO)
                   </h4>
                   {!userTeamId && (
                     <Button
                       size="sm"
                       onClick={(e) => handleJoinClan(clan.id, e)}
-                      className="pixel-font"
+                      className=""
                       disabled={isJoinPending}
                     >
                       <UserPlus className="w-4 h-4" />
@@ -176,7 +176,7 @@ export function ClanDetailDialog({
                     <Button
                       size="sm"
                       onClick={(e) => handleLeaveClan(clan.id, e)}
-                      className="pixel-font "
+                      className=" "
                       disabled={isLeavePending}
                     >
                       <UserMinus className="w-4 h-4" />
@@ -189,7 +189,7 @@ export function ClanDetailDialog({
                   {clan.members.map((member) => (
                     <div
                       key={member.address}
-                      className={`flex items-center gap-3 p-2 rounded pixel-border ${
+                      className={`flex items-center gap-3 p-2 rounded  ${
                         member.status === "eliminated"
                           ? "eliminated bg-muted/50"
                           : "bg-card"
@@ -200,18 +200,18 @@ export function ClanDetailDialog({
                           src={blo(member.address)}
                           alt={member.address}
                         />
-                        <AvatarFallback className="pixel-font text-xs">
+                        <AvatarFallback className=" text-xs">
                           {member.address.slice(0, 2).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="pixel-font text-sm">
+                      <span className=" text-sm">
                         {formatAddress(member.address)}
                       </span>
                       <Badge
                         variant={
                           member.status === "active" ? "default" : "secondary"
                         }
-                        className="pixel-font text-xs ml-auto"
+                        className=" text-xs ml-auto"
                       >
                         {member.status === "active" ? "活跃" : "已淘汰"}
                       </Badge>
@@ -222,13 +222,13 @@ export function ClanDetailDialog({
 
               {/* Recent Activities */}
               <div>
-                <h4 className="pixel-font font-bold mb-3">最近活动</h4>
+                <h4 className=" font-bold mb-3">最近活动</h4>
                 {isActivitiesLoading ? (
-                  <div className="p-4 text-center text-muted-foreground pixel-font">
+                  <div className="p-4 text-center text-muted-foreground ">
                     加载中...
                   </div>
                 ) : activities.length === 0 ? (
-                  <div className="p-4 text-center text-muted-foreground pixel-font">
+                  <div className="p-4 text-center text-muted-foreground ">
                     暂无活动记录
                   </div>
                 ) : (
@@ -238,7 +238,7 @@ export function ClanDetailDialog({
                       return (
                         <div
                           key={activity.id}
-                          className="flex justify-between items-center p-3 bg-muted/30 rounded pixel-border cursor-pointer hover:bg-muted/50 transition-colors"
+                          className="flex justify-between items-center p-3 bg-muted/30 rounded  cursor-pointer hover:bg-muted/50 transition-colors"
                           onClick={() => {
                             if (activity.txHash) {
                               window.open(
@@ -257,10 +257,10 @@ export function ClanDetailDialog({
                             </Avatar>
 
                             <div>
-                              <p className="pixel-font text-sm font-medium">
+                              <p className=" text-sm font-medium">
                                 {formatAddress(activity.user)}
                               </p>
-                              <p className="pixel-font text-xs text-muted-foreground">
+                              <p className=" text-xs text-muted-foreground">
                                 {activity.action}
                               </p>
                             </div>
@@ -269,7 +269,7 @@ export function ClanDetailDialog({
                           <div className="text-right">
                             {
                               <>
-                                <p className="pixel-font text-sm font-semibold text-accent">
+                                <p className=" text-sm font-semibold text-accent">
                                   {activity.idoAmount > 0 ? "+" : ""}
                                   {formatTokenAmount(
                                     activity.idoAmount,
@@ -278,7 +278,7 @@ export function ClanDetailDialog({
                                 </p>
                                 <p
                                   className={cn(
-                                    "pixel-font text-xs text-muted-foreground",
+                                    " text-xs text-muted-foreground",
                                     activity.wedoAmount > 0 && "text-green-800",
                                     activity.wedoAmount < 0 && "text-red-800"
                                   )}
@@ -291,7 +291,7 @@ export function ClanDetailDialog({
                                 </p>
                               </>
                             }
-                            <p className="pixel-font text-xs text-muted-foreground">
+                            <p className=" text-xs text-muted-foreground">
                               {new Date(activity.timestamp).toLocaleString(
                                 "zh-CN"
                               )}
