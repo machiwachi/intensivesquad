@@ -88,8 +88,8 @@ export function useTeamEconomy(teamId: number) {
       userAccrued: userAccrued ?? BigInt(0),
       userShares: Number(userShares),
       stageScalar: stageScalar ?? BigInt(1),
-      lMin: lMin ?? BigInt(1),
-      lMax: lMax ?? BigInt(1.5),
+      lMin: lMin ?? BigInt(1000),
+      lMax: lMax ?? BigInt(1500),
     };
 
     return { data: economy, refetch };
@@ -154,7 +154,7 @@ export function useGlobalEconomyParams() {
 
 // Hook to calculate estimated rewards for a user in a team
 export function useEstimatedRewards(teamId: number) {
-  const economy = useTeamEconomy(teamId);
+  const { data: economy, refetch } = useTeamEconomy(teamId);
   const { address } = useAccount();
 
   return useMemo(() => {
