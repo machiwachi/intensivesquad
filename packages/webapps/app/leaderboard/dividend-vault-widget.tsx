@@ -1,23 +1,21 @@
 import { formatTokenAmount } from "@/lib/utils";
-import { Coins, Gift } from "lucide-react";
+import { Coins, Gift, Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { useReadTeamManagerAccountTeam } from "@/lib/contracts";
+import {
+  useReadTeamManagerAccountTeam,
+  useWriteTeamEconomyWithdrawAll,
+  useSimulateTeamEconomyWithdrawAll,
+} from "@/lib/contracts";
 import { SCORE_TOKEN } from "@/lib/data";
 import { useState } from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 import { useTeamEconomy } from "@/lib/hooks/useTeamEconomy";
 import { type Team } from "@/lib/typings";
 import { formatEther } from "viem";
 
-export const DividendVaultWidget = ({
-  clan,
-  isCompact = false,
-}: {
-  clan: Team;
-  isCompact?: boolean;
-}) => {
+export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
   const { address: walletAddress, isConnected: isWalletConnected } =
     useAccount();
   const economyData = useTeamEconomy(clan.id);
@@ -25,11 +23,32 @@ export const DividendVaultWidget = ({
     args: [walletAddress ?? "0x0000000000000000000000000000000000000000"],
   });
 
-  const [claimedRewards, setClaimedRewards] = useState<Set<number>>(new Set()); // Track claimed rewards
+  console.log({ economyData });
 
-  if (!economyData) return null;
+  const [claimedRewards, setClaimedRewards] = useState<Set<number>>(new Set()); // Track claimed rewards
+  const [isWithdrawing, setIsWithdrawing] = useState(false);
 
   const isMember = Number(userTeamId) === clan.id;
+
+  // Withdraw functionality
+  const { data: simulateWithdrawAll } = useSimulateTeamEconomyWithdrawAll({
+    args: [BigInt(clan.id)],
+    query: {
+      enabled: !!economyData?.teamWedoBalance && isMember,
+    },
+  });
+
+  const {
+    data: withdrawHash,
+    writeContract: writeWithdrawAll,
+    isPending: isWithdrawPending,
+  } = useWriteTeamEconomyWithdrawAll();
+
+  const { isLoading: isWithdrawConfirming } = useWaitForTransactionReceipt({
+    hash: withdrawHash,
+  });
+
+  if (!economyData) return null;
 
   const handleClaimRewards = (clanId: number, event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent opening clan details
@@ -38,6 +57,14 @@ export const DividendVaultWidget = ({
       // In a real app, this would trigger a blockchain transaction
       console.log(`[v0] Claiming rewards for clan ${clanId}`);
     }
+  };
+
+  const handleWithdraw = (event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent opening clan details
+    if (!isWalletConnected || !isMember || !simulateWithdrawAll) return;
+
+    setIsWithdrawing(true);
+    writeWithdrawAll(simulateWithdrawAll.request);
   };
 
   const canClaimRewards = (clanId: number) => {
@@ -50,39 +77,6 @@ export const DividendVaultWidget = ({
   };
 
   const hasClaimableRewards = canClaimRewards(clan.id);
-
-  if (isCompact) {
-    return (
-      <div className="flex items-center justify-between p-2 bg-muted/20 rounded pixel-border">
-        <div className="flex items-center gap-2">
-          <Coins className="w-4 h-4 text-yellow-500" />
-          <span className="pixel-font text-xs text-muted-foreground">
-            奖励金库：
-          </span>
-          <span className="pixel-font text-xs font-bold">
-            {formatEther(clan.dividendVault.totalBalance)} WEDO
-          </span>
-        </div>
-        {hasClaimableRewards && (
-          <Button
-            size="sm"
-            onClick={(e) => handleClaimRewards(clan.id, e)}
-            className="pixel-border pixel-font text-xs h-6 px-2"
-          >
-            <Gift className="w-3 h-3 mr-1" />
-            领取
-          </Button>
-        )}
-        {isMember &&
-          clan.dividendVault.userClaimable > 0 &&
-          claimedRewards.has(clan.id) && (
-            <Badge variant="outline" className="pixel-font text-xs">
-              已领取
-            </Badge>
-          )}
-      </div>
-    );
-  }
 
   return (
     <Card className="pixel-border">

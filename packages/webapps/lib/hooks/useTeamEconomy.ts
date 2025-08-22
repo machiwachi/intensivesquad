@@ -1,22 +1,20 @@
 "use client";
 
-import { isNil } from "ramda";
 import { useMemo } from "react";
+import { formatEther } from "viem";
 import { useAccount } from "wagmi";
 import {
-  useReadTeamEconomyTeamWedoBalance,
+  useReadIdoTokenBalanceOf,
+  useReadTeamEconomyGetStageScalar,
   useReadTeamEconomyGetTeamL,
+  useReadTeamEconomyLMax,
+  useReadTeamEconomyLMin,
   useReadTeamEconomyPendingIdo,
+  useReadTeamEconomyTeamWedoBalance,
   useReadTeamEconomyUserAccrued,
   useReadTeamEconomyUserShares,
-  useReadTeamEconomyGetStageScalar,
-  useReadTeamEconomyLMin,
-  useReadTeamEconomyLMax,
-  useReadIdoTokenBalanceOf,
-  useReadWedoTokenBalanceOf,
   useReadTeamManagerAccountTeam,
 } from "../contracts/generated";
-import { formatEther } from "viem";
 
 export interface TeamEconomyData {
   teamId: number;

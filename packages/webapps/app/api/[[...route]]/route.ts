@@ -108,6 +108,8 @@ const app = new Hono()
       })),
     });
 
+    console.log({ teamWedoBalances });
+
     // 使用 multicall 批量获取团队杠杆（L值）
     const teamLeverages = await multicall(publicClient, {
       contracts: leaderboard.map((team) => ({

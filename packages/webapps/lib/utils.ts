@@ -6,8 +6,16 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const formatTokenAmount = (amount: number, token: TokenType) => {
-  const formatted = (amount / Math.pow(10, token.decimals)).toFixed(2);
+export const formatTokenAmount = (
+  amount: number | bigint,
+  token: TokenType
+) => {
+  const formatted = (
+    Number(amount) / Math.pow(10, token.decimals)
+  ).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
   return `${formatted} ${token.symbol}`;
 };
 
