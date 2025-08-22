@@ -52,10 +52,13 @@ export default function Header({
 
           <div className="rounded-lg">
             <ConnectButton
-              chainStatus="icon"
+              chainStatus={{
+                smallScreen: "none",
+                largeScreen: "none",
+              }}
               accountStatus={{
                 smallScreen: "avatar",
-                largeScreen: "full",
+                largeScreen: "avatar",
               }}
               showBalance={{
                 smallScreen: false,

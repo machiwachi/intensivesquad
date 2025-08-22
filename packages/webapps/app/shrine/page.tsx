@@ -493,7 +493,7 @@ const ItemCard = ({
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+              <div className="p-2  bg-primary/10 group-hover:bg-primary/20 transition-colors">
                 <IconComponent className="h-6 w-6 text-primary" />
               </div>
               <div>
@@ -546,8 +546,10 @@ const ItemCard = ({
               </div>
             )}
 
-          <div className="p-3 bg-muted/50 rounded-lg">
-            <div className="text-sm font-medium text-primary mb-1">效果</div>
+          <div className="p-3 bg-retro-lime">
+            <div className="text-sm font-medium text-accent-foreground mb-1">
+              效果
+            </div>
             <div className="text-sm">{item.effect}</div>
           </div>
 
@@ -672,8 +674,6 @@ const ItemCard = ({
 };
 
 export default function WEDOStore() {
-  const [selectedTab, setSelectedTab] = useState("dashboard");
-  const [teamWEDO] = useState(2450); // Mock team WEDO balance
   const [userVote, setUserVote] = useState<{ [key: number]: string }>({});
 
   const getAllStoreItems = () => {
@@ -722,7 +722,7 @@ export default function WEDOStore() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="">
       {/* Header */}
 
       {/* Main Content */}
@@ -754,7 +754,7 @@ export default function WEDOStore() {
           <TabsPanels>
             <TabsContent className="space-y-6">
               {/* Voting Overview */}
-              <Card className="bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20">
+              <Card className="w-full bg-gradient-to-r from-primary/5 to-accent/5 ">
                 <CardHeader>
                   <CardTitle className="font-playfair flex items-center gap-2">
                     <Vote className="h-5 w-5" />
@@ -766,7 +766,7 @@ export default function WEDOStore() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                    <div className="bg-white p-4 border-2 rounded-md break-inside-avoid mb-6 flex items-center gap-3">
                       <Vote className="h-5 w-5 text-primary" />
                       <div>
                         <p className="font-medium">进行中投票</p>
@@ -778,7 +778,7 @@ export default function WEDOStore() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                    <div className="bg-white p-4 border-2 rounded-md break-inside-avoid mb-6 flex items-center gap-3 ">
                       <CheckCircle className="h-5 w-5 text-green-600" />
                       <div>
                         <p className="font-medium">已通过</p>
@@ -793,7 +793,7 @@ export default function WEDOStore() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                    <div className="bg-white p-4 border-2 rounded-md break-inside-avoid mb-6 flex items-center gap-3  ">
                       <XCircle className="h-5 w-5 text-red-600" />
                       <div>
                         <p className="font-medium">未通过</p>
@@ -808,7 +808,7 @@ export default function WEDOStore() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                    <div className="bg-white p-4 border-2 rounded-md break-inside-avoid mb-6 flex items-center gap-3  ">
                       <Users className="h-5 w-5 text-blue-600" />
                       <div>
                         <p className="font-medium">有效选民</p>
@@ -825,9 +825,9 @@ export default function WEDOStore() {
               </Card>
 
               {/* Active Votes */}
-              <Card>
+              <Card className="w-full">
                 <CardHeader>
-                  <CardTitle className="font-playfair flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2">
                     <AlertCircle className="h-5 w-5 text-orange-600" />
                     进行中的投票
                   </CardTitle>
@@ -835,7 +835,7 @@ export default function WEDOStore() {
                 <CardContent>
                   {teamVotes.filter((vote) => vote.status === "active").length >
                   0 ? (
-                    <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
                       {teamVotes
                         .filter((vote) => vote.status === "active")
                         .map((vote) => {
@@ -849,13 +849,13 @@ export default function WEDOStore() {
                           return (
                             <Card
                               key={vote.id}
-                              className="border-2 border-orange-200 bg-gradient-to-r from-orange-50 to-yellow-50"
+                              className="w-full shadow-none hover:shadow-md"
                             >
                               <CardHeader className="pb-3">
                                 <div className="flex items-start justify-between">
                                   <div className="flex items-center gap-3">
                                     <div
-                                      className={`p-2 rounded-lg bg-${config.color}-100`}
+                                      className={`p-2  bg-${config.color}-100`}
                                     >
                                       <IconComponent
                                         className={`h-5 w-5 text-${config.color}-600`}
@@ -955,7 +955,7 @@ export default function WEDOStore() {
                                     </Button>
                                   </div>
                                 ) : (
-                                  <div className="text-center p-3 bg-muted/50 rounded-lg">
+                                  <div className="text-center p-3 bg-muted/50 ">
                                     <p className="text-sm text-muted-foreground">
                                       您已投票
                                     </p>
@@ -1003,9 +1003,9 @@ export default function WEDOStore() {
               </Card>
 
               {/* Vote History */}
-              <Card>
+              <Card className="w-full">
                 <CardHeader>
-                  <CardTitle className="font-playfair flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2">
                     <History className="h-5 w-5" />
                     投票历史
                   </CardTitle>
@@ -1025,12 +1025,10 @@ export default function WEDOStore() {
                         return (
                           <div
                             key={vote.id}
-                            className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors"
+                            className="flex items-center justify-between p-3  border-2 hover:bg-muted/50 transition-colors"
                           >
                             <div className="flex items-center gap-3">
-                              <div
-                                className={`p-2 rounded-lg bg-${config.color}-100`}
-                              >
+                              <div className={`p-2  bg-${config.color}-100`}>
                                 <IconComponent
                                   className={`h-4 w-4 text-${config.color}-600`}
                                 />
@@ -1065,7 +1063,7 @@ export default function WEDOStore() {
             </TabsContent>
 
             <TabsContent className="space-y-6">
-              <Card className="bg-gradient-to-r from-primary/5 to-accent/5 border-primary/20">
+              <Card className="w-full bg-gradient-to-r from-primary/5 to-accent/5">
                 <CardHeader>
                   <CardTitle className="font-playfair flex items-center gap-2">
                     <Package className="h-5 w-5" />
@@ -1076,8 +1074,8 @@ export default function WEDOStore() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="bg-white p-4 border-2 rounded-md break-inside-avoid mb-6 flex items-center gap-3  ">
                       <Package className="h-5 w-5 text-primary" />
                       <div>
                         <p className="font-medium">总道具数</p>
@@ -1089,7 +1087,7 @@ export default function WEDOStore() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                    <div className="bg-white p-4 border-2 rounded-md break-inside-avoid mb-6 flex items-center gap-3  ">
                       <Play className="h-5 w-5 text-green-600" />
                       <div>
                         <p className="font-medium">可用道具</p>
@@ -1100,7 +1098,7 @@ export default function WEDOStore() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                    <div className="bg-white p-4 border-2 rounded-md break-inside-avoid mb-6 flex items-center gap-3  ">
                       <Pause className="h-5 w-5 text-orange-600" />
                       <div>
                         <p className="font-medium">冷却中</p>
