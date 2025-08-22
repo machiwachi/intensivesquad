@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import { formatEther } from "viem";
 import { useAccount } from "wagmi";
 import {
   useReadIdoTokenBalanceOf,
@@ -15,8 +14,6 @@ import {
   useReadTeamEconomyUserShares,
   useReadTeamManagerAccountTeam,
 } from "../contracts/generated";
-import { formatTokenAmount } from "../utils";
-import { IDO_TOKEN, WEDO_TOKEN } from "../constant";
 
 export interface TeamEconomyData {
   teamId: number;
@@ -112,35 +109,44 @@ export function useTeamEconomy(teamId: number) {
 export function useUserTokenBalances() {
   const { address } = useAccount();
 
-  const { data: idoBalance, queryKey: idoQueryKey } = useReadIdoTokenBalanceOf({
+  const {
+    data: idoBalance,
+    isLoading: isIdoBalanceLoading,
+    isRefetching: isIdoBalanceRefetching,
+  } = useReadIdoTokenBalanceOf({
     args: [address ?? "0x0000000000000000000000000000000000000000"],
   });
 
-  const { address: walletAddress } = useAccount();
   const { data: userTeamId } = useReadTeamManagerAccountTeam({
-    args: [walletAddress ?? "0x0000000000000000000000000000000000000000"],
+    args: [address ?? "0x0000000000000000000000000000000000000000"],
   });
-  const { data: wedoBalance, queryKey: wedoQueryKey } =
-    useReadTeamEconomyTeamWedoBalance({
-      args: [BigInt(userTeamId ?? 0)],
-    });
+  const {
+    data: wedoBalance,
+    isLoading: isWedoBalanceLoading,
+    isRefetching: isWedoBalanceRefetching,
+  } = useReadTeamEconomyTeamWedoBalance({
+    args: [BigInt(userTeamId ?? 0)],
+  });
 
   return useMemo(() => {
     const balances = {
-      idoBalance:
-        typeof idoBalance === "undefined"
-          ? "-"
-          : formatTokenAmount(idoBalance, IDO_TOKEN),
-      wedoBalance:
-        typeof wedoBalance === "undefined"
-          ? "-"
-          : formatTokenAmount(wedoBalance, WEDO_TOKEN),
-      idoQueryKey,
-      wedoQueryKey,
+      idoBalance,
+      wedoBalance,
+      isIdoBalanceLoading,
+      isWedoBalanceLoading,
+      isIdoBalanceRefetching,
+      isWedoBalanceRefetching,
     };
 
     return balances;
-  }, [idoBalance, wedoBalance, idoQueryKey, wedoQueryKey]);
+  }, [
+    idoBalance,
+    wedoBalance,
+    isIdoBalanceLoading,
+    isWedoBalanceLoading,
+    isIdoBalanceRefetching,
+    isWedoBalanceRefetching,
+  ]);
 }
 
 // Hook to get global economy parameters

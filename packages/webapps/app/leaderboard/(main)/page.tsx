@@ -5,7 +5,7 @@ import { useTeams } from "@/lib/hooks/useTeams";
 import { type Team } from "@/lib/typings";
 import { Skull, Trophy, Users, Zap } from "lucide-react";
 import { useState } from "react";
-import { ClanCard } from "../clan-card";
+import { ClanCard, ClanCardSkeleton } from "../clan-card";
 import { ClanDetailDialog } from "../clan-detail.dialog";
 import { useReadIdoTokenTotalSupply } from "@/lib/contracts";
 import { formatEther } from "viem";
@@ -20,7 +20,7 @@ export default function ClansLeaderboard() {
 
   const [selectedClan, setSelectedClan] = useState<Team | null>(null);
 
-  if (isLoading || !teams) return null;
+  if (!teams) return null;
 
   const totalClans = teams.length;
 
@@ -121,13 +121,17 @@ export default function ClansLeaderboard() {
       </div>
       {/* Clans Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {teams.map((team) => (
-          <ClanCard
-            key={team.id}
-            clan={team}
-            onClick={() => setSelectedClan(team)}
-          />
-        ))}
+        {isLoading
+          ? Array.from({ length: 6 }).map((_, index) => (
+              <ClanCardSkeleton key={index} />
+            ))
+          : teams.map((team) => (
+              <ClanCard
+                key={team.id}
+                clan={team}
+                onClick={() => setSelectedClan(team)}
+              />
+            ))}
       </div>
       {/* Clan Detail Dialog */}
       <ClanDetailDialog
