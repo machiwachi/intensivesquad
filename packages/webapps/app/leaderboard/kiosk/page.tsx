@@ -19,10 +19,7 @@ import {
   usePublicClient,
   useWaitForTransactionReceipt,
 } from "wagmi";
-
-const getBlockchainExplorerUrl = (hash: `0x${string}`) => {
-  return `https://sepolia.etherscan.io/tx/${hash}`;
-};
+import { getBlockchainExplorerUrl } from "@/lib/utils";
 
 export default function Kiosk() {
   const { address } = useAccount();

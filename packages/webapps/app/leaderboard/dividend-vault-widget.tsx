@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { apiClient } from "@/lib/api";
+import { getBlockchainExplorerUrl } from "@/lib/utils";
 import { IDO_TOKEN, WEDO_TOKEN } from "@/lib/constant";
 import {
   useReadTeamManagerAccountTeam,
@@ -14,10 +15,19 @@ import { useTeamEconomy } from "@/lib/hooks/useTeamEconomy";
 import { type Team } from "@/lib/typings";
 import { formatTokenAmount } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowRightIcon, Coins, Download, Gift, Loader2 } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowRightIcon,
+  Coins,
+  Download,
+  ExternalLinkIcon,
+  Gift,
+  Loader2,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
+import Link from "next/link";
 
 export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
   const { address: walletAddress, isConnected: isWalletConnected } =
@@ -220,9 +230,9 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
             </div>
           </div>
 
-          <div className="flex justify-center items-center">
+          <div className="flex flex-col gap-2 justify-center items-center">
             {/* Withdraw Button */}
-            {isMember && economyData.teamWedoBalance > 0 && (
+            {isMember && (
               <Button
                 onClick={handleWithdraw}
                 disabled={
@@ -231,7 +241,6 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
                   !simulateWithdrawAll
                 }
                 className="pixel-border pixel-font mb-2"
-                variant="outline"
               >
                 {isWithdrawPending || isWithdrawConfirming ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -244,22 +253,35 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
               </Button>
             )}
 
+            {isMember && economyData.teamWedoBalance <= 0 && (
+              <div className="text-sm mb-2 text-shadow-accent flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4" />
+                金库余额不足
+              </div>
+            )}
+
             {/* Withdraw success indicator */}
             {withdrawHash && !isWithdrawPending && !isWithdrawConfirming && (
-              <div className="text-center mb-2">
-                <Badge variant="outline" className="pixel-font text-green-600">
-                  WEDO转换成功！
-                </Badge>
-              </div>
+              <Link
+                className=" text-sm mb-2 text-accent flex items-center gap-2"
+                href={getBlockchainExplorerUrl(withdrawHash)}
+                target="_blank"
+              >
+                <ExternalLinkIcon className="w-4 h-4" />
+                WEDO转换成功！
+              </Link>
             )}
 
             {/* Claim success indicator */}
             {claimHash && !isClaimPending && !isClaimConfirming && (
-              <div className="text-center mb-2">
-                <Badge variant="outline" className="pixel-font text-green-600">
-                  奖励领取成功！
-                </Badge>
-              </div>
+              <Link
+                className=" text-sm mb-2 text-accent flex items-center gap-2"
+                href={getBlockchainExplorerUrl(claimHash)}
+                target="_blank"
+              >
+                <ExternalLinkIcon className="w-4 h-4" />
+                WEDO转换成功！
+              </Link>
             )}
           </div>
 

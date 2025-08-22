@@ -153,37 +153,41 @@ export function ClanDetailDialog({
               </DialogTitle>
             </DialogHeader>
 
-            {!userTeamId && (
-              <Button
-                onClick={(e) => handleJoinClan(clan.id, e)}
-                className="w-full pixel-border pixel-font"
-                disabled={isJoinPending}
-              >
-                <UserPlus className="w-4 h-4 mr-2" />
-                {isJoinPending ? "加入中..." : `加入 ${clan.name}`}
-              </Button>
-            )}
-
-            {Number(userTeamId ?? 0) === clan.id && (
-              <Button
-                onClick={(e) => handleLeaveClan(clan.id, e)}
-                className="w-full pixel-border pixel-font"
-                disabled={isLeavePending}
-              >
-                <UserMinus className="w-4 h-4 mr-2" />
-                {isLeavePending ? "离开中..." : `离开 ${clan.name}`}
-              </Button>
-            )}
-
             <div className="space-y-6">
               {/* Dividend Vault Widget */}
               <DividendVaultWidget clan={clan} />
 
               {/* Members */}
               <div>
-                <h4 className="pixel-font font-bold mb-3">
-                  部落成员(总计 {clan.totalScore} IDO)
-                </h4>
+                <div className="flex justify-between items-center">
+                  <h4 className="pixel-font font-bold mb-3">
+                    部落成员(总计 {clan.totalScore} IDO)
+                  </h4>
+                  {!userTeamId && (
+                    <Button
+                      size="sm"
+                      onClick={(e) => handleJoinClan(clan.id, e)}
+                      className="pixel-font"
+                      disabled={isJoinPending}
+                    >
+                      <UserPlus className="w-4 h-4" />
+                      {isJoinPending ? "加入中..." : `加入 ${clan.name}`}
+                    </Button>
+                  )}
+
+                  {Number(userTeamId ?? 0) === clan.id && (
+                    <Button
+                      size="sm"
+                      onClick={(e) => handleLeaveClan(clan.id, e)}
+                      className="pixel-font "
+                      disabled={isLeavePending}
+                    >
+                      <UserMinus className="w-4 h-4" />
+                      {isLeavePending ? "离开中..." : `离开 ${clan.name}`}
+                    </Button>
+                  )}
+                </div>
+
                 <div className="grid grid-cols-2 gap-2">
                   {clan.members.map((member) => (
                     <div

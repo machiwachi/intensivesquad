@@ -24,3 +24,7 @@ export const formatTokenAmount = (
 export const formatAddress = (address: string) => {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 };
+
+export const getBlockchainExplorerUrl = (hash: `0x${string}`) => {
+  return `https://sepolia.etherscan.io/tx/${hash}`;
+};
