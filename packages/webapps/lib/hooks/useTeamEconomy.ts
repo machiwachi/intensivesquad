@@ -37,27 +37,30 @@ export interface UserTokenBalances {
 export function useTeamEconomy(teamId: number) {
   const { address } = useAccount();
 
-  const { data: teamWedoBalance } = useReadTeamEconomyTeamWedoBalance({
-    args: [BigInt(teamId)],
-  });
+  const { data: teamWedoBalance, refetch: refetchTeamWedoBalance } =
+    useReadTeamEconomyTeamWedoBalance({
+      args: [BigInt(teamId)],
+    });
 
   const { data: teamL } = useReadTeamEconomyGetTeamL({
     args: [BigInt(teamId)],
   });
 
-  const { data: pendingIdo } = useReadTeamEconomyPendingIdo({
-    args: [
-      BigInt(teamId),
-      address ?? "0x0000000000000000000000000000000000000000",
-    ],
-  });
+  const { data: pendingIdo, refetch: refetchPendingIdo } =
+    useReadTeamEconomyPendingIdo({
+      args: [
+        BigInt(teamId),
+        address ?? "0x0000000000000000000000000000000000000000",
+      ],
+    });
 
-  const { data: userAccrued } = useReadTeamEconomyUserAccrued({
-    args: [
-      BigInt(teamId),
-      address ?? "0x0000000000000000000000000000000000000000",
-    ],
-  });
+  const { data: userAccrued, refetch: refetchUserAccrued } =
+    useReadTeamEconomyUserAccrued({
+      args: [
+        BigInt(teamId),
+        address ?? "0x0000000000000000000000000000000000000000",
+      ],
+    });
 
   const { data: userShares } = useReadTeamEconomyUserShares({
     args: [
@@ -70,15 +73,17 @@ export function useTeamEconomy(teamId: number) {
   const { data: lMin } = useReadTeamEconomyLMin();
   const { data: lMax } = useReadTeamEconomyLMax();
 
-  return useMemo(() => {
-    if (teamWedoBalance === undefined || !teamL) {
-      return null;
-    }
+  const refetch = () => {
+    refetchTeamWedoBalance();
+    refetchPendingIdo();
+    refetchUserAccrued();
+  };
 
+  return useMemo(() => {
     const economy: TeamEconomyData = {
       teamId,
-      teamWedoBalance: teamWedoBalance,
-      teamLeverage: teamL,
+      teamWedoBalance: teamWedoBalance ?? BigInt(0),
+      teamLeverage: teamL ?? BigInt(0),
       userPendingIdo: pendingIdo ?? BigInt(0),
       userAccrued: userAccrued ?? BigInt(0),
       userShares: Number(userShares),
@@ -87,7 +92,7 @@ export function useTeamEconomy(teamId: number) {
       lMax: lMax ?? BigInt(1.5),
     };
 
-    return economy;
+    return { data: economy, refetch };
   }, [
     teamId,
     teamWedoBalance,

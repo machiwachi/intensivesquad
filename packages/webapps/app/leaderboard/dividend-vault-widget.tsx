@@ -18,14 +18,17 @@ import { formatTokenAmount } from "@/lib/utils";
 import { Coins, Gift, Download, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useAccount, useWaitForTransactionReceipt } from "wagmi";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
   const { address: walletAddress, isConnected: isWalletConnected } =
     useAccount();
-  const economyData = useTeamEconomy(clan.id);
+  const { refetch, data: economyData } = useTeamEconomy(clan.id);
   const { data: userTeamId } = useReadTeamManagerAccountTeam({
     args: [walletAddress ?? "0x0000000000000000000000000000000000000000"],
   });
+
+  const queryClient = useQueryClient();
 
   console.log({ economyData });
 
@@ -105,10 +108,15 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
             toast.success(
               `奖励领取成功！获得 ${result.claimedAmount.toFixed(2)} IDO`
             );
+            refetch();
           } else {
             console.error("API跟踪失败");
             toast.warning("奖励领取成功，但活动记录更新失败");
           }
+
+          queryClient.invalidateQueries({
+            queryKey: ["teams"],
+          });
         } catch (error) {
           console.error("跟踪Claim交易时出错:", error);
           toast.warning("奖励领取成功，但活动记录更新失败");
@@ -159,6 +167,10 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
             console.error("Withdraw API跟踪失败");
             toast.warning("WEDO转换成功，但活动记录更新失败");
           }
+          refetch();
+          queryClient.invalidateQueries({
+            queryKey: ["teams"],
+          });
         } catch (error) {
           console.error("跟踪Withdraw交易时出错:", error);
           toast.warning("WEDO转换成功，但活动记录更新失败");

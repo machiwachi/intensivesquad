@@ -253,7 +253,7 @@ export function ClanDetailDialog({
                     暂无活动记录
                   </div>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-2 max-h-80 overflow-y-auto">
                     {activities.map((activity: Activity) => {
                       const dividendContribution = activity.wedoAmount;
                       return (
