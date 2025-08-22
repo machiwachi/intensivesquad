@@ -1,21 +1,32 @@
-"use client";
+'use client';
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/retroui/Button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/retroui/Button';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { SCORE_TOKEN, type Clan } from "@/lib/data";
-import { formatTokenAmount } from "@/lib/utils";
-import { UserPlus } from "lucide-react";
-import { DividendVaultWidget } from "./dividend-vault-widget";
-import { useAccount } from "wagmi";
-import { useState } from "react";
+} from '@/components/ui/dialog';
+import { SCORE_TOKEN, type Clan } from '@/lib/data';
+import { formatTokenAmount } from '@/lib/utils';
+import { UserPlus, UserMinus } from 'lucide-react';
+import { DividendVaultWidget } from './dividend-vault-widget';
+import {
+  useAccount,
+  usePublicClient,
+  useWaitForTransactionReceipt,
+} from 'wagmi';
+
+import {
+  useReadTeamManagerAccountTeam,
+  useReadTeamManagerMembers,
+  useWriteTeamManagerJoin,
+  useWriteTeamManagerLeave,
+} from '@/lib/contracts';
+import { toast } from 'sonner';
 
 export function ClanDetailDialog({
   open,
@@ -29,17 +40,139 @@ export function ClanDetailDialog({
   const { address: walletAddress, isConnected: isWalletConnected } =
     useAccount();
 
-  const [joinedClans, setJoinedClans] = useState<Set<number>>(new Set([1])); // Mock: already joined clan 1
+  const { data: userTeamId } = useReadTeamManagerAccountTeam({
+    args: [walletAddress ?? '0x0000000000000000000000000000000000000000'],
+  });
 
-  const handleJoinClan = (clanId: number, event: React.MouseEvent) => {
+  // Get user's member info to check cooldown status for current clan
+  const { data: memberInfo } = useReadTeamManagerMembers({
+    args: [
+      BigInt(clan?.id || 0),
+      walletAddress ?? '0x0000000000000000000000000000000000000000',
+    ],
+  });
+
+  const publicClient = usePublicClient();
+
+  // Join team hooks
+  const {
+    data: joinHash,
+    writeContractAsync: joinAsync,
+    reset: resetJoin,
+  } = useWriteTeamManagerJoin();
+
+  // Leave team hooks
+  const {
+    data: leaveHash,
+    writeContractAsync: leaveAsync,
+    reset: resetLeave,
+  } = useWriteTeamManagerLeave();
+
+  const { isLoading: isJoining } = useWaitForTransactionReceipt({
+    hash: joinHash,
+  });
+
+  const { isLoading: isLeaving } = useWaitForTransactionReceipt({
+    hash: leaveHash,
+  });
+
+  // Calculate cooldown info
+  const cooldownInfo = memberInfo
+    ? {
+        status: Number(memberInfo[0]),
+        cooldownEndsAt: Number(memberInfo[3]),
+        isInCooldown:
+          Number(memberInfo[0]) === 2 &&
+          Number(memberInfo[3]) > Math.floor(Date.now() / 1000),
+        cooldownRemainingSeconds: Math.max(
+          0,
+          Number(memberInfo[3]) - Math.floor(Date.now() / 1000)
+        ),
+      }
+    : null;
+
+  const handleJoinClan = async (clanId: number, event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent opening clan details
-    if (isWalletConnected && !joinedClans.has(clanId)) {
-      setJoinedClans((prev) => new Set([...prev, clanId]));
+
+    if (!publicClient || !isWalletConnected) {
+      toast.error('请先连接钱包');
+      return;
+    }
+
+    // Check for cooldown
+    if (cooldownInfo?.isInCooldown) {
+      const days = Math.ceil(
+        cooldownInfo.cooldownRemainingSeconds / (24 * 60 * 60)
+      );
+      toast.error(`冷却时间未结束，还需等待 ${days} 天`);
+      return;
+    }
+
+    try {
+      const joinTx = await joinAsync({
+        args: [BigInt(clanId)],
+      });
+
+      toast.success('正在加入部落...', {
+        description: '请等待交易确认',
+      });
+
+      await publicClient.waitForTransactionReceipt({
+        hash: joinTx,
+      });
+
+      toast.success('成功加入部落！');
+    } catch (error) {
+      console.error('加入部落失败:', error);
+      toast.error('加入部落失败，请重试');
+      resetJoin();
     }
   };
 
-  const canJoinClan = (clanId: number) => {
-    return isWalletConnected && !joinedClans.has(clanId);
+  const handleLeaveClan = async (event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent opening clan details
+
+    if (!publicClient || !isWalletConnected) {
+      toast.error('请先连接钱包');
+      return;
+    }
+
+    try {
+      // 30天的冷却期（30 * 24 * 60 * 60 秒）
+      const cooldownSeconds = 30 * 24 * 60 * 60;
+
+      const leaveTx = await leaveAsync({
+        args: [BigInt(cooldownSeconds)],
+      });
+
+      toast.success('正在退出部落...', {
+        description: '请等待交易确认',
+      });
+
+      await publicClient.waitForTransactionReceipt({
+        hash: leaveTx,
+      });
+
+      toast.success('已成功退出部落！', {
+        description: '30天后可以加入新的部落',
+      });
+    } catch (error) {
+      console.error('退出部落失败:', error);
+      toast.error('退出部落失败，请重试');
+      resetLeave();
+    }
+  };
+
+  const canJoinClan = (_clanId: number) => {
+    return isWalletConnected && !userTeamId && !cooldownInfo?.isInCooldown;
+  };
+
+  const isInCooldown = () => {
+    return cooldownInfo?.isInCooldown;
+  };
+
+  const isUserTeam = (clanId: number) => {
+    return userTeamId && Number(userTeamId) === clanId;
   };
 
   return (
@@ -64,11 +197,35 @@ export function ClanDetailDialog({
 
             {canJoinClan(clan.id) && (
               <Button
-                onClick={(e) => handleJoinClan(clan.id, e)}
-                className="w-full pixel-border pixel-font"
-              >
+                onClick={e => handleJoinClan(clan.id, e)}
+                disabled={isJoining}
+                className="w-full pixel-border pixel-font">
                 <UserPlus className="w-4 h-4 mr-2" />
-                加入 {clan.name}
+                {isJoining ? '加入中...' : `加入 ${clan.name}`}
+              </Button>
+            )}
+
+            {isInCooldown() && !userTeamId && (
+              <Button
+                disabled={true}
+                variant="outline"
+                className="w-full pixel-border pixel-font cursor-not-allowed">
+                冷却中 - 还需等待{' '}
+                {Math.ceil(
+                  (cooldownInfo?.cooldownRemainingSeconds || 0) / (24 * 60 * 60)
+                )}{' '}
+                天
+              </Button>
+            )}
+
+            {isUserTeam(clan.id) && (
+              <Button
+                onClick={e => handleLeaveClan(e)}
+                disabled={isLeaving}
+                variant="outline"
+                className="w-full pixel-border pixel-font">
+                <UserMinus className="w-4 h-4 mr-2" />
+                {isLeaving ? '退出中...' : `退出 ${clan.name}`}
               </Button>
             )}
 
@@ -106,18 +263,17 @@ export function ClanDetailDialog({
               <div>
                 <h4 className="pixel-font font-bold mb-3">部落成员</h4>
                 <div className="grid grid-cols-2 gap-2">
-                  {clan.members.map((member) => (
+                  {clan.members.map(member => (
                     <div
                       key={member.id}
                       className={`flex items-center gap-3 p-2 rounded pixel-border ${
-                        member.status === "eliminated"
-                          ? "eliminated bg-muted/50"
-                          : "bg-card"
-                      }`}
-                    >
+                        member.status === 'eliminated'
+                          ? 'eliminated bg-muted/50'
+                          : 'bg-card'
+                      }`}>
                       <Avatar className="w-8 h-8">
                         <AvatarImage
-                          src={member.avatar || "/placeholder.svg"}
+                          src={member.avatar || '/placeholder.svg'}
                           alt={member.name}
                         />
                         <AvatarFallback className="pixel-font text-xs">
@@ -127,11 +283,10 @@ export function ClanDetailDialog({
                       <span className="pixel-font text-sm">{member.name}</span>
                       <Badge
                         variant={
-                          member.status === "active" ? "default" : "secondary"
+                          member.status === 'active' ? 'default' : 'secondary'
                         }
-                        className="pixel-font text-xs ml-auto"
-                      >
-                        {member.status === "active" ? "活跃" : "已淘汰"}
+                        className="pixel-font text-xs ml-auto">
+                        {member.status === 'active' ? '活跃' : '已淘汰'}
                       </Badge>
                     </div>
                   ))}
@@ -150,11 +305,10 @@ export function ClanDetailDialog({
                         className="flex justify-between items-center p-3 bg-muted/30 rounded pixel-border"
                         onClick={() =>
                           window.open(
-                            "https://sepolia.etherscan.io/tx/0x7509932b2c6e522df9757ea82a269548fce2a7f2eb4bf1856553a6c387fab02b",
-                            "_blank"
+                            'https://sepolia.etherscan.io/tx/0x7509932b2c6e522df9757ea82a269548fce2a7f2eb4bf1856553a6c387fab02b',
+                            '_blank'
                           )
-                        }
-                      >
+                        }>
                         <div>
                           <p className="pixel-font text-sm font-medium">
                             {activity.user}

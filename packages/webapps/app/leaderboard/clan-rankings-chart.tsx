@@ -1,7 +1,7 @@
-import { BarChart3 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { RankIcon } from "./rank";
-import { useTeams, type Team } from "@/lib/hooks/useTeams";
+import { BarChart3 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { RankIcon } from './rank';
+import { useTeams } from '@/lib/hooks/useTeams';
 
 export const ClanRankingsChart = () => {
   const { teams, isLoading } = useTeams();
@@ -9,7 +9,7 @@ export const ClanRankingsChart = () => {
   if (isLoading || !teams) return null;
 
   const sortedClans = [...teams].sort((a, b) => b.totalScore - a.totalScore);
-  const maxScore = Math.max(...sortedClans.map((c) => c.totalScore));
+  const maxScore = Math.max(...sortedClans.map(c => c.totalScore));
 
   return (
     <div className="space-y-3">
@@ -24,8 +24,7 @@ export const ClanRankingsChart = () => {
           return (
             <div
               key={clan.id}
-              className="flex items-center gap-3 p-3 bg-muted/20 rounded pixel-border"
-            >
+              className="flex items-center gap-3 p-3 bg-muted/20 rounded pixel-border">
               <div className="flex items-center gap-2 w-16">
                 <RankIcon rank={index + 1} />
                 <span className="pixel-font text-sm font-bold">
@@ -44,9 +43,11 @@ export const ClanRankingsChart = () => {
                       {clan.remainingMembers}/{clan.totalMembers} active
                     </Badge>
                   </div>
-                  <span className="pixel-font text-sm font-bold text-primary">
-                    {clan.totalScore.toFixed(0)} IDO
-                  </span>
+                  {clan.totalScore > 0 && (
+                    <span className="pixel-font text-sm font-bold text-primary">
+                      {clan.totalScore.toFixed(0)} IDO
+                    </span>
+                  )}
                 </div>
 
                 <div className="w-full bg-muted/30 h-4 rounded pixel-border overflow-hidden">

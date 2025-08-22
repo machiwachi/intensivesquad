@@ -1,14 +1,14 @@
-import { formatTokenAmount } from "@/lib/utils";
-import { Coins, Gift } from "lucide-react";
-import { Button } from "@/components/retroui/Button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { useAccount } from "wagmi";
-import { useState } from "react";
-import { type Team } from "@/lib/hooks";
-import { useTeamEconomy } from "@/lib/hooks/useTeamEconomy";
-import { SCORE_TOKEN } from "@/lib/data";
-import { useReadTeamManagerAccountTeam } from "@/lib/contracts";
+import { formatTokenAmount } from '@/lib/utils';
+import { Coins, Gift } from 'lucide-react';
+import { Button } from '@/components/retroui/Button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { useAccount } from 'wagmi';
+import { useState } from 'react';
+import { type Team } from '@/lib/hooks';
+import { useTeamEconomy } from '@/lib/hooks/useTeamEconomy';
+import { SCORE_TOKEN } from '@/lib/data';
+import { useReadTeamManagerAccountTeam } from '@/lib/contracts';
 
 export const DividendVaultWidget = ({
   clan,
@@ -21,7 +21,7 @@ export const DividendVaultWidget = ({
     useAccount();
   const economyData = useTeamEconomy(clan.id);
   const { data: userTeamId } = useReadTeamManagerAccountTeam({
-    args: [walletAddress ?? "0x0000000000000000000000000000000000000000"],
+    args: [walletAddress ?? '0x0000000000000000000000000000000000000000'],
   });
 
   const [claimedRewards, setClaimedRewards] = useState<Set<number>>(new Set()); // Track claimed rewards
@@ -33,7 +33,7 @@ export const DividendVaultWidget = ({
   const handleClaimRewards = (clanId: number, event: React.MouseEvent) => {
     event.stopPropagation(); // Prevent opening clan details
     if (isWalletConnected && isMember) {
-      setClaimedRewards((prev) => new Set([...prev, clanId]));
+      setClaimedRewards(prev => new Set([...prev, clanId]));
       // In a real app, this would trigger a blockchain transaction
       console.log(`[v0] Claiming rewards for clan ${clanId}`);
     }
@@ -58,20 +58,21 @@ export const DividendVaultWidget = ({
           <span className="pixel-font text-xs text-muted-foreground">
             奖励金库：
           </span>
-          <span className="pixel-font text-xs font-bold">
-            {formatTokenAmount(
-              clan.dividendVault.totalBalance *
-                Math.pow(10, SCORE_TOKEN.decimals),
-              SCORE_TOKEN
-            )}
-          </span>
+          {clan.dividendVault.totalBalance > 0 && (
+            <span className="pixel-font text-xs font-bold text-black">
+              {formatTokenAmount(
+                clan.dividendVault.totalBalance *
+                  Math.pow(10, SCORE_TOKEN.decimals),
+                SCORE_TOKEN
+              )}
+            </span>
+          )}
         </div>
         {hasClaimableRewards && (
           <Button
             size="sm"
-            onClick={(e) => handleClaimRewards(clan.id, e)}
-            className="pixel-border pixel-font text-xs h-6 px-2"
-          >
+            onClick={e => handleClaimRewards(clan.id, e)}
+            className="pixel-border pixel-font text-xs h-6 px-2">
             <Gift className="w-3 h-3 mr-1" />
             领取
           </Button>
@@ -102,13 +103,13 @@ export const DividendVaultWidget = ({
         <div className="grid grid-cols-2 gap-3">
           <div>
             <p className="pixel-font text-xs text-muted-foreground">金库总额</p>
-            <p className="pixel-font text-lg font-bold text-primary pixel-font">
+            <p className="pixel-font text-lg font-bold text-black pixel-font">
               {economyData.teamWedoBalance.toFixed(2)} WEDO
             </p>
           </div>
           <div>
             <p className="pixel-font text-xs text-muted-foreground">你的份额</p>
-            <p className="pixel-font text-lg font-bold text-accent pixel-font">
+            <p className="pixel-font text-lg font-bold text-black pixel-font">
               {isMember
                 ? `${economyData.userPendingIdo.toFixed(2)} IDO`
                 : `0.00 IDO`}
@@ -123,28 +124,26 @@ export const DividendVaultWidget = ({
           <div className="max-h-32 overflow-y-auto space-y-1">
             {clan.members.map((member, index) => {
               const contribution = Math.random() * 50 + 10; // Mock contribution amount
-              const isCurrentUser = member.name === "You" && isMember;
+              const isCurrentUser = member.name === 'You' && isMember;
               return (
                 <div
                   key={index}
                   className={`flex items-center justify-between p-2 rounded pixel-border text-xs ${
                     isCurrentUser
-                      ? "bg-primary/10 border-primary"
-                      : "bg-muted/10"
+                      ? 'bg-primary/10 border-primary'
+                      : 'bg-muted/10'
                   } ${
-                    member.status === "eliminated" ? "opacity-50 grayscale" : ""
-                  }`}
-                >
+                    member.status === 'eliminated' ? 'opacity-50 grayscale' : ''
+                  }`}>
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400" />
                     <span
                       className={`pixel-font ${
-                        isCurrentUser ? "font-bold text-primary" : ""
-                      }`}
-                    >
+                        isCurrentUser ? 'font-bold text-primary' : ''
+                      }`}>
                       {member.name}
                     </span>
-                    {member.status === "eliminated" && (
+                    {member.status === 'eliminated' && (
                       <Badge variant="outline" className="pixel-font text-xs">
                         已淘汰
                       </Badge>
@@ -173,7 +172,7 @@ export const DividendVaultWidget = ({
         <div className="text-xs pixel-font text-muted-foreground">
           <p>上次分发：{clan.dividendVault.lastDistribution}</p>
           <p>
-            已累计分发：{" "}
+            已累计分发：{' '}
             {formatTokenAmount(
               clan.dividendVault.totalDistributed *
                 Math.pow(10, SCORE_TOKEN.decimals),
@@ -184,11 +183,10 @@ export const DividendVaultWidget = ({
 
         {hasClaimableRewards && (
           <Button
-            onClick={(e) => handleClaimRewards(clan.id, e)}
-            className="w-full pixel-border pixel-font"
-          >
+            onClick={e => handleClaimRewards(clan.id, e)}
+            className="w-full pixel-border pixel-font">
             <Gift className="w-4 h-4 mr-2" />
-            领取{" "}
+            领取{' '}
             {formatTokenAmount(
               clan.dividendVault.userClaimable *
                 Math.pow(10, SCORE_TOKEN.decimals),
