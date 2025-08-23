@@ -1,12 +1,10 @@
-import Link from "next/link";
-import { ConnectButton } from "@/components/connect.button";
-import { GiftIcon, Heart } from "lucide-react";
-import Image from "next/image";
 import BalanceWidget from "@/components/balance.widget";
-import { CreateButton } from "@/components/create.button";
-import { RankButton } from "@/app/leaderboard/rank.button";
+import { ConnectButton } from "@/components/connect.button";
 import { Button } from "@/components/retroui/Button";
-import { GiWarAxe, GiWarBonnet } from "react-icons/gi";
+import { Heart } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { GiGreekTemple, GiWarAxe } from "react-icons/gi";
 
 export default function ShrineLayout({
   children,
@@ -23,8 +21,8 @@ export default function ShrineLayout({
 }
 
 export function Header({
-  title = "商店",
-  description = "使用 WEDO 代币购买强化道具，提升团队实力",
+  title = "IDO 奖池",
+  description = "质押 ETH 参与活动，按持有的 IDO 比例分配奖池。",
 }: {
   title?: string;
   description?: string;
@@ -61,10 +59,11 @@ export function Header({
               战场
             </Button>
           </Link>
-          <Link href="/pool">
+
+          <Link href="/shrine">
             <Button variant="outline" className="gap-2">
-              <GiftIcon className="w-4 h-4" />
-              奖池
+              <GiGreekTemple className="w-4 h-4" />
+              商店
             </Button>
           </Link>
 

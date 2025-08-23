@@ -59,6 +59,7 @@
   - 记录团队累积份额，仅在 `Withdraw` 时按 $L_i$ 转为 `IDO`。
 - TeamManager
   - `createTeam` / `join` / `eliminate`（维护在籍人数 R、编制 N、参数 L_min/L_max，事件化变更）。
+    - `join`（仅 DEMO，暂不实现）：首次参与需随交易附带 0.01 ETH（仅首次收取），该 ETH 计入全局 IDO 奖池；再次加入或团队间流转不重复收取。详见 `docs/IDO_POOL_DESIGN.md`。
 - TeamEconomy（分配器）
   - `creditPersonalIDO` / `creditTeamWEDO` / `withdraw` / `claim`。
   - 采用“每幸存者累计分红”记账，成员可随时领取。

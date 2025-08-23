@@ -1,16 +1,9 @@
 "use client";
 import { Button } from "@/components/retroui/Button";
 import { apiClient } from "@/lib/api";
-import { cn } from "@/lib/utils";
+import { cn, getBlockchainExplorerUrl } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  Badge,
-  CheckIcon,
-  CopyIcon,
-  ExternalLinkIcon,
-  Heart,
-  Loader2,
-} from "lucide-react";
+import { CheckIcon, ExternalLinkIcon, Heart, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -19,7 +12,6 @@ import {
   usePublicClient,
   useWaitForTransactionReceipt,
 } from "wagmi";
-import { getBlockchainExplorerUrl } from "@/lib/utils";
 
 export default function Kiosk() {
   const { address } = useAccount();

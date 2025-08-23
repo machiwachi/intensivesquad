@@ -726,7 +726,7 @@ export default function WEDOStore() {
       {/* Header */}
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="mx-auto py-8">
         <Tabs className="space-y-6">
           <TabsList className="grid w-full grid-cols-7 lg:w-fit lg:grid-cols-7">
             <TabsTrigger value="voting" className="flex items-center gap-2">

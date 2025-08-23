@@ -3,7 +3,7 @@
 import { Button } from "@/components/retroui/Button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { CreateClanDialog } from "./create-clan.dialog";
+import { CreateClanDialog } from "../app/leaderboard/create-clan.dialog";
 import { useSession } from "next-auth/react";
 
 export const CreateButton = () => {

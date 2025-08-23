@@ -1,15 +1,14 @@
 import Link from "next/link";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { Heart } from "lucide-react";
+import { ConnectButton } from "@/components/connect.button";
+import { GiftIcon, Heart } from "lucide-react";
 import Image from "next/image";
 import BalanceWidget from "@/components/balance.widget";
-import { CreateButton } from "@/app/leaderboard/create.button";
 import { RankButton } from "@/app/leaderboard/rank.button";
 import { Button } from "@/components/retroui/Button";
 import { GiGreekTemple } from "react-icons/gi";
 
 export default function Header({
-  title = "残酷小队·失落战场",
+  title = "战场",
   description = "为了部落，努力打卡！",
 }: {
   title?: string;
@@ -41,30 +40,22 @@ export default function Header({
         <div className="flex items-center gap-4">
           <BalanceWidget />
           <RankButton />
-          <CreateButton />
 
           <Link href="/shrine">
             <Button variant="outline" className="gap-2">
               <GiGreekTemple className="w-4 h-4" />
-              部落神殿
+              商店
+            </Button>
+          </Link>
+          <Link href="/pool">
+            <Button variant="outline" className="gap-2">
+              <GiftIcon className="w-4 h-4" />
+              奖池
             </Button>
           </Link>
 
           <div className="rounded-lg">
-            <ConnectButton
-              chainStatus={{
-                smallScreen: "none",
-                largeScreen: "none",
-              }}
-              accountStatus={{
-                smallScreen: "avatar",
-                largeScreen: "avatar",
-              }}
-              showBalance={{
-                smallScreen: false,
-                largeScreen: true,
-              }}
-            />
+            <ConnectButton />
           </div>
         </div>
       </div>
