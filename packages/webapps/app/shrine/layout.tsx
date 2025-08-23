@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { Heart } from "lucide-react";
+import { ConnectButton } from "@/components/connect.button";
+import { GiftIcon, Heart } from "lucide-react";
 import Image from "next/image";
 import BalanceWidget from "@/components/balance.widget";
 import { CreateButton } from "@/app/leaderboard/create.button";
@@ -23,7 +23,7 @@ export default function ShrineLayout({
 }
 
 export function Header({
-  title = "残酷小队·部落神殿",
+  title = "商店",
   description = "使用 WEDO 代币购买强化道具，提升团队实力",
 }: {
   title?: string;
@@ -58,22 +58,18 @@ export function Header({
           <Link href="/leaderboard">
             <Button variant="outline" className="gap-2">
               <GiWarAxe className="w-4 h-4" />
-              失落战场
+              战场
+            </Button>
+          </Link>
+          <Link href="/pool">
+            <Button variant="outline" className="gap-2">
+              <GiftIcon className="w-4 h-4" />
+              奖池
             </Button>
           </Link>
 
           <div className="rounded-lg">
-            <ConnectButton
-              chainStatus="icon"
-              accountStatus={{
-                smallScreen: "avatar",
-                largeScreen: "full",
-              }}
-              showBalance={{
-                smallScreen: false,
-                largeScreen: true,
-              }}
-            />
+            <ConnectButton />
           </div>
         </div>
       </div>

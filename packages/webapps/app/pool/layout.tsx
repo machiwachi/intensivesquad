@@ -1,16 +1,28 @@
-import Link from "next/link";
-import { ConnectButton } from "@/components/connect.button";
-import { GiftIcon, Heart } from "lucide-react";
-import Image from "next/image";
 import BalanceWidget from "@/components/balance.widget";
-import { CreateButton } from "@/app/leaderboard/create.button";
-import { RankButton } from "@/app/leaderboard/rank.button";
+import { ConnectButton } from "@/components/connect.button";
 import { Button } from "@/components/retroui/Button";
-import { GiGreekTemple } from "react-icons/gi";
+import { Heart } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { GiGreekTemple, GiWarAxe } from "react-icons/gi";
 
-export default function Header({
-  title = "战场",
-  description = "为了部落，努力打卡！",
+export default function ShrineLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="min-h-screen bg-background p-4 lg:p-8 gap-2">
+      {/* Header */}
+      <Header />
+      {children}
+    </div>
+  );
+}
+
+export function Header({
+  title = "IDO 奖池",
+  description = "质押 ETH 参与活动，按持有的 IDO 比例分配奖池。",
 }: {
   title?: string;
   description?: string;
@@ -40,19 +52,18 @@ export default function Header({
 
         <div className="flex items-center gap-4">
           <BalanceWidget />
-          <RankButton />
-          <CreateButton />
+
+          <Link href="/leaderboard">
+            <Button variant="outline" className="gap-2">
+              <GiWarAxe className="w-4 h-4" />
+              战场
+            </Button>
+          </Link>
 
           <Link href="/shrine">
             <Button variant="outline" className="gap-2">
               <GiGreekTemple className="w-4 h-4" />
               商店
-            </Button>
-          </Link>
-          <Link href="/pool">
-            <Button variant="outline" className="gap-2">
-              <GiftIcon className="w-4 h-4" />
-              奖池
             </Button>
           </Link>
 
