@@ -29,7 +29,7 @@ export default function BalanceWidget({
   return (
     <div
       className={cn(
-        "min-w-[185px] font-semibold flex flex-col place-items-end",
+        "min-w-[190px] font-semibold flex flex-col place-items-end",
         className
       )}
     >

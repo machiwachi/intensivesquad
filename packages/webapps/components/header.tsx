@@ -47,13 +47,13 @@ export default function Header() {
                 />
                 <h1 className="text-4xl lg:text-5xl font-bold">{title}</h1>
               </Link>
-              <KioskButton />
             </div>
             <p className="text-muted-foreground ">{description}</p>
           </div>
         </div>
 
         <div className="flex items-center gap-4">
+          <KioskButton />
           <BalanceWidget />
 
           {pathname !== "/leaderboard" && (
