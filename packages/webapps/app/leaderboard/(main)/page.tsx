@@ -17,6 +17,7 @@ import { formatTokenAmount, generateSeries } from "@/lib/utils";
 import { IDO_TOKEN } from "@/lib/constant";
 import { BarChart } from "@/components/retroui/charts/BarChart";
 import { Badge } from "@/components/retroui/Badge";
+import { GiTombstone } from "react-icons/gi";
 
 export default function ClansLeaderboard() {
   const { teams, isLoading } = useTeams();
@@ -81,7 +82,7 @@ export default function ClansLeaderboard() {
             </div>
 
             <div className="flex items-center gap-3">
-              <Skull className="w-8 h-8 text-red-500" />
+              <GiTombstone className="w-8 h-8 text-red-500" />
               <div>
                 <p className="text-2xl font-bold  text-red-500">
                   {teams.reduce(
