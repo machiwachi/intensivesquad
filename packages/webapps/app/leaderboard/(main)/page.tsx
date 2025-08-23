@@ -16,6 +16,7 @@ import { CreateButton } from "@/components/create.button";
 import { formatTokenAmount, generateSeries } from "@/lib/utils";
 import { IDO_TOKEN } from "@/lib/constant";
 import { BarChart } from "@/components/retroui/charts/BarChart";
+import { Badge } from "@/components/retroui/Badge";
 
 export default function ClansLeaderboard() {
   const { teams, isLoading } = useTeams();
@@ -41,7 +42,7 @@ export default function ClansLeaderboard() {
       {/* Header */}
       {/* Global Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 grid-flow-row">
-        <Card className="shadow-none hover:shadow-md p-4">
+        <Card className="p-4">
           <h1 className="text-2xl font-bold">残酷统计</h1>
           <CardContent className="h-full grid grid-cols-2 items-center gap-3 place-items-start justify-items-start">
             <div className="flex items-center gap-3">
@@ -95,7 +96,7 @@ export default function ClansLeaderboard() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-none hover:shadow-md md:col-span-2 p-4">
+        <Card className="md:col-span-2 p-4">
           <h1 className="text-2xl font-bold">每日战报</h1>
           <CardContent className="">
             {/* Mini retention chart */}
@@ -112,6 +113,81 @@ export default function ClansLeaderboard() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Clan Ladder */}
+      <Card className="w-full p-6 mb-8">
+        <h1 className="text-2xl font-bold mb-6">部落天梯</h1>
+        <div className="relative">
+          {/* Horizontal line */}
+          <div className="absolute top-1/2 left-0 right-0 h-2 bg-gradient-to-r from-red-200 via-yellow-200 to-green-200 rounded-full transform -translate-y-1/2" />
+
+          {/* Team badges positioned by IDO value */}
+          <div className="relative h-16 w-full">
+            {teams &&
+              teams.length > 0 &&
+              (() => {
+                // Sort teams by totalScore descending
+                const sortedTeams = [...teams].sort(
+                  (a, b) => b.totalScore - a.totalScore
+                );
+                const maxScore = sortedTeams[0]?.totalScore || 1;
+                const minScore =
+                  sortedTeams[sortedTeams.length - 1]?.totalScore || 0;
+                const scoreRange = maxScore - minScore || 1;
+
+                const infScore = maxScore / 0.8;
+
+                return sortedTeams.map((team, index) => {
+                  // Calculate position: first place at 80%, others distributed proportionally
+                  let position;
+                  const scoreRatio = team.totalScore / infScore;
+                  position = scoreRatio * 100; // 5% to 75% range
+
+                  return (
+                    <div
+                      key={team.id}
+                      className="absolute transform -translate-x-1/2 -translate-y-1/2 top-6 transition-all duration-200 ease-in-out "
+                      style={{ left: `${position}%` }}
+                    >
+                      <Badge
+                        variant="surface"
+                        size="sm"
+                        className={`
+                        cursor-pointer  whitespace-nowrap hover:shadow-md
+                        ${index === 0 ? "animate-wiggle" : ""}
+                        ${index === 0 ? "ring-2 ring-yellow-400" : ""}
+                      `}
+                        onClick={() => {
+                          posthog.capture("leaderboard_ladder_clan_clicked", {
+                            clan_id: team.id,
+                            rank: index + 1,
+                          });
+                          setSelectedClan(team);
+                        }}
+                      >
+                        {team.flag} {team.name}
+                      </Badge>
+
+                      {/* Score display below badge */}
+                      <div className="text-xs text-center mt-1 text-muted-foreground">
+                        {team.totalScore.toLocaleString()}
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
+          </div>
+
+          {/* Scale markers */}
+          <div className="flex justify-between mt-8 text-xs text-muted-foreground">
+            <span>弱鸡</span>
+            <span>普通</span>
+            <span>强者</span>
+            <span className="text-yellow-600 font-semibold">王者</span>
+          </div>
+        </div>
+      </Card>
+
       {/* Clans Grid */}
 
       <div className="space-y-4">
