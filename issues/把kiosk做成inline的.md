@@ -1,0 +1,1 @@
+把kiosk做成inline的
