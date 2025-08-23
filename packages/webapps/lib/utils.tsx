@@ -8,7 +8,10 @@ export function cn(...inputs: ClassValue[]) {
 
 export const formatTokenAmount = (
   amount: number | bigint,
-  token: TokenType
+  token: TokenType,
+  options?: {
+    styleSymbols?: ClassValue;
+  }
 ) => {
   const formatted = (
     typeof amount === "bigint"
@@ -18,6 +21,23 @@ export const formatTokenAmount = (
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
+
+  if (options?.styleSymbols) {
+    return (
+      <>
+        {formatted}
+        <span
+          className={cn(
+            "text-xs text-gray-500 self-baseline",
+            options.styleSymbols
+          )}
+        >
+          {" "}
+          {token.symbol}
+        </span>
+      </>
+    );
+  }
   return `${formatted} ${token.symbol}`;
 };
 
