@@ -19,7 +19,7 @@ export default function Header({
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-6">
         <div>
           <div className="flex items-center gap-2">
-            <Link href="/leaderboard" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2">
               <Image
                 src="/pixel-archer.png"
                 alt="logo"

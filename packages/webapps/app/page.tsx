@@ -50,7 +50,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Link href="/leaderboard" className="flex items-center gap-2">
+              <Link href="/" className="flex items-center gap-2">
                 <Image
                   src="/pixel-archer.png"
                   alt="logo"
@@ -98,7 +98,7 @@ export default function HomePage() {
               </div>
               <h1 className="text-6xl md:text-7xl font-black leading-none mb-6">
                 团结越强，分红越高! <br />
-                <span className="bg-neo-green/80 px-2 py-1">
+                <span className="bg-neo-green/80 px-2 py-1 inline-block">
                   DO it together!
                 </span>
               </h1>
@@ -111,15 +111,22 @@ export default function HomePage() {
                 区块链透明记录
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="gap-2">
-                  加入团队
-                  <ArrowRightIcon className="w-4 h-4" />
-                </Button>
+                <Link href="/leaderboard">
+                  <Button size="lg" className="gap-2">
+                    加入团队
+                    <ArrowRightIcon className="w-4 h-4" />
+                  </Button>
+                </Link>
                  
-                <Button variant="secondary" size="lg" className="gap-2">
-                  <SiRefinedgithub className="w-4 h-4" />
-                  GitHub
-                </Button>
+                <Link
+                  href="https://github.com/machiwachi/intensivesquad"
+                  target="_blank"
+                >
+                  <Button variant="secondary" size="lg" className="gap-2">
+                    <SiRefinedgithub className="w-4 h-4" />
+                    GitHub
+                  </Button>
+                </Link>
               </div>
             </div>
             <div className="relative">
