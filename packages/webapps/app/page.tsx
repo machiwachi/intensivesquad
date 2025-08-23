@@ -46,8 +46,8 @@ export default function HomePage() {
   return (
     <div className="">
       {/* Header */}
-      <header className="border-b-4 border-foreground bg-background">
-        <div className="container mx-auto px-4 py-6">
+      <header className="fixed w-full z-10">
+        <div className="px-4 py-6 bg-white">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Link href="/" className="flex items-center gap-2">
@@ -84,10 +84,16 @@ export default function HomePage() {
             </nav>
           </div>
         </div>
+        <div className="bottom-0 left-0 w-full ">
+          <img
+            className="w-full h-full object-cover"
+            src="https://nockblocks.com/assets/sine-DAj3g9gc.svg"
+          />
+        </div>
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 bg-neo-pink/60">
+      <section className="py-20 pt-48 sm:pt-60 bg-neo-pink/60">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
