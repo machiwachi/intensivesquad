@@ -216,14 +216,38 @@ const app = new Hono()
     zValidator(
       "json",
       z.object({
-        amount: z.number(),
         account: zeroxSchema,
       })
     ),
     async (c) => {
-      const { amount: idoAmount, account } = c.req.valid("json");
+      const { account } = c.req.valid("json");
 
-      console.log("收到请求 /credit，参数：", { idoAmount, account });
+      // 随机生成积分数量 (5-50)
+      const idoAmount = Math.floor(Math.random() * 46) + 5;
+
+      // 随机选择事件名称
+      const eventNames = [
+        "完成每日任务",
+        "参与团队讨论",
+        "分享学习心得",
+        "帮助团队成员",
+        "完成挑战任务",
+        "积极参与活动",
+        "贡献优质内容",
+        "达成学习目标",
+        "团队协作表现",
+        "创新思维体现",
+        "持续学习进步",
+        "知识分享贡献",
+      ];
+      const randomEvent =
+        eventNames[Math.floor(Math.random() * eventNames.length)];
+
+      console.log("收到请求 /credit，参数：", {
+        idoAmount,
+        account,
+        event: randomEvent,
+      });
 
       try {
         const teamId = await teamManager.read.accountTeam([account]);
@@ -260,7 +284,7 @@ const app = new Hono()
           id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           user: account,
           teamId: Number(teamId),
-          action: `获得学习积分`,
+          action: randomEvent,
           wedoAmount,
           idoAmount,
           timestamp: Date.now(),
@@ -278,6 +302,7 @@ const app = new Hono()
           wedoAmount,
           idoAmount,
           account,
+          eventName: randomEvent,
           idoTx,
           wedoTx,
         });
