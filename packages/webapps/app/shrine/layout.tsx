@@ -7,6 +7,7 @@ import { CreateButton } from "@/components/create.button";
 import { RankButton } from "@/app/leaderboard/rank.button";
 import { Button } from "@/components/retroui/Button";
 import { GiWarAxe, GiWarBonnet } from "react-icons/gi";
+import { KioskButton } from "@/components/kiosk.button";
 
 export default function ShrineLayout({
   children,
@@ -43,15 +44,7 @@ export function Header({
               />
               <h1 className="text-4xl lg:text-5xl font-bold mb-2">{title}</h1>
             </Link>
-            <Button
-              variant="default"
-              size="icon"
-              className="bg-white rounded-full"
-            >
-              <Link href="/leaderboard/kiosk">
-                <Heart className="w-4 h-4 fill-red-500 stroke-0" />
-              </Link>
-            </Button>
+            <KioskButton />
           </div>
           <p className="text-muted-foreground ">{description}</p>
         </div>

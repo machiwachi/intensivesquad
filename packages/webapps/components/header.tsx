@@ -6,6 +6,7 @@ import BalanceWidget from "@/components/balance.widget";
 import { RankButton } from "@/app/leaderboard/rank.button";
 import { Button } from "@/components/retroui/Button";
 import { GiGreekTemple } from "react-icons/gi";
+import { KioskButton } from "./kiosk.button";
 
 export default function Header({
   title = "战场",
@@ -28,11 +29,7 @@ export default function Header({
               />
               <h1 className="text-4xl lg:text-5xl font-bold mb-2">{title}</h1>
             </Link>
-            <Button variant="outline" size="icon" className="rounded-full">
-              <Link href="/leaderboard/kiosk">
-                <Heart className="w-4 h-4 fill-red-500 stroke-0" />
-              </Link>
-            </Button>
+            <KioskButton />
           </div>
           <p className="text-muted-foreground ">{description}</p>
         </div>
