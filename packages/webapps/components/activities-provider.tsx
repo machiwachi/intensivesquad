@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useCallback } from "react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import { useAllActivities } from "@/lib/hooks/useActivitiesQuery";
 import { useNewActivitiesStore } from "@/lib/stores/activities";
+import { useTeams } from "@/lib/hooks/useTeams";
 import type { Activity } from "@/lib/typings";
 import { formatAddress } from "@/lib/utils";
 
@@ -31,6 +33,10 @@ export function ActivitiesProvider({
     enabled: true,
   });
 
+  // 获取团队数据以显示团队名称
+  const { teams } = useTeams();
+  const queryClient = useQueryClient();
+
   // 使用 Zustand 管理新活动状态
   const {
     markAsNew,
@@ -43,21 +49,36 @@ export function ActivitiesProvider({
   const isInitialFetchRef = useRef(true);
   const previousActivitiesRef = useRef<Activity[]>([]);
 
-  // 格式化活动描述用于 toast 显示
-  const formatActivityMessage = useCallback((activity: Activity): string => {
-    const userAddr = formatAddress(activity.user);
+  // 获取团队名称的辅助函数
+  const getTeamName = useCallback(
+    (teamId: number): string => {
+      const team = teams.find((t) => t.id === teamId);
+      return team?.name || `团队 ${teamId}`;
+    },
+    [teams]
+  );
 
-    switch (activity.action) {
-      case "获得学习积分":
-        return `${userAddr} 获得了 ${activity.idoAmount} IDO 积分！`;
-      case "领取奖励":
-        return `${userAddr} 领取了 ${activity.idoAmount} IDO 奖励！`;
-      case "转换团队WEDO":
-        return `${userAddr} 转换了 ${Math.abs(activity.wedoAmount)} WEDO！`;
-      default:
-        return `${userAddr} 执行了 ${activity.action}`;
-    }
-  }, []);
+  // 格式化活动描述用于 toast 显示
+  const formatActivityMessage = useCallback(
+    (activity: Activity): string => {
+      const userAddr = formatAddress(activity.user);
+      const teamName = getTeamName(activity.teamId);
+
+      switch (activity.action) {
+        case "获得学习积分":
+          return `${teamName} 的 ${userAddr} 获得了 ${activity.idoAmount} IDO 积分！`;
+        case "领取奖励":
+          return `${teamName} 的 ${userAddr} 领取了 ${activity.idoAmount} IDO 奖励！`;
+        case "转换团队WEDO":
+          return `${teamName} 的 ${userAddr} 转换了 ${Math.abs(
+            activity.wedoAmount
+          )} WEDO！`;
+        default:
+          return `${teamName} 的 ${userAddr} 执行了 ${activity.action}`;
+      }
+    },
+    [getTeamName]
+  );
 
   // 显示新活动的 toast 通知
   const showActivityNotification = useCallback(
@@ -65,31 +86,32 @@ export function ActivitiesProvider({
       if (!enableNotifications) return;
 
       const message = formatActivityMessage(activity);
+      const teamName = getTeamName(activity.teamId);
 
       // 根据活动类型选择不同的 toast 样式
       if (activity.action === "获得学习积分") {
         toast.success(message, {
-          description: `团队 ${activity.teamId}`,
+          description: teamName,
           duration: 4000,
         });
       } else if (activity.action === "领取奖励") {
         toast.info(message, {
-          description: `团队 ${activity.teamId}`,
+          description: teamName,
           duration: 4000,
         });
       } else if (activity.action === "转换团队WEDO") {
         toast.warning(message, {
-          description: `团队 ${activity.teamId}`,
+          description: teamName,
           duration: 4000,
         });
       } else {
         toast(message, {
-          description: `团队 ${activity.teamId}`,
+          description: teamName,
           duration: 4000,
         });
       }
     },
-    [enableNotifications, formatActivityMessage]
+    [enableNotifications, formatActivityMessage, getTeamName]
   );
 
   // 检测新活动并处理通知
@@ -138,6 +160,23 @@ export function ActivitiesProvider({
 
       // 添加到待通知队列
       addPendingNotifications(newActivities);
+
+      // 检查是否有IDO相关的活动变化，如果有则让团队数据失效
+      const hasIdoChanges = newActivities.some(
+        (activity) =>
+          activity.action === "获得学习积分" ||
+          activity.action === "领取奖励" ||
+          activity.action === "转换团队WEDO" ||
+          activity.idoAmount > 0 ||
+          activity.wedoAmount !== 0
+      );
+
+      if (hasIdoChanges) {
+        console.log("[ActivitiesProvider] 检测到IDO相关变化，让团队数据失效");
+        queryClient.invalidateQueries({
+          queryKey: ["teams"],
+        });
+      }
     }
 
     // 更新引用
@@ -151,6 +190,7 @@ export function ActivitiesProvider({
     addPendingNotifications,
     enableNotifications,
     showActivityNotification,
+    queryClient,
   ]);
 
   // 监听活动数据变化，检测新活动

@@ -123,7 +123,7 @@ const app = new Hono()
     // 获取团队排行榜（包含总分和成员信息）
     const leaderboard = await getTeamLeaderboardIDO();
     const allTeamMembers = await getAllTeamMembers();
-    console.log({ allTeamMembers, leaderboard });
+    // console.log({ allTeamMembers, leaderboard });
 
     // 使用 multicall 批量获取团队 WEDO 余额
     const teamWedoBalances = await multicall(publicClient, {
@@ -597,7 +597,7 @@ const app = new Hono()
       if (keys.length > 0) {
         const pipeline = redisClient.pipeline();
         for (const key of keys) {
-          console.log(`[活动查询] 获取 key: ${key}`);
+          // console.log(`[活动查询] 获取 key: ${key}`);
           pipeline.lrange(key, 0, -1);
         }
         const results = await pipeline.exec<unknown[][]>();
@@ -605,7 +605,6 @@ const app = new Hono()
         activities = results
           .flatMap((r) =>
             r.map((x) => {
-              console.log(x);
               const activity = x as Activity;
               return activity;
             })
