@@ -55,7 +55,7 @@ export function ConnectButton() {
         >
           <div className="flex items-center gap-2">
             <Wallet className="h-4 w-4" />
-            <div className="font-mono text-sm font-black font-medium">
+            <div className="font-mono text-sm font-black ">
               {isBalanceLoading ? (
                 <Loader2 className="h-3 w-3 animate-spin inline" />
               ) : (
