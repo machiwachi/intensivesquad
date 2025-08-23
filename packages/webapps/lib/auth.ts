@@ -43,14 +43,11 @@ export const authOptions: NextAuthOptions = {
           }
 
           // 获取domain配置，优先使用NEXTAUTH_URL
-          let nextAuthDomain = "localhost:3000";
-          if (process.env.NEXTAUTH_URL) {
-            nextAuthDomain = new URL(process.env.NEXTAUTH_URL).host;
-          } else if (process.env.VERCEL_URL) {
-            nextAuthDomain = process.env.VERCEL_URL;
-          } else if (process.env.VERCEL_BRANCH_URL) {
-            nextAuthDomain = process.env.VERCEL_BRANCH_URL;
-          }
+          const nextAuthDomain =
+            process.env.NEXTAUTH_URL ||
+            process.env.VERCEL_URL ||
+            process.env.VERCEL_BRANCH_URL ||
+            "localhost:3000";
 
           console.log("SIWE Auth Domain:", nextAuthDomain);
 
