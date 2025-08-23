@@ -15,6 +15,58 @@ import { useEffect, useRef } from "react";
 import { GiGreekTemple, GiWarAxe } from "react-icons/gi";
 import Image from "next/image";
 
+const Wave = () => {
+  return (
+    <svg
+      width="100%"
+      height="100%"
+      viewBox="0 0 1560 97"
+      xmlns="http://www.w3.org/2000/svg"
+      className=""
+    >
+      <defs>
+        <clipPath id="sineClip">
+          <path
+            d="M-1560,48.5 Q-1400,23.5 -1240,48.5 T-920,48.5 Q-760,23.5 -600,48.5 T-280,48.5 Q-120,23.5 40,48.5 T360,48.5 Q520,23.5 680,48.5 T1000,48.5 Q1160,23.5 1320,48.5 T1640,48.5 Q1800,23.5 1960,48.5 T2280,48.5 Q2440,23.5 2600,48.5 T2920,48.5 L2920,0 L-1560,0 Z"
+            fill="#fdfd96"
+          >
+            <animateTransform
+              attributeName="transform"
+              type="translate"
+              values="0,0; -320,0; 0,0"
+              dur="20s"
+              repeatCount="indefinite"
+              calcMode="spline"
+              keyTimes="0; 0.5; 1"
+              keySplines="0.4 0 0.6 1; 0.4 0 0.6 1"
+            />
+          </path>
+        </clipPath>
+      </defs>
+
+      <rect width="1560" height="97" fill="#fef3c6" clipPath="url(#sineClip)" />
+
+      <path
+        d="M-1560,48.5 Q-1400,23.5 -1240,48.5 T-920,48.5 Q-760,23.5 -600,48.5 T-280,48.5 Q-120,23.5 40,48.5 T360,48.5 Q520,23.5 680,48.5 T1000,48.5 Q1160,23.5 1320,48.5 T1640,48.5 Q1800,23.5 1960,48.5 T2280,48.5 Q2440,23.5 2600,48.5 T2920,48.5"
+        stroke="#000"
+        strokeWidth="4"
+        fill="none"
+      >
+        <animateTransform
+          attributeName="transform"
+          type="translate"
+          values="0,0; -320,0; 0,0"
+          dur="20s"
+          repeatCount="indefinite"
+          calcMode="spline"
+          keyTimes="0; 0.5; 1"
+          keySplines="0.4 0 0.6 1; 0.4 0 0.6 1"
+        />
+      </path>
+    </svg>
+  );
+};
+
 export default function HomePage() {
   const observerRef = useRef<IntersectionObserver | null>(null);
 
@@ -47,7 +99,7 @@ export default function HomePage() {
     <div className="">
       {/* Header */}
       <header className="fixed w-full z-10">
-        <div className="px-4 py-6 bg-white">
+        <div className="px-4 py-6 bg-amber-100">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <Link href="/" className="flex items-center gap-2">
@@ -85,10 +137,8 @@ export default function HomePage() {
           </div>
         </div>
         <div className="bottom-0 left-0 w-full ">
-          <img
-            className="w-full h-full object-cover"
-            src="https://nockblocks.com/assets/sine-DAj3g9gc.svg"
-          />
+          {/* <img src="/wave.svg" className="w-full h-full object-cover" /> */}
+          <Wave />
         </div>
       </header>
 
