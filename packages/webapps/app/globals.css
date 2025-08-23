@@ -32,7 +32,15 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
-  --color-retro-lime: #e7f193;
+  --color-retro-lime: var(--retro-lime);
+  --color-neo-pink: var(--neo-pink);
+  --color-neo-blue: var(--neo-blue);
+  --color-neo-yellow: var(--neo-yellow);
+  --color-neo-green: var(--neo-green);
+  --color-neo-purple: var(--neo-purple);
+  --color-neo-black: var(--neo-black);
+  --color-neo-white: var(--neo-white);
+  --color-neo-gray: var(--neo-gray);
 }
 
 :root {
@@ -52,6 +60,7 @@
   --destructive: #e63946;
   --destructive-foreground: #fff;
   --border: #000;
+  --retro-lime: #e7f193;
   --neo-pink: #ffcaf2;
   --neo-blue: #a5d7e8;
   --neo-yellow: #fdff8f;
