@@ -1,5 +1,6 @@
 "use client";
 
+import posthog from 'posthog-js';
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -68,6 +69,7 @@ export default function IDOPoolDashboard() {
   };
 
   const handleClaim = () => {
+    posthog.capture('ido_reward_claimed', { claimed_amount_eth: poolData.estimatedReward });
     // Handle claiming logic
     console.log("Claiming rewards");
   };
@@ -296,7 +298,11 @@ export default function IDOPoolDashboard() {
                     className="w-full bg-transparent"
                     asChild
                   >
-                    <a href="#" className="flex items-center space-x-2">
+                    <a 
+                      href="#" 
+                      className="flex items-center space-x-2"
+                      onClick={() => posthog.capture('ido_rules_viewed')}
+                    >
                       <ExternalLink className="w-4 h-4" />
                       <span>查看详细规则</span>
                     </a>

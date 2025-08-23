@@ -1,4 +1,5 @@
 "use client";
+import posthog from 'posthog-js';
 import {
   Dialog,
   DialogContent,
@@ -57,6 +58,11 @@ export function CreateClanDialog({
 
   const handleCreateClan = async (event: React.FormEvent) => {
     event.preventDefault();
+
+    posthog.capture('clan_creation_submitted', {
+        clan_name: newClanForm.name,
+        clan_flag: newClanForm.flag,
+    });
 
     // In a real app, this would create the clan on the blockchain
     console.log("[v0] Creating new clan:", newClanForm);
@@ -206,6 +212,7 @@ export function CreateClanDialog({
               type="button"
               variant="outline"
               onClick={() => {
+                posthog.capture('clan_creation_cancelled');
                 onOpenChange(false);
                 reset();
               }}

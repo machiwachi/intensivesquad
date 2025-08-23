@@ -1,5 +1,6 @@
 "use client";
 
+import posthog from "posthog-js";
 import { Card, CardContent } from "@/components/retroui/Card";
 import { useTeams } from "@/lib/hooks/useTeams";
 import { type Team } from "@/lib/typings";
@@ -130,7 +131,12 @@ export default function ClansLeaderboard() {
                 <ClanCard
                   key={team.id}
                   clan={team}
-                  onClick={() => setSelectedClan(team)}
+                  onClick={() => {
+                    posthog.capture("leaderboard_clan_viewed", {
+                      clan_id: team.id,
+                    });
+                    setSelectedClan(team);
+                  }}
                 />
               ))}
         </div>

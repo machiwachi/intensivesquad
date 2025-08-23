@@ -1,5 +1,6 @@
 "use client";
 
+import posthog from 'posthog-js';
 import { RxRocket } from "react-icons/rx";
 
 import { SiRefinedgithub } from "react-icons/si";
@@ -168,7 +169,16 @@ export default function HomePage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/leaderboard">
-                  <Button size="lg" className="gap-2">
+                  <Button
+                    size="lg"
+                    className="gap-2"
+                    onClick={() =>
+                      posthog.capture("cta_clicked", {
+                        cta_name: "join_team_hero",
+                        destination: "/leaderboard",
+                      })
+                    }
+                  >
                     加入团队
                     <ArrowRightIcon className="w-4 h-4" />
                   </Button>
@@ -178,7 +188,18 @@ export default function HomePage() {
                   href="https://github.com/machiwachi/intensivesquad"
                   target="_blank"
                 >
-                  <Button variant="secondary" size="lg" className="gap-2">
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    className="gap-2"
+                    onClick={() =>
+                      posthog.capture("external_link_clicked", {
+                        link_name: "github_hero",
+                        destination:
+                          "https://github.com/machiwachi/intensivesquad",
+                      })
+                    }
+                  >
                     <SiRefinedgithub className="w-4 h-4" />
                     GitHub
                   </Button>

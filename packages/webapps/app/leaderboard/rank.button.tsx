@@ -1,5 +1,6 @@
 "use client";
 
+import posthog from 'posthog-js';
 import { Button } from "@/components/retroui/Button";
 import {
   Dialog,
@@ -16,7 +17,10 @@ export const RankButton = () => {
   return (
     <>
       <Button
-        onClick={() => setShowRankings(true)}
+        onClick={() => {
+          setShowRankings(true);
+          posthog.capture('leaderboard_opened');
+        }}
         // variant="outline"
         className="  flex items-center gap-2"
       >

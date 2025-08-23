@@ -1,5 +1,6 @@
 "use client";
 
+import posthog from 'posthog-js';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/retroui/Badge";
 import { Button } from "@/components/retroui/Button";
@@ -85,6 +86,11 @@ export function ClanDetailDialog({
       }
 
       toast.success("加入部落成功");
+      posthog.capture('clan_joined', {
+        clan_id: clan?.id,
+        clan_name: clan?.name,
+        transaction_hash: tx,
+      });
       console.log("加入部落成功");
 
       queryClient.invalidateQueries({ queryKey: ["teams"] });
@@ -120,6 +126,11 @@ export function ClanDetailDialog({
       }
 
       toast.success("离开部落成功");
+      posthog.capture('clan_left', {
+        clan_id: clan?.id,
+        clan_name: clan?.name,
+        transaction_hash: tx,
+      });
       console.log("离开部落成功");
 
       queryClient.invalidateQueries({ queryKey: ["teams"] });
