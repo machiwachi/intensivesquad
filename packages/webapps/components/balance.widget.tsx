@@ -5,8 +5,11 @@ import { formatTokenAmount } from "@/lib/utils";
 import { IDO_TOKEN, WEDO_TOKEN } from "@/lib/constant";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export default function BalanceWidget() {
+export default function BalanceWidget({
+  className,
+}: React.ComponentProps<"div">) {
   const {
     idoBalance,
     wedoBalance,
@@ -17,7 +20,9 @@ export default function BalanceWidget() {
   } = useUserTokenBalances();
 
   return (
-    <div className="font-semibold flex flex-col place-items-end">
+    <div
+      className={cn("font-semibold flex flex-col place-items-end", className)}
+    >
       <div className="flex items-center gap-2">
         个人余额{" "}
         {isIdoBalanceLoading ? (

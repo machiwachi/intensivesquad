@@ -751,7 +751,7 @@ export default function WEDOStore() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsPanels>
+          <TabsPanels className="bg-white">
             <TabsContent className="space-y-6">
               {/* Voting Overview */}
               <Card className="w-full bg-gradient-to-r from-primary/5 to-accent/5 ">
