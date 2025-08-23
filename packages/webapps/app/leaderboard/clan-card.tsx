@@ -21,11 +21,7 @@ export function ClanCard({
 }) {
   console.log(clan);
   return (
-    <Card
-      key={clan.id}
-      className={`${clan.isUserTeam ? "ring-primary " : ""}`}
-      onClick={() => onClick(clan)}
-    >
+    <Card key={clan.id} onClick={() => onClick(clan)}>
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

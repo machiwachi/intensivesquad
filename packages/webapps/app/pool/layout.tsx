@@ -1,7 +1,7 @@
 import BalanceWidget from "@/components/balance.widget";
 import { ConnectButton } from "@/components/connect.button";
+import { KioskButton } from "@/components/kiosk.button";
 import { Button } from "@/components/retroui/Button";
-import { Heart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { GiGreekTemple, GiWarAxe } from "react-icons/gi";
@@ -41,11 +41,7 @@ export function Header({
               />
               <h1 className="text-4xl lg:text-5xl font-bold mb-2">{title}</h1>
             </Link>
-            <Button variant="outline" size="icon" className="rounded-full">
-              <Link href="/leaderboard/kiosk">
-                <Heart className="w-4 h-4 fill-red-500 stroke-0" />
-              </Link>
-            </Button>
+            <KioskButton />
           </div>
           <p className="text-muted-foreground ">{description}</p>
         </div>

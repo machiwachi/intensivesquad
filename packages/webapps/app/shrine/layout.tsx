@@ -7,6 +7,7 @@ import { CreateButton } from "@/components/create.button";
 import { RankButton } from "@/app/leaderboard/rank.button";
 import { Button } from "@/components/retroui/Button";
 import { GiWarAxe, GiWarBonnet } from "react-icons/gi";
+import { KioskButton } from "@/components/kiosk.button";
 
 export default function ShrineLayout({
   children,
@@ -14,7 +15,7 @@ export default function ShrineLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-background p-4 lg:p-8 gap-2">
+    <div className="dark min-h-screen  bg-cover bg-center p-2 lg:p-8 gap-2">
       {/* Header */}
       <Header />
       {children}
@@ -43,26 +44,22 @@ export function Header({
               />
               <h1 className="text-4xl lg:text-5xl font-bold mb-2">{title}</h1>
             </Link>
-            <Button variant="outline" size="icon" className="rounded-full">
-              <Link href="/leaderboard/kiosk">
-                <Heart className="w-4 h-4 fill-red-500 stroke-0" />
-              </Link>
-            </Button>
+            <KioskButton />
           </div>
           <p className="text-muted-foreground ">{description}</p>
         </div>
 
         <div className="flex items-center gap-4">
-          <BalanceWidget />
+          <BalanceWidget className="text-white" />
 
           <Link href="/leaderboard">
-            <Button variant="outline" className="gap-2">
+            <Button variant="outline" className="gap-2 bg-white">
               <GiWarAxe className="w-4 h-4" />
               战场
             </Button>
           </Link>
           <Link href="/pool">
-            <Button variant="outline" className="gap-2">
+            <Button variant="outline" className="gap-2 bg-white">
               <GiftIcon className="w-4 h-4" />
               奖池
             </Button>

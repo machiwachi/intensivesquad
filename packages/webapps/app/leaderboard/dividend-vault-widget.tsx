@@ -216,12 +216,34 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
         <div className="grid grid-cols-3 gap-3">
           <div>
             <p className=" text-xs text-muted-foreground">金库总额</p>
-            <p className=" text-lg font-bold text-primary ">
+            <div className=" text-lg font-bold text flex items-center gap-2">
               {formatTokenAmount(economyData.teamWedoBalance, WEDO_TOKEN)}
-            </p>
+              {isMember && (
+                <Button
+                  onClick={handleWithdraw}
+                  disabled={
+                    isWithdrawPending ||
+                    isWithdrawConfirming ||
+                    !simulateWithdrawAll ||
+                    economyData.teamWedoBalance <= 0
+                  }
+                  size="sm"
+                  className="gap-1"
+                >
+                  {isWithdrawPending || isWithdrawConfirming ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <ArrowRightIcon className="w-4 h-4" />
+                  )}
+                  {isWithdrawPending || isWithdrawConfirming
+                    ? "转换中..."
+                    : "提取"}
+                </Button>
+              )}
+            </div>
             <div>
               <p className=" text-xs text-muted-foreground">兑换率</p>
-              <p className=" text-lg font-bold text-amber-400 ">
+              <p className=" text-lg font-bold text-green-800">
                 {formatTokenAmount(economyData.teamLeverage, {
                   symbol: "IDO/WEDO",
                   decimals: 3,
@@ -232,38 +254,10 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
 
           <div className="flex flex-col gap-2 justify-center items-center">
             {/* Withdraw Button */}
-            {isMember && (
-              <Button
-                onClick={handleWithdraw}
-                disabled={
-                  isWithdrawPending ||
-                  isWithdrawConfirming ||
-                  !simulateWithdrawAll
-                }
-                className="  mb-2"
-              >
-                {isWithdrawPending || isWithdrawConfirming ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <ArrowRightIcon className="w-4 h-4" />
-                )}
-                {isWithdrawPending || isWithdrawConfirming
-                  ? "转换中..."
-                  : "转换 WEDO 为 IDO"}
-              </Button>
-            )}
-
-            {isMember && economyData.teamWedoBalance <= 0 && (
-              <div className="text-sm mb-2 text-shadow-accent flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4" />
-                金库余额不足
-              </div>
-            )}
-
             {/* Withdraw success indicator */}
             {withdrawHash && !isWithdrawPending && !isWithdrawConfirming && (
               <Link
-                className=" text-sm mb-2 text-accent flex items-center gap-2"
+                className=" text-sm mb-2 text-emerald-600 flex items-center gap-2"
                 href={getBlockchainExplorerUrl(withdrawHash)}
                 target="_blank"
               >
@@ -275,22 +269,22 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
             {/* Claim success indicator */}
             {claimHash && !isClaimPending && !isClaimConfirming && (
               <Link
-                className=" text-sm mb-2 text-accent flex items-center gap-2"
+                className=" text-sm mb-2 text-emerald-600 flex items-center gap-2"
                 href={getBlockchainExplorerUrl(claimHash)}
                 target="_blank"
               >
                 <ExternalLinkIcon className="w-4 h-4" />
-                WEDO转换成功！
+                IDO领取成功
               </Link>
             )}
           </div>
 
           <div>
-            <p className=" text-xs text-muted-foreground">你的份额</p>
-            <div className=" text-lg font-bold text-accent  flex items-center gap-2">
+            <p className=" text-xs text-muted-foreground">待领取份额</p>
+            <div className=" text-lg font-bold text-muted-foreground flex items-center gap-2">
               {isMember
                 ? formatTokenAmount(economyData.userPendingIdo, IDO_TOKEN)
-                : "你不是团队成员"}
+                : "加入部落以获取分红奖励"}
               {(hasClaimableRewards || isClaimPending || isClaimConfirming) && (
                 <Button
                   onClick={(e) => handleClaimRewards(clan.id, e)}
@@ -368,12 +362,6 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
             {formatTokenAmount(clan.dividendVault.totalDistributed, IDO_TOKEN)}
           </p>
         </div>
-
-        {!isMember && (
-          <div className="text-center text-xs  text-muted-foreground">
-            加入部落以获取分红奖励
-          </div>
-        )}
       </CardContent>
     </Card>
   );

@@ -1,19 +1,20 @@
 "use client";
 
+import posthog from "posthog-js";
 import { RxRocket } from "react-icons/rx";
 
-import { SiRefinedgithub } from "react-icons/si";
-import { FaStarOfLife } from "react-icons/fa6";
 import { PiStarFourFill } from "react-icons/pi";
+import { SiRefinedgithub } from "react-icons/si";
 
 import { Badge } from "@/components/retroui/Badge";
 import { Button } from "@/components/retroui/Button";
 import { Card } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { ArrowRightIcon, GiftIcon } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import { GiGreekTemple, GiWarAxe } from "react-icons/gi";
-import Image from "next/image";
 
 const Wave = () => {
   return (
@@ -67,6 +68,56 @@ const Wave = () => {
   );
 };
 
+const testimonials = [
+  {
+    name: "胡星兆",
+    avatar: "/teacher_hu.jpg",
+    description: "助教老师",
+    testimonials: ["不错", "UI"],
+  },
+  {
+    name: "北城以北",
+    avatar: "/testimo_bcyb.jpg",
+    description: "主持特别好的同学",
+    testimonials: "好强！好卷！",
+  },
+  {
+    name: "Blue",
+    avatar: "/testimo_blue.jpg",
+    description: "助教老师",
+    testimonials: "这idea真不错，感觉有点my first 系列？",
+  },
+  {
+    name: "Draken",
+    avatar: "/testimo_draken.jpg",
+    // description: "后端开发团队",
+    testimonials: "我也要上墙，这个idea好新颖。创意奖非你莫属",
+  },
+  {
+    name: "空叻叻",
+    avatar: "/testimo_kll.jpg",
+    // description: "前端开发团队",
+    testimonials: "哈哈有点意思",
+  },
+  {
+    name: "M9nonper",
+    avatar: "/testimo_m9nonper.jpg",
+    // description: "算法工程师",
+    testimonials: "牛逼啊兄弟",
+  },
+  {
+    name: "Thomas",
+    avatar: "/testimo_thomas.jpg",
+    // description: "数据分析师",
+    testimonials: "我也要上墙奖",
+  },
+  {
+    name: "lemondadeccc",
+    avatar: "/testimo_lemondadeccc.jpg",
+    description: "两个礼拜没回复我信息的同学",
+    testimonials: "太强辣",
+  },
+];
 export default function HomePage() {
   const observerRef = useRef<IntersectionObserver | null>(null);
 
@@ -168,7 +219,16 @@ export default function HomePage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link href="/leaderboard">
-                  <Button size="lg" className="gap-2">
+                  <Button
+                    size="lg"
+                    className="gap-2"
+                    onClick={() =>
+                      posthog.capture("cta_clicked", {
+                        cta_name: "join_team_hero",
+                        destination: "/leaderboard",
+                      })
+                    }
+                  >
                     加入团队
                     <ArrowRightIcon className="w-4 h-4" />
                   </Button>
@@ -178,7 +238,18 @@ export default function HomePage() {
                   href="https://github.com/machiwachi/intensivesquad"
                   target="_blank"
                 >
-                  <Button variant="secondary" size="lg" className="gap-2">
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    className="gap-2"
+                    onClick={() =>
+                      posthog.capture("external_link_clicked", {
+                        link_name: "github_hero",
+                        destination:
+                          "https://github.com/machiwachi/intensivesquad",
+                      })
+                    }
+                  >
                     <SiRefinedgithub className="w-4 h-4" />
                     GitHub
                   </Button>
@@ -749,57 +820,76 @@ export default function HomePage() {
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8 mt-8">
-            <Card className="fade-in-card p-6 bg-background border-2 border-foreground shadow-[8px_8px_0px_0px_theme(colors.foreground)] rotate-1">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-primary border-2 border-foreground rounded-full flex items-center justify-center text-lg">
-                  👨‍💻
-                </div>
-                <div>
-                  <div className="font-bold text-foreground">张同学</div>
-                  <div className="text-sm text-muted-foreground">
-                    前端开发团队
+            {testimonials.map((testimonial, i) => (
+              <Card
+                className={cn(
+                  "fade-in-card p-6 bg-background border-2 border-foreground shadow-[8px_8px_0px_0px_theme(colors.foreground)]",
+                  (() => {
+                    // 预定义一些旋转和缩放的样式
+                    const styles = [
+                      "rotate-1 scale-125",
+                      "-rotate-2 scale-90",
+                      "rotate-3 scale-80",
+                      "-rotate-1 scale-130",
+                      "rotate-2 scale-85",
+                      "rotate-6 scale-120",
+                      "-rotate-3 scale-95",
+                      "-rotate-12 scale-135",
+                      "rotate-12 scale-75",
+                    ];
+                    // 通过索引和一个简单的伪随机算法来增加随机性
+                    const seed = i * 31 + 7;
+                    const idx =
+                      Math.abs(Math.sin(seed) * 10000) % styles.length;
+                    return styles[Math.floor(idx)];
+                  })()
+                )}
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 overflow-clip bg-accent border-2 border-foreground rounded-full flex items-center justify-center text-lg">
+                    <Image
+                      src={testimonial.avatar}
+                      alt={testimonial.name}
+                      width={40}
+                      height={40}
+                    />
+                  </div>
+                  <div>
+                    <div className="font-bold text-foreground">
+                      {testimonial.name}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      {testimonial.description}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <p className="text-muted-foreground italic">
-                "团队机制让我更有动力坚持学习，不想拖累队友！最终获得了2.3倍的积分增益。"
-              </p>
-            </Card>
-            <Card className="fade-in-card p-6 bg-background border-2 border-foreground shadow-[8px_8px_0px_0px_theme(colors.foreground)] -rotate-1">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-accent border-2 border-foreground rounded-full flex items-center justify-center text-lg">
-                  👩‍🎨
-                </div>
-                <div>
-                  <div className="font-bold text-foreground">李设计师</div>
-                  <div className="text-sm text-muted-foreground">
-                    UI/UX 设计团队
-                  </div>
-                </div>
-              </div>
-              <p className="text-muted-foreground italic">
-                "透明的积分系统让我看到每一份努力都有回报，团队协作的感觉太棒了！"
-              </p>
-            </Card>
-            <Card className="fade-in-card p-6 bg-background border-2 border-foreground shadow-[8px_8px_0px_0px_theme(colors.foreground)] rotate-2">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-destructive border-2 border-foreground rounded-full flex items-center justify-center text-lg">
-                  👨‍🔬
-                </div>
-                <div>
-                  <div className="font-bold text-foreground">王工程师</div>
-                  <div className="text-sm text-muted-foreground">
-                    区块链开发团队
-                  </div>
-                </div>
-              </div>
-              <p className="text-muted-foreground italic">
-                "从来没有这么认真地完成过一个学习计划，惩罚机制真的很有效！"
-              </p>
-            </Card>
+                <p className="text-muted-foreground italic">
+                  {testimonial.testimonials instanceof Array ? (
+                    testimonial.testimonials.map((testimonial) => (
+                      <span key={testimonial}>
+                        "{testimonial}" <br />
+                      </span>
+                    ))
+                  ) : (
+                    <span>"{testimonial.testimonials}"</span>
+                  )}
+                </p>
+              </Card>
+            ))}
           </div>
         </div>
+
+        <div className="text-center mt-8 shadow-emerald-200 shadow-lg bg-neo-pink/80 mx-auto w-fit px-4 py-2 font-bold text-2xl animate-wiggle fade-in-car1d delay-5000">
+          <p>
+            谢谢
+            <span className="text-3xl font-black">LXDAO</span>
+            提供了这么厉害的活动，也感谢一起参与的{" "}
+            <span className="text-3xl font-black">466</span> 位同学们！
+          </p>
+        </div>
       </section>
+
+      {/* Testimonials Section */}
 
       {/* CTA Section */}
       <section className="py-20 bg-primary">
@@ -813,18 +903,11 @@ export default function HomePage() {
           <p className="text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
             💪 加入我们，与优秀队友并肩前行，把汗水变成荣耀！🏆
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button
-              size="lg"
-              className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold text-lg px-12 py-4 border-2 border-primary-foreground shadow-[6px_6px_0px_0px_theme(colors.primary.foreground)]"
-            >
+          <div className="flex dark flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" className="">
               🎯 立即开始
             </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="border-2 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:font-bold text-lg px-12 py-4 shadow-[6px_6px_0px_0px_theme(colors.primary.foreground)] bg-transparent"
-            >
+            <Button size="lg" className="bg-neo-white/60 hover:bg-neo-white/90">
               📋 查看白皮书
             </Button>
           </div>

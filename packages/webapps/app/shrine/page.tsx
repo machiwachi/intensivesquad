@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import posthog from 'posthog-js';
 import {
   Card,
   CardContent,
@@ -470,6 +471,12 @@ const ItemCard = ({
   const requiresVote = !isInventory && item.price >= 300; // Items over 300 WEDO require team vote
 
   const handlePurchase = () => {
+    posthog.capture('store_item_purchased', {
+      item_id: item.id,
+      item_name: item.name,
+      item_price: item.price,
+      item_rarity: item.rarity,
+    });
     console.log(`[v0] Purchasing item: ${item.name} for ${item.price} WEDO`);
     setShowPurchaseDialog(false);
     // Here would be the actual purchase logic
@@ -507,9 +514,8 @@ const ItemCard = ({
             </div>
             <div className="flex flex-col items-end gap-1">
               <Badge
-                className={`${
-                  rarityColors[item.rarity as keyof typeof rarityColors]
-                } border`}
+                className={`${rarityColors[item.rarity as keyof typeof rarityColors]}
+                  border`}
               >
                 {item.rarity}
               </Badge>
@@ -693,6 +699,10 @@ export default function WEDOStore() {
   };
 
   const handleVote = (voteId: number, vote: string) => {
+    posthog.capture('proposal_voted', {
+      vote_id: voteId,
+      vote_decision: vote,
+    });
     console.log(`[v0] Voting ${vote} on vote ${voteId}`);
     setUserVote((prev) => ({ ...prev, [voteId]: vote }));
     // Here would be the actual voting logic
@@ -751,7 +761,7 @@ export default function WEDOStore() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsPanels>
+          <TabsPanels className="bg-white">
             <TabsContent className="space-y-6">
               {/* Voting Overview */}
               <Card className="w-full bg-gradient-to-r from-primary/5 to-accent/5 ">

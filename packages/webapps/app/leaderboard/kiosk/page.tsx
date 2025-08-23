@@ -1,4 +1,5 @@
 "use client";
+import posthog from 'posthog-js';
 import { Button } from "@/components/retroui/Button";
 import { apiClient } from "@/lib/api";
 import { cn, getBlockchainExplorerUrl } from "@/lib/utils";
@@ -48,6 +49,11 @@ export default function Kiosk() {
       return;
     }
 
+    posthog.capture('kiosk_credit_requested', {
+        user_address: address,
+        amount: 10
+    });
+
     setTxs([]);
 
     try {
@@ -64,6 +70,12 @@ export default function Kiosk() {
       }
 
       const data = await response.json();
+
+      posthog.capture('kiosk_credit_transactions_received', {
+        user_address: address,
+        ido_tx: data.idoTx,
+        wedo_tx: data.wedoTx
+      });
 
       setTxs((prev) => [data.idoTx, data.wedoTx]);
     } catch (error) {

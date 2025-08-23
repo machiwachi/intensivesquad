@@ -2,6 +2,12 @@ import { type DefaultSession, NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { getCsrfToken } from "next-auth/react";
 import { SiweMessage } from "siwe";
+import { identifyUserServer, captureEventServer } from "@/lib/posthog-server";
+import {
+  USER_PROPERTIES,
+  POSTHOG_EVENTS,
+  AUTH_METHODS,
+} from "@/lib/posthog-constants";
 
 // Extend the built-in session types
 declare module "next-auth" {
@@ -80,6 +86,23 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.sub = user.id;
         token.address = (user as any).address;
+
+        // 在服务器端识别用户身份
+        try {
+          identifyUserServer(user.id, {
+            [USER_PROPERTIES.WALLET_ADDRESS]: (user as any).address,
+            [USER_PROPERTIES.AUTH_METHOD]: AUTH_METHODS.SIWE,
+            [USER_PROPERTIES.LOGIN_TIMESTAMP]: new Date().toISOString(),
+          });
+
+          // 触发服务器端登录事件
+          captureEventServer(user.id, POSTHOG_EVENTS.USER_SIGNED_IN, {
+            [USER_PROPERTIES.WALLET_ADDRESS]: (user as any).address,
+            [USER_PROPERTIES.AUTH_METHOD]: AUTH_METHODS.SIWE,
+          });
+        } catch (error) {
+          console.error("PostHog server identification failed:", error);
+        }
       }
       return token;
     },
@@ -87,6 +110,15 @@ export const authOptions: NextAuthOptions = {
       if (token.sub) {
         session.address = token.sub;
         session.user.address = token.sub;
+
+        // 更新用户最后活跃时间
+        try {
+          identifyUserServer(token.sub, {
+            [USER_PROPERTIES.LAST_ACTIVE]: new Date().toISOString(),
+          });
+        } catch (error) {
+          console.error("PostHog server last active update failed:", error);
+        }
       }
       return session;
     },
