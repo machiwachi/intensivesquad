@@ -12,6 +12,8 @@ import { useReadIdoTokenTotalSupply } from "@/lib/contracts";
 import { formatEther } from "viem";
 
 import { CreateButton } from "@/components/create.button";
+import { formatTokenAmount } from "@/lib/utils";
+import { IDO_TOKEN } from "@/lib/constant";
 
 export default function ClansLeaderboard() {
   const { teams, isLoading } = useTeams();
@@ -31,64 +33,62 @@ export default function ClansLeaderboard() {
     <div className="">
       {/* Header */}
       {/* Global Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 grid-flow-col">
         <Card className="shadow-none hover:shadow-md">
-          <CardContent className="p-4 flex items-center gap-3">
-            <Users className="w-8 h-8 text-primary" />
-            <div>
-              <p className="text-2xl font-bold ">{totalClans}</p>
-              <p className="text-sm text-muted-foreground ">部落总数</p>
+          <CardContent className="p-4 grid grid-cols-2 items-center gap-3">
+            <div className="flex items-center gap-3">
+              <Users className="w-8 h-8 text-primary" />
+              <div>
+                <p className="text-2xl font-bold ">{totalClans}</p>
+                <p className="text-sm text-muted-foreground ">部落总数</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Trophy className="w-8 h-8 text-accent" />
+              <div>
+                <p className="text-2xl font-bold ">
+                  {isLoadingIDO
+                    ? "Loading..."
+                    : isErrorIDO || !idoTokenTotalSupply
+                    ? "--"
+                    : formatTokenAmount(idoTokenTotalSupply, {
+                        ...IDO_TOKEN,
+                        symbol: "",
+                      })}
+                </p>
+                <p className="text-sm text-muted-foreground ">IDO 总计流通量</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Zap className="w-8 h-8 text-yellow-500" />
+              <div>
+                <p className="text-2xl font-bold ">
+                  {teams.reduce((sum, team) => sum + team.remainingMembers, 0)}
+                </p>
+                <p className="text-sm text-muted-foreground ">现役战士</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <Skull className="w-8 h-8 text-red-500" />
+              <div>
+                <p className="text-2xl font-bold  text-red-500">
+                  {teams.reduce(
+                    (sum, team) =>
+                      sum + (team.totalMembers - team.remainingMembers),
+                    0
+                  )}
+                </p>
+                <p className="text-sm text-muted-foreground ">已淘汰</p>
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="shadow-none hover:shadow-md">
-          <CardContent className="p-4 flex items-center gap-3">
-            <Trophy className="w-8 h-8 text-accent" />
-            <div>
-              <p className="text-2xl font-bold ">
-                {isLoadingIDO
-                  ? "Loading..."
-                  : isErrorIDO || !idoTokenTotalSupply
-                  ? "--"
-                  : formatEther(idoTokenTotalSupply)}
-              </p>
-              <p className="text-sm text-muted-foreground ">总计流通量 IDO</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-none hover:shadow-md">
+        <Card className="shadow-none hover:shadow-md md:col-span-2">
           <CardContent className="p-4">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3">
-                <Zap className="w-8 h-8 text-yellow-500" />
-                <div>
-                  <p className="text-2xl font-bold ">
-                    {teams.reduce(
-                      (sum, team) => sum + team.remainingMembers,
-                      0
-                    )}
-                  </p>
-                  <p className="text-sm text-muted-foreground ">现役战士</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <Skull className="w-8 h-8 text-red-500" />
-                <div>
-                  <p className="text-2xl font-bold  text-red-500">
-                    {teams.reduce(
-                      (sum, team) =>
-                        sum + (team.totalMembers - team.remainingMembers),
-                      0
-                    )}
-                  </p>
-                  <p className="text-sm text-muted-foreground ">已淘汰</p>
-                </div>
-              </div>
-            </div>
-
             {/* Mini retention chart */}
             <div className="mt-4 pt-3 border-t border-muted">
               <p className="text-xs text-muted-foreground  mb-2">
