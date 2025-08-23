@@ -10,6 +10,12 @@ import { ClanCard, ClanCardSkeleton } from "../clan-card";
 import { ClanDetailDialog } from "../clan-detail.dialog";
 import { useReadIdoTokenTotalSupply } from "@/lib/contracts";
 import { formatEther } from "viem";
+import {
+  GiBlackKnightHelm,
+  GiKnightBanner,
+  GiOpenTreasureChest,
+} from "react-icons/gi";
+
 import * as R from "remeda";
 
 import { CreateButton } from "@/components/create.button";
@@ -47,7 +53,7 @@ export default function ClansLeaderboard() {
           <h1 className="text-2xl font-bold">残酷统计</h1>
           <CardContent className="h-full grid grid-cols-2 items-center gap-3 place-items-start justify-items-start">
             <div className="flex items-center gap-3">
-              <Users className="w-8 h-8 text-primary" />
+              <GiKnightBanner className="w-8 h-8 text-blue-950" />
               <div>
                 <p className="text-2xl font-bold ">{totalClans}</p>
                 <p className="text-sm text-muted-foreground ">部落总数</p>
@@ -55,7 +61,7 @@ export default function ClansLeaderboard() {
             </div>
 
             <div className="flex items-center gap-3">
-              <Trophy className="w-8 h-8 text-accent" />
+              <GiOpenTreasureChest className="w-8 h-8 text-yellow-600" />
               <div>
                 <p className="text-2xl font-bold ">
                   {isLoadingIDO
@@ -72,7 +78,7 @@ export default function ClansLeaderboard() {
             </div>
 
             <div className="flex items-center gap-3">
-              <Zap className="w-8 h-8 text-yellow-500" />
+              <GiBlackKnightHelm className="w-8 h-8 text-emerald-800" />
               <div>
                 <p className="text-2xl font-bold ">
                   {teams.reduce((sum, team) => sum + team.remainingMembers, 0)}

@@ -580,7 +580,10 @@ const app = new Hono()
   })
   .get(
     "/teams/:teamId/activities",
-    zValidator("param", z.object({ teamId: z.coerce.number() })),
+    zValidator(
+      "param",
+      z.object({ teamId: z.union([z.coerce.number(), z.literal("*")]) })
+    ),
     async (c) => {
       const { teamId } = c.req.valid("param");
 
@@ -599,13 +602,15 @@ const app = new Hono()
         }
         const results = await pipeline.exec<unknown[][]>();
         // results 是一个二维数组，需扁平化
-        activities = results.flatMap((r) =>
-          r.map((x) => {
-            console.log(x);
-            const activity = x as Activity;
-            return activity;
-          })
-        );
+        activities = results
+          .flatMap((r) =>
+            r.map((x) => {
+              console.log(x);
+              const activity = x as Activity;
+              return activity;
+            })
+          )
+          .toSorted((a, b) => b.timestamp - a.timestamp);
       }
 
       console.log(

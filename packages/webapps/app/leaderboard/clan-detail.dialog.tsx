@@ -51,7 +51,11 @@ export function ClanDetailDialog({
   });
 
   // 获取团队活动数据
-  const { data: activities = [], isLoading: isActivitiesLoading } = useQuery({
+  const {
+    data: activities = [],
+    isLoading: isActivitiesLoading,
+    isRefetching: isRefetchingActivities,
+  } = useQuery({
     queryKey: ["activities", "team", clan?.id],
     queryFn: async () => {
       if (!clan?.id) return [];
@@ -62,6 +66,7 @@ export function ClanDetailDialog({
       return data;
     },
     enabled: !!clan?.id,
+    refetchInterval: 10000,
   });
 
   async function handleJoinClan(id: number, e: React.MouseEvent) {
@@ -253,7 +258,12 @@ export function ClanDetailDialog({
 
               {/* Recent Activities */}
               <div>
-                <h4 className=" font-bold mb-3">最近活动</h4>
+                <h4 className=" font-bold mb-3 flex items-center gap-2">
+                  最近活动
+                  {isRefetchingActivities && (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  )}
+                </h4>
                 {isActivitiesLoading ? (
                   <div className="p-4 text-center text-muted-foreground ">
                     加载中...
