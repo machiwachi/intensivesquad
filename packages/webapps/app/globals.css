@@ -52,6 +52,14 @@
   --destructive: #e63946;
   --destructive-foreground: #fff;
   --border: #000;
+  --neo-pink: #ffcaf2;
+  --neo-blue: #a5d7e8;
+  --neo-yellow: #fdff8f;
+  --neo-green: #b6ff9c;
+  --neo-purple: #d8b4fe;
+  --neo-black: #000;
+  --neo-white: #fff;
+  --neo-gray: #f0f0f0;
 }
 
 .dark {
@@ -71,4 +79,29 @@
   --destructive: #e63946;
   --destructive-foreground: #fff;
   --border: #3a3a3a;
+}
+
+@layer utilities {
+  .fade-in-card {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  .fade-in-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .fade-in-card:nth-child(2) {
+    transition-delay: 0.1s;
+  }
+
+  .fade-in-card:nth-child(3) {
+    transition-delay: 0.2s;
+  }
+
+  .fade-in-card:nth-child(4) {
+    transition-delay: 0.3s;
+  }
 }

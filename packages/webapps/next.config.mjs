@@ -9,15 +9,15 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  redirects: async () => {
-    return [
-      {
-        source: "/",
-        destination: "/leaderboard",
-        permanent: true,
-      },
-    ];
-  },
+  // redirects: async () => {
+  // return [
+  //   {
+  //     source: "/",
+  //     destination: "/leaderboard",
+  //     permanent: true,
+  //   },
+  // ];
+  // },
 };
 
 export default nextConfig;
