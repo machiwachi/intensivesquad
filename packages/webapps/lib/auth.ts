@@ -42,18 +42,17 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
-          const nextAuthDomain =
-            process.env.NEXTAUTH_URL ||
-            process.env.VERCEL_URL ||
-            process.env.VERCEL_BRANCH_URL ||
-            "localhost:3000";
+          // 获取domain配置，优先使用NEXTAUTH_URL
+          let nextAuthDomain = "localhost:3000";
+          if (process.env.NEXTAUTH_URL) {
+            nextAuthDomain = new URL(process.env.NEXTAUTH_URL).host;
+          } else if (process.env.VERCEL_URL) {
+            nextAuthDomain = process.env.VERCEL_URL;
+          } else if (process.env.VERCEL_BRANCH_URL) {
+            nextAuthDomain = process.env.VERCEL_BRANCH_URL;
+          }
 
-          console.log("nextAuthDomain", {
-            nextAuthDomain,
-            NEXTAUTH_URL: process.env.NEXTAUTH_URL,
-            VERCEL_URL: process.env.VERCEL_URL,
-            VERCEL_BRANCH_URL: process.env.VERCEL_BRANCH_URL,
-          });
+          console.log("SIWE Auth Domain:", nextAuthDomain);
 
           const siwe = new SiweMessage(credentials.message);
 

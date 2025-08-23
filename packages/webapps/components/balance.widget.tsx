@@ -6,10 +6,12 @@ import { IDO_TOKEN, WEDO_TOKEN } from "@/lib/constant";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUserAuth } from "@/lib/hooks/useUserAuth";
 
 export default function BalanceWidget({
   className,
 }: React.ComponentProps<"div">) {
+  const { isAuthenticated } = useUserAuth();
   const {
     idoBalance,
     wedoBalance,
@@ -18,6 +20,11 @@ export default function BalanceWidget({
     isIdoBalanceRefetching,
     isWedoBalanceRefetching,
   } = useUserTokenBalances();
+
+  // 未登录时不显示余额组件
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div
