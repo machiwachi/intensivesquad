@@ -55,7 +55,7 @@
   --secondary-foreground: #fff;
   --muted: #aeaeae;
   --muted-foreground: #5a5a5a;
-  --accent: #fae583;
+  --accent: #ffdb33;
   --accent-foreground: #000;
   --destructive: #e63946;
   --destructive-foreground: #fff;
@@ -112,5 +112,18 @@
 
   .fade-in-card:nth-child(4) {
     transition-delay: 0.3s;
+  }
+}
+
+@theme {
+  --animate-wiggle: wiggle 1.5s ease-in-out infinite;
+  @keyframes wiggle {
+    0%,
+    100% {
+      transform: rotate(-2deg);
+    }
+    50% {
+      transform: rotate(2deg);
+    }
   }
 }

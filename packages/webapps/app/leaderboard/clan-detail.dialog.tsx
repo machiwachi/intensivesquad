@@ -1,6 +1,6 @@
 "use client";
 
-import posthog from 'posthog-js';
+import posthog from "posthog-js";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/retroui/Badge";
 import { Button } from "@/components/retroui/Button";
@@ -20,8 +20,8 @@ import type { Activity, Team } from "@/lib/typings";
 import { cn, formatAddress, formatTokenAmount } from "@/lib/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { blo } from "blo";
-import { UserMinus, UserPlus } from "lucide-react";
-import React from "react";
+import { Loader2, UserMinus, UserPlus } from "lucide-react";
+import React, { useState } from "react";
 import { toast } from "sonner";
 import { useAccount } from "wagmi";
 import { DividendVaultWidget } from "./dividend-vault-widget";
@@ -38,14 +38,17 @@ export function ClanDetailDialog({
   const { address, isConnected: isWalletConnected } = useAccount();
   const { isPending: isLeavePending, writeContractAsync: leaveClanAsync } =
     useWriteTeamManagerLeave();
-  const { isPending: isJoinPending, writeContractAsync: joinClanAsync } =
-    useWriteTeamManagerJoin();
+  const { writeContractAsync: joinClanAsync } = useWriteTeamManagerJoin();
   const queryClient = useQueryClient();
+  const [isJoinPending, setIsJoinPending] = useState(false);
 
-  const { data: userTeamId, refetch: refetchUserTeamId } =
-    useReadTeamManagerAccountTeam({
-      args: [address ?? "0x0000000000000000000000000000000000000000"],
-    });
+  const {
+    data: userTeamId,
+    refetch: refetchUserTeamId,
+    isRefetching: isRefetchingUserTeamId,
+  } = useReadTeamManagerAccountTeam({
+    args: [address ?? "0x0000000000000000000000000000000000000000"],
+  });
 
   // 获取团队活动数据
   const { data: activities = [], isLoading: isActivitiesLoading } = useQuery({
@@ -67,6 +70,7 @@ export function ClanDetailDialog({
     console.log("尝试加入部落，部落ID:", id);
 
     try {
+      setIsJoinPending(true);
       const tx = await joinClanAsync({
         args: [BigInt(id)],
       });
@@ -86,7 +90,7 @@ export function ClanDetailDialog({
       }
 
       toast.success("加入部落成功");
-      posthog.capture('clan_joined', {
+      posthog.capture("clan_joined", {
         clan_id: clan?.id,
         clan_name: clan?.name,
         transaction_hash: tx,
@@ -98,6 +102,8 @@ export function ClanDetailDialog({
     } catch (err) {
       console.error("加入部落失败:", err);
       toast.error("加入部落失败");
+    } finally {
+      setIsJoinPending(false);
     }
   }
 
@@ -126,7 +132,7 @@ export function ClanDetailDialog({
       }
 
       toast.success("离开部落成功");
-      posthog.capture('clan_left', {
+      posthog.capture("clan_left", {
         clan_id: clan?.id,
         clan_name: clan?.name,
         transaction_hash: tx,
@@ -163,19 +169,28 @@ export function ClanDetailDialog({
 
               {/* Members */}
               <div>
-                <div className="flex justify-between items-center">
-                  <h4 className=" font-bold mb-3">
+                <div className="flex justify-between items-center mb-3">
+                  <h4 className="font-bold">
                     部落成员(总计 {clan.totalScore} IDO)
                   </h4>
                   {!userTeamId && (
                     <Button
                       size="sm"
                       onClick={(e) => handleJoinClan(clan.id, e)}
-                      className=""
-                      disabled={isJoinPending}
+                      className="gap-2"
+                      disabled={isJoinPending || isRefetchingUserTeamId}
                     >
-                      <UserPlus className="w-4 h-4" />
-                      {isJoinPending ? "加入中..." : `加入 ${clan.name}`}
+                      {isJoinPending ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          加入中...
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus className="w-4 h-4" />
+                          加入 {clan.name}
+                        </>
+                      )}
                     </Button>
                   )}
 
@@ -183,7 +198,7 @@ export function ClanDetailDialog({
                     <Button
                       size="sm"
                       onClick={(e) => handleLeaveClan(clan.id, e)}
-                      className="bg-destructive text-white hover:bg-destructive/9"
+                      className="bg-destructive text-white hover:bg-destructive/90"
                       disabled={isLeavePending}
                     >
                       <UserMinus className="w-4 h-4 mr-2" />
@@ -196,10 +211,10 @@ export function ClanDetailDialog({
                   {clan.members.map((member) => (
                     <div
                       key={member.address}
-                      className={`flex items-center gap-3 p-2 rounded  ${
+                      className={`flex items-center gap-3 p-2 rounded ${
                         member.status === "eliminated"
                           ? "eliminated bg-muted/50"
-                          : "bg-card"
+                          : "bg-neo-blue/50"
                       }`}
                     >
                       <Avatar className="w-8 h-8">
@@ -214,11 +229,20 @@ export function ClanDetailDialog({
                       <span className=" text-sm">
                         {formatAddress(member.address)}
                       </span>
+                      {member.address === address && (
+                        <Badge
+                          className={cn("text-xs", "bg-blue-500 text-white")}
+                        >
+                          这是你
+                        </Badge>
+                      )}
+
                       <Badge
-                        variant={
-                          member.status === "active" ? "solid" : "surface"
-                        }
-                        className=" text-xs ml-auto"
+                        className={cn(
+                          " text-xs ml-auto",
+                          member.status === "active" &&
+                            "bg-emerald-500 text-white"
+                        )}
                       >
                         {member.status === "active" ? "活跃" : "已淘汰"}
                       </Badge>
