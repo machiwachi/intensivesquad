@@ -17,6 +17,7 @@ import { useTheme } from "next-themes";
 import { SessionProvider } from "next-auth/react";
 
 import { config } from "@/lib/wagmi";
+import { PostHogProvider } from "@/components/posthog-provider";
 
 const queryClient = new QueryClient();
 
@@ -53,7 +54,9 @@ export function Providers({
     <WagmiProvider config={config}>
       <SessionProvider session={session} refetchInterval={0}>
         <QueryClientProvider client={queryClient}>
-          <RainbowKitProviderWrapper>{children}</RainbowKitProviderWrapper>
+          <PostHogProvider>
+            <RainbowKitProviderWrapper>{children}</RainbowKitProviderWrapper>
+          </PostHogProvider>
         </QueryClientProvider>
       </SessionProvider>
     </WagmiProvider>
