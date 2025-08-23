@@ -44,7 +44,7 @@
 }
 
 :root {
-  --background: #fff;
+  --background: rgb(255, 244, 244);
   --foreground: #000;
   --card: #fff;
   --card-foreground: #000;

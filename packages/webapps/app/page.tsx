@@ -64,19 +64,19 @@ export default function HomePage() {
             </div>
             <nav className="hidden md:flex space-x-8">
               <Link href="/leaderboard">
-                <Button variant="outline" className="gap-2">
+                <Button className="gap-2 bg-red-500/60 ">
                   <GiWarAxe className="w-4 h-4" />
                   战场
                 </Button>
               </Link>
               <Link href="/shrine">
-                <Button variant="outline" className="gap-2">
+                <Button className="gap-2 bg-emerald-500 ">
                   <GiGreekTemple className="w-4 h-4" />
                   商店
                 </Button>
               </Link>
               <Link href="/pool">
-                <Button variant="outline" className="gap-2">
+                <Button className="gap-2 bg-cyan-500/60 ">
                   <GiftIcon className="w-4 h-4" />
                   奖池
                 </Button>
@@ -87,7 +87,7 @@ export default function HomePage() {
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 bg-neo-pink/20">
+      <section className="py-20 bg-neo-pink/60">
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
@@ -177,8 +177,8 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-primary border-2 border-foreground flex items-center justify-center text-2xl rotate-3">
-                  1️⃣
+                <div className="w-12 h-12 font-black bg-primary border-2 border-foreground flex items-center justify-center text-2xl rotate-3">
+                  1
                 </div>
                 <div>
                   <h3 className="text-xl font-bold mb-2 text-foreground">
@@ -190,8 +190,8 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-accent border-2 border-foreground flex items-center justify-center text-2xl -rotate-3">
-                  2️⃣
+                <div className="font-black text-white/80 w-12 h-12 bg-emerald-500 border-2 border-foreground flex items-center justify-center text-2xl -rotate-3">
+                  2
                 </div>
                 <div>
                   <h3 className="text-xl font-bold mb-2 text-foreground">
@@ -203,8 +203,8 @@ export default function HomePage() {
                 </div>
               </div>
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-destructive border-2 border-foreground flex items-center justify-center text-2xl rotate-6">
-                  3️⃣
+                <div className="font-black text-white/80 w-12 h-12 bg-destructive border-2 border-foreground flex items-center justify-center text-2xl rotate-6">
+                  3
                 </div>
                 <div>
                   <h3 className="text-xl font-bold mb-2 text-foreground">
