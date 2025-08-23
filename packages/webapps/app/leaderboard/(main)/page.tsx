@@ -5,15 +5,17 @@ import { Card, CardContent } from "@/components/retroui/Card";
 import { useTeams } from "@/lib/hooks/useTeams";
 import { type Team } from "@/lib/typings";
 import { Skull, Trophy, Users, Zap } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ClanCard, ClanCardSkeleton } from "../clan-card";
 import { ClanDetailDialog } from "../clan-detail.dialog";
 import { useReadIdoTokenTotalSupply } from "@/lib/contracts";
 import { formatEther } from "viem";
+import * as R from "remeda";
 
 import { CreateButton } from "@/components/create.button";
-import { formatTokenAmount } from "@/lib/utils";
+import { formatTokenAmount, generateSeries } from "@/lib/utils";
 import { IDO_TOKEN } from "@/lib/constant";
+import { BarChart } from "@/components/retroui/charts/BarChart";
 
 export default function ClansLeaderboard() {
   const { teams, isLoading } = useTeams();
@@ -29,13 +31,19 @@ export default function ClansLeaderboard() {
 
   const totalClans = teams.length;
 
+  const retentionByDays = useMemo(
+    () => generateSeries(31, new Date("2025-08-01")),
+    []
+  );
+
   return (
     <div className="">
       {/* Header */}
       {/* Global Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 grid-flow-col">
-        <Card className="shadow-none hover:shadow-md">
-          <CardContent className="p-4 grid grid-cols-2 items-center gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 grid-flow-row">
+        <Card className="shadow-none hover:shadow-md p-4">
+          <h1 className="text-2xl font-bold">残酷统计</h1>
+          <CardContent className="h-full grid grid-cols-2 items-center gap-3 place-items-start justify-items-start">
             <div className="flex items-center gap-3">
               <Users className="w-8 h-8 text-primary" />
               <div>
@@ -87,30 +95,20 @@ export default function ClansLeaderboard() {
           </CardContent>
         </Card>
 
-        <Card className="shadow-none hover:shadow-md md:col-span-2">
-          <CardContent className="p-4">
+        <Card className="shadow-none hover:shadow-md md:col-span-2 p-4">
+          <h1 className="text-2xl font-bold">每日战报</h1>
+          <CardContent className="">
             {/* Mini retention chart */}
-            <div className="mt-4 pt-3 border-t border-muted">
-              <p className="text-xs text-muted-foreground  mb-2">
-                每日留存（近7天）
-              </p>
-              <div className="flex items-end gap-1 h-8">
-                {[95, 89, 84, 78, 71, 65, 58].map((percentage, index) => (
-                  <div
-                    key={index}
-                    className="flex-1 flex flex-col items-center"
-                  >
-                    <div
-                      className="w-full bg-gradient-to-t from-cyan-500 to-emerald-400 rounded-sm "
-                      style={{ height: `${(percentage / 100) * 100}%` }}
-                    />
-                    <span className="text-xs  text-muted-foreground mt-1">
-                      {percentage}%
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
+
+            <BarChart
+              data={retentionByDays}
+              index="日期"
+              categories={["活跃用户数"]}
+              className="h-60"
+            />
+            <p className="text-sm text-center text-muted-foreground ">
+              每日用户留存
+            </p>
           </CardContent>
         </Card>
       </div>
