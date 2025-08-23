@@ -60,21 +60,44 @@ export function ActivitiesProvider({
 
   // 格式化活动描述用于 toast 显示
   const formatActivityMessage = useCallback(
-    (activity: Activity): string => {
+    (activity: Activity) => {
       const userAddr = formatAddress(activity.user);
       const teamName = getTeamName(activity.teamId);
 
       switch (activity.action) {
-        case "获得学习积分":
-          return `${teamName} 的 ${userAddr} 获得了 ${activity.idoAmount} IDO 积分！`;
         case "领取奖励":
           return `${teamName} 的 ${userAddr} 领取了 ${activity.idoAmount} IDO 奖励！`;
         case "转换团队WEDO":
           return `${teamName} 的 ${userAddr} 转换了 ${Math.abs(
             activity.wedoAmount
-          )} WEDO！`;
+          )} WEDO!`;
         default:
-          return `${teamName} 的 ${userAddr} 执行了 ${activity.action}`;
+          return (
+            <>
+              <p>{`${teamName} 的 ${userAddr} `}</p>
+              <p>
+                执行了{" "}
+                <span className="font-bold text-xl inline-block rotate-2 bg-neo-purple ">
+                  {activity.action}
+                </span>
+              </p>
+              <p>
+                获得了{" "}
+                <span className="font-bold text-xl inline-block -rotate-3 bg-retro-lime">
+                  {activity.idoAmount} IDO
+                </span>{" "}
+              </p>
+              {activity.wedoAmount > 0 && (
+                <p>
+                  为团队贡献了
+                  <span className="font-bold text-xl inline-block rotate-1 bg-neo-pink">
+                    {activity.wedoAmount} WEDO
+                  </span>
+                  !
+                </p>
+              )}
+            </>
+          );
       }
     },
     [getTeamName]

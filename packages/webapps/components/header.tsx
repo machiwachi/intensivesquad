@@ -45,7 +45,7 @@ export default function Header() {
                   width={60}
                   height={60}
                 />
-                <h1 className="text-4xl lg:text-5xl font-bold mb-2">{title}</h1>
+                <h1 className="text-4xl lg:text-5xl font-bold">{title}</h1>
               </Link>
               <KioskButton />
             </div>
@@ -67,7 +67,7 @@ export default function Header() {
 
           {pathname !== "/shrine" && (
             <Link href="/shrine">
-              <Button variant="outline" className="gap-2">
+              <Button variant="outline" className="gap-2 bg-white">
                 <GiGreekTemple className="w-4 h-4" />
                 商店
               </Button>
@@ -76,14 +76,14 @@ export default function Header() {
 
           {pathname !== "/pool" && (
             <Link href="/pool">
-              <Button variant="outline" className="gap-2">
+              <Button variant="outline" className="gap-2 bg-white">
                 <GiftIcon className="w-4 h-4" />
                 奖池
               </Button>
             </Link>
           )}
 
-          <div className="rounded-lg">
+          <div className="">
             <ConnectButton />
           </div>
         </div>

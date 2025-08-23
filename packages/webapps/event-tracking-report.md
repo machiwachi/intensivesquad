@@ -23,7 +23,7 @@ This document lists all PostHog events that have been automatically added to you
 - **store_item_purchased**: Fired when a user confirms the purchase of an item from the store.
 - **proposal_voted**: Fired when a user casts a vote (yes or no) on an active proposal.
 
-### app/leaderboard/kiosk/page.tsx
+### components/kiosk.button.tsx
 
 - **kiosk_credit_requested**: Tracks when a user clicks the heart button to request credit.
 - **kiosk_credit_transactions_received**: Tracks when the API call to get credit is successful and transaction hashes are received.
@@ -50,9 +50,10 @@ This document lists all PostHog events that have been automatically added to you
 
 - **create_clan_button_clicked**: Tracks when a user clicks the 'Create Clan' button to open the creation dialog.
 
-
 ## Events still awaiting implementation
+
 - (human: you can fill these in)
+
 ---
 
 ## Next Steps
