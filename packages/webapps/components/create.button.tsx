@@ -3,9 +3,9 @@
 import { Button } from "@/components/retroui/Button";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { CreateClanDialog } from "../app/leaderboard/create-clan.dialog";
+import { CreateClanDialog } from "../app/(main)/leaderboard/create-clan.dialog";
 import { useSession } from "next-auth/react";
-import posthog from 'posthog-js';
+import posthog from "posthog-js";
 
 export const CreateButton = () => {
   const [showCreateClan, setShowCreateClan] = useState(false);
@@ -17,8 +17,8 @@ export const CreateButton = () => {
     <>
       <Button
         onClick={() => {
-          posthog.capture('create_clan_button_clicked');
-          setShowCreateClan(true)
+          posthog.capture("create_clan_button_clicked");
+          setShowCreateClan(true);
         }}
         variant="outline"
         className="  flex items-center gap-2"

@@ -45,4 +45,5 @@ export type Activity = {
   wedoAmount: number;
   txHash?: string;
   timestamp: number;
+  isRead?: boolean; // 可选字段，用于标记活动是否已读
 };
