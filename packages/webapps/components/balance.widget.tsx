@@ -28,33 +28,49 @@ export default function BalanceWidget({
 
   return (
     <div
-      className={cn("font-semibold flex flex-col place-items-end", className)}
+      className={cn(
+        "min-w-[190px] font-semibold flex flex-col place-items-end",
+        className
+      )}
     >
-      <div className="flex items-center gap-2">
+      <div className="w-full flex items-center gap-2 justify-between">
         个人余额{" "}
         {isIdoBalanceLoading ? (
           <Skeleton className="w-10 h-4" />
         ) : (
-          <>
-            {formatTokenAmount(idoBalance ?? 0, IDO_TOKEN)}
-
+          <div
+            className={cn(
+              "tabular-nums font-mono flex items-center gap-2",
+              isIdoBalanceRefetching && "animate-pulse"
+            )}
+          >
             {isIdoBalanceRefetching && (
               <Loader2 className="w-4 h-4 animate-spin" />
             )}
-          </>
+            {formatTokenAmount(idoBalance ?? 0, IDO_TOKEN, {
+              styleSymbols: "w-7 self-center text-muted-foreground text-right",
+            })}
+          </div>
         )}
       </div>
-      <div className="flex items-center gap-2">
+      <div className="w-full flex items-center gap-2 justify-between">
         小队余额{" "}
         {isWedoBalanceLoading ? (
           <Skeleton className="w-10 h-4" />
         ) : (
-          <>
-            {formatTokenAmount(wedoBalance ?? 0, WEDO_TOKEN)}
+          <div
+            className={cn(
+              "tabular-nums font-mono flex items-center gap-2",
+              isWedoBalanceRefetching && "animate-pulse"
+            )}
+          >
             {isWedoBalanceRefetching && (
               <Loader2 className="w-4 h-4 animate-spin" />
             )}
-          </>
+            {formatTokenAmount(wedoBalance ?? 0, WEDO_TOKEN, {
+              styleSymbols: "self-center",
+            })}
+          </div>
         )}
       </div>
     </div>
