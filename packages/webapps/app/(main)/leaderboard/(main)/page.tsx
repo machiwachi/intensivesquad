@@ -8,7 +8,10 @@ import { Skull, Trophy, Users, Zap } from "lucide-react";
 import { useMemo, useState } from "react";
 import { ClanCard, ClanCardSkeleton } from "../clan-card";
 import { ClanDetailDialog } from "../clan-detail.dialog";
-import { useReadIdoTokenTotalSupply } from "@/lib/contracts";
+import {
+  useReadIdoTokenTotalSupply,
+  useReadTeamManagerAccountTeam,
+} from "@/lib/contracts";
 import { formatEther } from "viem";
 import {
   GiBlackKnightHelm,
@@ -24,6 +27,8 @@ import { IDO_TOKEN } from "@/lib/constant";
 import { BarChart } from "@/components/retroui/charts/BarChart";
 import { Badge } from "@/components/retroui/Badge";
 import { GiTombstone } from "react-icons/gi";
+import { RankButton } from "../rank.button";
+import { useAccount } from "wagmi";
 
 export default function ClansLeaderboard() {
   const { teams, isLoading } = useTeams();
@@ -32,6 +37,11 @@ export default function ClansLeaderboard() {
     isLoading: isLoadingIDO,
     isError: isErrorIDO,
   } = useReadIdoTokenTotalSupply();
+  const { address: walletAddress } = useAccount();
+  const { data: userTeamId, isLoading: isLoadingUserTeamId } =
+    useReadTeamManagerAccountTeam({
+      args: [walletAddress ?? "0x0000000000000000000000000000000000000000"],
+    });
 
   const [selectedClan, setSelectedClan] = useState<Team | null>(null);
 
@@ -201,7 +211,9 @@ export default function ClansLeaderboard() {
         <div className="flex items-center gap-2">
           <h1 className="text-2xl font-bold">所有部落</h1>
 
-          <CreateButton />
+          {/* 如果用户没有部落，则显示创建部落按钮 */}
+          {!isLoadingUserTeamId && !userTeamId && <CreateButton />}
+          <RankButton />
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           {isLoading
