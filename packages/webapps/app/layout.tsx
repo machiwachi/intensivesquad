@@ -1,7 +1,6 @@
 import type React from "react";
-import { Toaster } from "@/components/ui/sonner";
+import { Toaster } from "@/components/retroui/Sonner";
 import type { Metadata } from "next";
-import { Orbitron } from "next/font/google";
 import "./globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 

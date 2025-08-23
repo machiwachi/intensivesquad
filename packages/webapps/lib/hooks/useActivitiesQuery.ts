@@ -50,6 +50,7 @@ export function useAllActivities(options?: {
     enabled: options?.enabled ?? true,
     staleTime: 1000 * 60 * 2, // 2分钟内认为数据是新鲜的
     gcTime: 1000 * 60 * 10, // 缓存10分钟
+    refetchIntervalInBackground: true,
   });
 }
 
