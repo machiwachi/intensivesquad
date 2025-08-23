@@ -90,7 +90,7 @@ export default function IDOPoolDashboard() {
                 <span className="text-4xl font-black">
                   <Trophy className="w-6 h-6" />
                 </span>
-                <span className="text-6xl font-black">79</span>
+                <span className="text-6xl font-black">{poolData.totalETH}</span>
                 <span className="text-xl font-black">ETH</span>
               </div>
             </CardTitle>

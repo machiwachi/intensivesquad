@@ -3,7 +3,6 @@ import { ConnectButton } from "@/components/connect.button";
 import { GiftIcon, Heart } from "lucide-react";
 import Image from "next/image";
 import BalanceWidget from "@/components/balance.widget";
-import { CreateButton } from "@/app/leaderboard/create.button";
 import { RankButton } from "@/app/leaderboard/rank.button";
 import { Button } from "@/components/retroui/Button";
 import { GiGreekTemple } from "react-icons/gi";
@@ -41,7 +40,6 @@ export default function Header({
         <div className="flex items-center gap-4">
           <BalanceWidget />
           <RankButton />
-          <CreateButton />
 
           <Link href="/shrine">
             <Button variant="outline" className="gap-2">

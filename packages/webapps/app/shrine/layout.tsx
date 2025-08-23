@@ -3,7 +3,7 @@ import { ConnectButton } from "@/components/connect.button";
 import { GiftIcon, Heart } from "lucide-react";
 import Image from "next/image";
 import BalanceWidget from "@/components/balance.widget";
-import { CreateButton } from "@/app/leaderboard/create.button";
+import { CreateButton } from "@/components/create.button";
 import { RankButton } from "@/app/leaderboard/rank.button";
 import { Button } from "@/components/retroui/Button";
 import { GiWarAxe, GiWarBonnet } from "react-icons/gi";

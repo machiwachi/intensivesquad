@@ -10,6 +10,8 @@ import { ClanDetailDialog } from "../clan-detail.dialog";
 import { useReadIdoTokenTotalSupply } from "@/lib/contracts";
 import { formatEther } from "viem";
 
+import { CreateButton } from "@/components/create.button";
+
 export default function ClansLeaderboard() {
   const { teams, isLoading } = useTeams();
   const {
@@ -112,25 +114,33 @@ export default function ClansLeaderboard() {
         </Card>
       </div>
       {/* Clans Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {isLoading
-          ? Array.from({ length: 6 }).map((_, index) => (
-              <ClanCardSkeleton key={index} />
-            ))
-          : teams.map((team) => (
-              <ClanCard
-                key={team.id}
-                clan={team}
-                onClick={() => setSelectedClan(team)}
-              />
-            ))}
+
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold">所有部落</h1>
+
+          <CreateButton />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          {isLoading
+            ? Array.from({ length: 6 }).map((_, index) => (
+                <ClanCardSkeleton key={index} />
+              ))
+            : teams.map((team) => (
+                <ClanCard
+                  key={team.id}
+                  clan={team}
+                  onClick={() => setSelectedClan(team)}
+                />
+              ))}
+        </div>
+        {/* Clan Detail Dialog */}
+        <ClanDetailDialog
+          open={!!selectedClan}
+          onOpenChange={() => setSelectedClan(null)}
+          clan={selectedClan}
+        />
       </div>
-      {/* Clan Detail Dialog */}
-      <ClanDetailDialog
-        open={!!selectedClan}
-        onOpenChange={() => setSelectedClan(null)}
-        clan={selectedClan}
-      />
     </div>
   );
 }
