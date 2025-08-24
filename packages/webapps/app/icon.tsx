@@ -1,5 +1,11 @@
 import { ImageResponse } from "next/og";
-import { GiBrokenHeartZone } from "react-icons/gi";
+import {
+  GiBrokenHeartZone,
+  GiDwarfFace,
+  GiDwarfKing,
+  GiSwordman,
+  GiSwordTie,
+} from "react-icons/gi";
 
 // Image metadata
 export const size = {
@@ -17,21 +23,27 @@ export default function Icon() {
       // ImageResponse JSX element
       <div
         style={{
-          fontSize: 24,
-          background: "#3a3a3a",
+          //   background: "black",
           width: "100%",
           height: "100%",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          fontWeight: "bold",
-          color: "white",
+          borderRadius: "10px",
+          //   color: "black",
         }}
       >
-        Is
+        <GiSwordman
+          style={{
+            width: "100%",
+            height: "100%",
+            fontSize: "24px",
+            color: "#e63946",
+            fill: "yellow",
+          }}
+        />
       </div>
     ),
-    //   <GiWoodAxe className="size-100 text-2xl self-center justify-center text-center " />
     // ImageResponse options
     {
       // For convenience, we can re-use the exported icons size metadata
