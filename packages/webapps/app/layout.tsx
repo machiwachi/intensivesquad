@@ -25,7 +25,7 @@ const space = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "部落排行榜 - 学习勇士",
+  title: "残酷小队 | IntensiveSquad",
   description: "游戏化学习应用的部落排名与成员状态",
   generator: "v0.app",
 };
