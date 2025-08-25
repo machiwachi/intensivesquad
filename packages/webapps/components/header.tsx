@@ -1,14 +1,14 @@
 "use client";
-import Link from "next/link";
-import { ConnectButton } from "@/components/connect.button";
-import { GiftIcon, Heart } from "lucide-react";
-import Image from "next/image";
+import { GuideDialogButton } from "@/app/components/guide-dialog.button";
 import BalanceWidget from "@/components/balance.widget";
-import { RankButton } from "@/app/(main)/leaderboard/rank.button";
+import { ConnectButton } from "@/components/connect.button";
 import { Button } from "@/components/retroui/Button";
+import { GiftIcon } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { GiGreekTemple, GiWarAxe } from "react-icons/gi";
 import { KioskButton } from "./kiosk.button";
-import { usePathname } from "next/navigation";
 
 const config = {
   "/shrine": {
@@ -50,6 +50,7 @@ export default function Header() {
             </div>
             <p className="text-muted-foreground ">{description}</p>
           </div>
+          <GuideDialogButton />
         </div>
 
         <div className="flex items-center gap-4">
@@ -57,12 +58,14 @@ export default function Header() {
           <BalanceWidget />
 
           {pathname !== "/leaderboard" && (
-            <Link href="/leaderboard">
-              <Button variant="outline" className="gap-2 bg-white">
-                <GiWarAxe className="w-4 h-4" />
-                战场
-              </Button>
-            </Link>
+            <>
+              <Link href="/leaderboard">
+                <Button variant="outline" className="gap-2 bg-white">
+                  <GiWarAxe className="w-4 h-4" />
+                  战场
+                </Button>
+              </Link>
+            </>
           )}
 
           {pathname !== "/shrine" && (

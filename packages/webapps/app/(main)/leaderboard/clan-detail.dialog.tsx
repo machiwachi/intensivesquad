@@ -25,6 +25,7 @@ import React, { useState } from "react";
 import { toast } from "sonner";
 import { useAccount } from "wagmi";
 import { DividendVaultWidget } from "./dividend-vault-widget";
+import { walletActions } from "viem";
 
 export function ClanDetailDialog({
   open,
@@ -178,7 +179,7 @@ export function ClanDetailDialog({
                   <h4 className="font-bold">
                     部落成员(总计 {clan.totalScore} IDO)
                   </h4>
-                  {!userTeamId && (
+                  {!userTeamId && isWalletConnected && (
                     <Button
                       size="sm"
                       onClick={(e) => handleJoinClan(clan.id, e)}
