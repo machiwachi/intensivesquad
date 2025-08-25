@@ -1,33 +1,37 @@
-import type React from "react";
-import { Toaster } from "@/components/retroui/Sonner";
-import type { Metadata } from "next";
-import "./globals.css";
-import "@rainbow-me/rainbowkit/styles.css";
+import type React from 'react';
+import { Toaster } from '@/components/retroui/Sonner';
+import type { Metadata } from 'next';
+import './globals.css';
+import '@rainbow-me/rainbowkit/styles.css';
 
-import { Providers } from "@/components/providers";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { Providers } from '@/components/providers';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
 
-import { Archivo_Black, Space_Grotesk } from "next/font/google";
+import { Archivo_Black, Space_Grotesk } from 'next/font/google';
 
 const archivoBlack = Archivo_Black({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-head",
-  display: "swap",
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-head',
+  display: 'swap',
+  preload: true,
+  fallback: ['system-ui', 'arial'],
 });
 
 const space = Space_Grotesk({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-sans",
-  display: "swap",
+  subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
+  variable: '--font-sans',
+  display: 'swap',
+  preload: true,
+  fallback: ['system-ui', 'arial'],
 });
 
 export const metadata: Metadata = {
-  title: "残酷小队 | IntensiveSquad",
-  description: "游戏化学习应用的部落排名与成员状态",
-  generator: "v0.app",
+  title: '残酷小队 | IntensiveSquad',
+  description: '游戏化学习应用的部落排名与成员状态',
+  generator: 'v0.app',
 };
 
 export default async function RootLayout({
@@ -41,8 +45,7 @@ export default async function RootLayout({
     <html
       lang="en"
       className={`${archivoBlack.variable} ${space.variable} antialiased`}
-      suppressHydrationWarning
-    >
+      suppressHydrationWarning>
       <body className="scanlines">
         <Providers session={session}>{children}</Providers>
         <Toaster />
