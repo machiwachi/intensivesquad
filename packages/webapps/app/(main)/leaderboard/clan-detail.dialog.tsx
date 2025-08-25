@@ -14,17 +14,18 @@ import { IDO_TOKEN, WEDO_TOKEN } from '@/lib/constant';
 import {
   useWriteTeamManagerJoin,
   useWriteTeamManagerLeave,
-} from '@/lib/contracts';
-import { useReadTeamManagerAccountTeam } from '@/lib/contracts/generated';
-import type { Activity, Team } from '@/lib/typings';
-import { cn, formatAddress, formatTokenAmount } from '@/lib/utils';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { blo } from 'blo';
-import { Loader2, UserMinus, UserPlus } from 'lucide-react';
-import React, { useState } from 'react';
-import { toast } from 'sonner';
-import { useAccount } from 'wagmi';
-import { DividendVaultWidget } from './dividend-vault-widget';
+} from "@/lib/contracts";
+import { useReadTeamManagerAccountTeam } from "@/lib/contracts/generated";
+import type { Activity, Team } from "@/lib/typings";
+import { cn, formatAddress, formatTokenAmount } from "@/lib/utils";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { blo } from "blo";
+import { Loader2, UserMinus, UserPlus } from "lucide-react";
+import React, { useState } from "react";
+import { toast } from "sonner";
+import { useAccount } from "wagmi";
+import { DividendVaultWidget } from "./dividend-vault-widget";
+import { walletActions } from "viem";
 
 export function ClanDetailDialog({
   open,
@@ -178,7 +179,7 @@ export function ClanDetailDialog({
                   <h4 className="font-bold">
                     部落成员(总计 {clan.totalScore} IDO)
                   </h4>
-                  {!userTeamId && (
+                  {!userTeamId && isWalletConnected && (
                     <Button
                       size="sm"
                       onClick={e => handleJoinClan(clan.id, e)}
