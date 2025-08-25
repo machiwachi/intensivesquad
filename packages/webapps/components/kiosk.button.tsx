@@ -4,6 +4,7 @@ import { Button } from "@/components/retroui/Button";
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
   DialogTrigger,
 } from "@/components/retroui/Dialog";
 import { apiClient } from "@/lib/api";
@@ -193,6 +194,7 @@ export function KioskButton() {
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
+        <DialogHeader>示例水龙头</DialogHeader>
         <div className="flex flex-col items-center justify-center py-8 gap-4">
           {/* 显示不同状态的内容 */}
           {needsLogin ? (
@@ -201,13 +203,8 @@ export function KioskButton() {
                 <GiSaloonDoors className="w-12 h-12 " />
                 <div className="text-center">
                   <h3 className="text-lg font-semibold">需要登录</h3>
-                  <p className="text-sm text-gray-600">
-                    请先登录才能使用水龙头
-                  </p>
                 </div>
-                <Button onClick={handleLoginClick} className="w-full">
-                  立即登录
-                </Button>
+                <Button onClick={handleLoginClick}>立即登录</Button>
               </div>
             </>
           ) : needsTeam ? (
@@ -220,9 +217,7 @@ export function KioskButton() {
                     请先创建或加入一个团队才能使用水龙头功能
                   </p>
                 </div>
-                <Button onClick={handleTeamClick} className="w-full">
-                  前往战场
-                </Button>
+                <Button onClick={handleTeamClick}>前往战场</Button>
               </div>
             </>
           ) : (
@@ -326,6 +321,11 @@ export function KioskButton() {
               </div>
             </>
           )}
+          <p className="text-xs text-gray-600 text-center ">
+            本作弊功能仅供演示。实现生产中，代币发放由后端逻辑控制。
+            <br />
+            例如后端监听表单的 Webhook 请求，发放对应代币。
+          </p>
         </div>
       </DialogContent>
     </Dialog>
