@@ -10,7 +10,7 @@ export const redisClient = Redis.fromEnv();
  * @returns The key of the team member
  */
 export const teamMemberKey = (teamId: number | "*", memberAddress: string) =>
-  `team:${teamId}:member:${memberAddress}`;
+  `team:${teamId}:member:${memberAddress}` as const;
 export const getTeamMemberAddress = (key: string) =>
   key.split(":")[3] as `0x${string}`;
 export const teamKey = (teamId: number) => `team:${teamId}`;

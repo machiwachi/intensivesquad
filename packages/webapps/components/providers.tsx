@@ -17,6 +17,8 @@ import { useTheme } from "next-themes";
 import { SessionProvider } from "next-auth/react";
 
 import { config } from "@/lib/wagmi";
+import { PostHogProvider } from "@/components/posthog-provider";
+import { ActivitiesProvider } from "@/components/activities-provider";
 
 const queryClient = new QueryClient();
 
@@ -31,15 +33,13 @@ function RainbowKitProviderWrapper({
 }: {
   children: React.ReactNode;
 }) {
-  const { theme } = useTheme();
+  // const { theme } = useTheme();
 
   return (
     <RainbowKitSiweNextAuthProvider
       getSiweMessageOptions={getSiweMessageOptions}
     >
-      <RainbowKitProvider theme={theme === "dark" ? darkTheme() : lightTheme()}>
-        {children}
-      </RainbowKitProvider>
+      <RainbowKitProvider>{children}</RainbowKitProvider>
     </RainbowKitSiweNextAuthProvider>
   );
 }
@@ -52,19 +52,16 @@ export function Providers({
   session?: any;
 }) {
   return (
-    <NextThemesProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-    >
-      <WagmiProvider config={config}>
-        <SessionProvider session={session} refetchInterval={0}>
-          <QueryClientProvider client={queryClient}>
-            <RainbowKitProviderWrapper>{children}</RainbowKitProviderWrapper>
-          </QueryClientProvider>
-        </SessionProvider>
-      </WagmiProvider>
-    </NextThemesProvider>
+    <WagmiProvider config={config}>
+      <SessionProvider session={session} refetchInterval={0}>
+        <QueryClientProvider client={queryClient}>
+          <PostHogProvider>
+            <ActivitiesProvider>
+              <RainbowKitProviderWrapper>{children}</RainbowKitProviderWrapper>
+            </ActivitiesProvider>
+          </PostHogProvider>
+        </QueryClientProvider>
+      </SessionProvider>
+    </WagmiProvider>
   );
 }

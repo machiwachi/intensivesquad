@@ -1,13 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@300..700&display=swap');
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
+@theme {
+  --font-head: var(--font-head);
+  --font-sans: var(--font-sans);
 
-@theme inline {
-  --font-head: 'Archivo Black', sans-serif;
-  --font-sans: 'Space Grotesk', sans-serif;
- 
   --shadow-xs: 1px 1px 0 0 var(--border);
   --shadow-sm: 2px 2px 0 0 var(--border);
   --shadow: 3px 3px 0 0 var(--border);
@@ -15,7 +14,7 @@
   --shadow-lg: 6px 6px 0 0 var(--border);
   --shadow-xl: 10px 10px 0 1px var(--border);
   --shadow-2xl: 16px 16px 0 1px var(--border);
- 
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
@@ -32,41 +31,53 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
-  --color-input: var(--card);
-  --color-ring: rgba(255, 219, 51, 0.3);
-  --radius-sm: 0rem;
-  --radius-md: 0rem;
-  --radius-lg: 0rem;
-  --radius-xl: 0rem;
+  --color-retro-lime: var(--retro-lime);
+  --color-neo-pink: var(--neo-pink);
+  --color-neo-blue: var(--neo-blue);
+  --color-neo-yellow: var(--neo-yellow);
+  --color-neo-green: var(--neo-green);
+  --color-neo-purple: var(--neo-purple);
+  --color-neo-black: var(--neo-black);
+  --color-neo-white: var(--neo-white);
+  --color-neo-gray: var(--neo-gray);
 }
- 
+
 :root {
   --background: #fff;
   --foreground: #000;
   --card: #fff;
   --card-foreground: #000;
   --primary: #ffdb33;
-  --primary-foreground: #000;
   --primary-hover: #ffcc00;
+  --primary-foreground: #000;
   --secondary: #000;
   --secondary-foreground: #fff;
   --muted: #aeaeae;
   --muted-foreground: #5a5a5a;
-  --accent: #fae583;
+  --accent: #ffdb33;
   --accent-foreground: #000;
   --destructive: #e63946;
   --destructive-foreground: #fff;
   --border: #000;
+  --retro-lime: #e7f193;
+  --neo-pink: #ffcaf2;
+  --neo-blue: #a5d7e8;
+  --neo-yellow: #fdff8f;
+  --neo-green: #b6ff9c;
+  --neo-purple: #d8b4fe;
+  --neo-black: #000;
+  --neo-white: #fff;
+  --neo-gray: #f0f0f0;
 }
- 
+
 .dark {
   --background: #1a1a1a;
   --foreground: #f5f5f5;
   --card: #242424;
   --card-foreground: #f5f5f5;
   --primary: #ffdb33;
-  --primary-foreground: #000;
   --primary-hover: #ffcc00;
+  --primary-foreground: #000;
   --secondary: #3a3a3a;
   --secondary-foreground: #f5f5f5;
   --muted: #3f3f46;
@@ -78,59 +89,46 @@
   --border: #3a3a3a;
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-
-  /* Added retro pixel art styling */
-  .pixel-font {
-    font-family: "Courier New", monospace;
-    font-weight: bold;
-    image-rendering: pixelated;
-    image-rendering: -moz-crisp-edges;
-    image-rendering: crisp-edges;
+@layer utilities {
+  .fade-in-card {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
   }
 
-  .scanlines {
-    position: relative;
+  .fade-in-card.visible {
+    opacity: 1;
+    transform: translateY(0);
   }
 
-  .scanlines::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0, 0, 0, 0.03) 2px,
-      rgba(0, 0, 0, 0.03) 4px
-    );
-    pointer-events: none;
-    z-index: 1;
+  .fade-in-card:nth-child(2) {
+    transition-delay: 0.1s;
   }
 
-  .pixel-border {
-    border-style: solid;
-    border-width: 2px;
-    image-rendering: pixelated;
+  .fade-in-card:nth-child(3) {
+    transition-delay: 0.2s;
   }
 
-  .eliminated {
-    filter: grayscale(100%) contrast(1.2);
-    opacity: 0.7;
+  .fade-in-card:nth-child(4) {
+    transition-delay: 0.3s;
+  }
+}
+
+@theme {
+  --animate-wiggle: wiggle 1.5s ease-in-out infinite;
+  @keyframes wiggle {
+    0%,
+    100% {
+      transform: rotate(-2deg);
+    }
+    50% {
+      transform: rotate(2deg);
+    }
   }
 
   /* RetroUI Button specific styles */
   .font-head {
-    font-family: "Courier New", monospace;
+    font-family: 'Courier New', monospace;
     font-weight: bold;
   }
 
@@ -141,6 +139,4 @@
   .shadow-primary {
     box-shadow: 4px 4px 0px var(--color-primary);
   }
-
-
 }

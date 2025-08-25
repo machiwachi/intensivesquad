@@ -1,33 +1,30 @@
 "use client";
 
-import { isNil } from "ramda";
 import { useMemo } from "react";
 import { useAccount } from "wagmi";
 import {
-  useReadTeamEconomyTeamWedoBalance,
+  useReadIdoTokenBalanceOf,
+  useReadTeamEconomyGetStageScalar,
   useReadTeamEconomyGetTeamL,
+  useReadTeamEconomyLMax,
+  useReadTeamEconomyLMin,
   useReadTeamEconomyPendingIdo,
+  useReadTeamEconomyTeamWedoBalance,
   useReadTeamEconomyUserAccrued,
   useReadTeamEconomyUserShares,
-  useReadTeamEconomyGetStageScalar,
-  useReadTeamEconomyLMin,
-  useReadTeamEconomyLMax,
-  useReadIdoTokenBalanceOf,
-  useReadWedoTokenBalanceOf,
   useReadTeamManagerAccountTeam,
 } from "../contracts/generated";
-import { formatEther } from "viem";
 
 export interface TeamEconomyData {
   teamId: number;
-  teamWedoBalance: number;
-  teamLeverage: number;
-  userPendingIdo: number;
-  userAccrued: number;
+  teamWedoBalance: bigint;
+  teamLeverage: bigint;
+  userPendingIdo: bigint;
+  userAccrued: bigint;
   userShares: number;
-  stageScalar: number;
-  lMin: number;
-  lMax: number;
+  stageScalar: bigint;
+  lMin: bigint;
+  lMax: bigint;
 }
 
 export interface UserTokenBalances {
@@ -39,27 +36,30 @@ export interface UserTokenBalances {
 export function useTeamEconomy(teamId: number) {
   const { address } = useAccount();
 
-  const { data: teamWedoBalance } = useReadTeamEconomyTeamWedoBalance({
-    args: [BigInt(teamId)],
-  });
+  const { data: teamWedoBalance, refetch: refetchTeamWedoBalance } =
+    useReadTeamEconomyTeamWedoBalance({
+      args: [BigInt(teamId)],
+    });
 
   const { data: teamL } = useReadTeamEconomyGetTeamL({
     args: [BigInt(teamId)],
   });
 
-  const { data: pendingIdo } = useReadTeamEconomyPendingIdo({
-    args: [
-      BigInt(teamId),
-      address ?? "0x0000000000000000000000000000000000000000",
-    ],
-  });
+  const { data: pendingIdo, refetch: refetchPendingIdo } =
+    useReadTeamEconomyPendingIdo({
+      args: [
+        BigInt(teamId),
+        address ?? "0x0000000000000000000000000000000000000000",
+      ],
+    });
 
-  const { data: userAccrued } = useReadTeamEconomyUserAccrued({
-    args: [
-      BigInt(teamId),
-      address ?? "0x0000000000000000000000000000000000000000",
-    ],
-  });
+  const { data: userAccrued, refetch: refetchUserAccrued } =
+    useReadTeamEconomyUserAccrued({
+      args: [
+        BigInt(teamId),
+        address ?? "0x0000000000000000000000000000000000000000",
+      ],
+    });
 
   const { data: userShares } = useReadTeamEconomyUserShares({
     args: [
@@ -72,24 +72,26 @@ export function useTeamEconomy(teamId: number) {
   const { data: lMin } = useReadTeamEconomyLMin();
   const { data: lMax } = useReadTeamEconomyLMax();
 
-  return useMemo(() => {
-    if (teamWedoBalance === undefined || !teamL) {
-      return null;
-    }
+  const refetch = () => {
+    refetchTeamWedoBalance();
+    refetchPendingIdo();
+    refetchUserAccrued();
+  };
 
+  return useMemo(() => {
     const economy: TeamEconomyData = {
       teamId,
-      teamWedoBalance: Number(teamWedoBalance) / 10 ** 18,
-      teamLeverage: Number(teamL) / 10 ** 18,
-      userPendingIdo: pendingIdo ? Number(pendingIdo) / 10 ** 18 : 0,
-      userAccrued: userAccrued ? Number(userAccrued) / 10 ** 18 : 0,
-      userShares: userShares ? Number(userShares) : 0,
-      stageScalar: stageScalar ? Number(stageScalar) / 10 ** 18 : 1,
-      lMin: lMin ? Number(lMin) / 10 ** 18 : 1,
-      lMax: lMax ? Number(lMax) / 10 ** 18 : 1.5,
+      teamWedoBalance: teamWedoBalance ?? BigInt(0),
+      teamLeverage: teamL ?? BigInt(0),
+      userPendingIdo: pendingIdo ?? BigInt(0),
+      userAccrued: userAccrued ?? BigInt(0),
+      userShares: Number(userShares),
+      stageScalar: stageScalar ?? BigInt(1),
+      lMin: lMin ?? BigInt(1000),
+      lMax: lMax ?? BigInt(1500),
     };
 
-    return economy;
+    return { data: economy, refetch };
   }, [
     teamId,
     teamWedoBalance,
@@ -107,31 +109,44 @@ export function useTeamEconomy(teamId: number) {
 export function useUserTokenBalances() {
   const { address } = useAccount();
 
-  const { data: idoBalance, queryKey: idoQueryKey } = useReadIdoTokenBalanceOf({
+  const {
+    data: idoBalance,
+    isLoading: isIdoBalanceLoading,
+    isRefetching: isIdoBalanceRefetching,
+  } = useReadIdoTokenBalanceOf({
     args: [address ?? "0x0000000000000000000000000000000000000000"],
   });
 
-  const { address: walletAddress } = useAccount();
   const { data: userTeamId } = useReadTeamManagerAccountTeam({
-    args: [walletAddress ?? "0x0000000000000000000000000000000000000000"],
+    args: [address ?? "0x0000000000000000000000000000000000000000"],
   });
-  const { data: wedoBalance, queryKey: wedoQueryKey } =
-    useReadTeamEconomyTeamWedoBalance({
-      args: [BigInt(userTeamId ?? 0)],
-    });
+  const {
+    data: wedoBalance,
+    isLoading: isWedoBalanceLoading,
+    isRefetching: isWedoBalanceRefetching,
+  } = useReadTeamEconomyTeamWedoBalance({
+    args: [BigInt(userTeamId ?? 0)],
+  });
 
   return useMemo(() => {
     const balances = {
-      idoBalance:
-        typeof idoBalance === "undefined" ? "-" : formatEther(idoBalance),
-      wedoBalance:
-        typeof wedoBalance === "undefined" ? "-" : formatEther(wedoBalance),
-      idoQueryKey,
-      wedoQueryKey,
+      idoBalance,
+      wedoBalance,
+      isIdoBalanceLoading,
+      isWedoBalanceLoading,
+      isIdoBalanceRefetching,
+      isWedoBalanceRefetching,
     };
 
     return balances;
-  }, [idoBalance, wedoBalance, idoQueryKey, wedoQueryKey]);
+  }, [
+    idoBalance,
+    wedoBalance,
+    isIdoBalanceLoading,
+    isWedoBalanceLoading,
+    isIdoBalanceRefetching,
+    isWedoBalanceRefetching,
+  ]);
 }
 
 // Hook to get global economy parameters
@@ -151,7 +166,7 @@ export function useGlobalEconomyParams() {
 
 // Hook to calculate estimated rewards for a user in a team
 export function useEstimatedRewards(teamId: number) {
-  const economy = useTeamEconomy(teamId);
+  const { data: economy, refetch } = useTeamEconomy(teamId);
   const { address } = useAccount();
 
   return useMemo(() => {

@@ -323,7 +323,7 @@ export const idoTokenAbi = [
 ] as const
 
 export const idoTokenAddress =
-  '0x89490Dc1049bb0f21811c520F53a23eb776954AD' as const
+  '0xcCe76481522f01E9e79448cF635432D84b92d38A' as const
 
 export const idoTokenConfig = {
   address: idoTokenAddress,
@@ -881,7 +881,7 @@ export const teamEconomyAbi = [
 ] as const
 
 export const teamEconomyAddress =
-  '0xcC59b9B03Fd3632727A7a37B59CeFF3C2Aad042d' as const
+  '0x29416cd2F992B5E334b7952566A61C49aebA91E9' as const
 
 export const teamEconomyConfig = {
   address: teamEconomyAddress,
@@ -1250,7 +1250,7 @@ export const teamManagerAbi = [
 ] as const
 
 export const teamManagerAddress =
-  '0xEDc75E0b88605D4a8396F76F267361AC5160578c' as const
+  '0xc23536a8B777B025b4708760857B87FeDfA7b773' as const
 
 export const teamManagerConfig = {
   address: teamManagerAddress,
@@ -1585,7 +1585,7 @@ export const wedoTokenAbi = [
 ] as const
 
 export const wedoTokenAddress =
-  '0x97d21571896535ceC6D9Ab73F4199f9bcd98731e' as const
+  '0x0568Ac3966fF048b76C4b0dE495E5ea346B28683' as const
 
 export const wedoTokenConfig = {
   address: wedoTokenAddress,

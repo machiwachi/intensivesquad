@@ -14,17 +14,17 @@ import { apiClient } from "../api";
 // Hook to get all teams
 export function useTeams() {
   const { address } = useAccount();
-  const { data } = useQuery({
+  const { data, isLoading: isLoadingAPI } = useQuery({
     queryKey: ["teams"],
     queryFn: async () => {
       const res = await apiClient.teams.$get();
       return res.json();
     },
   });
-  const { data: userTeamId } = useReadTeamManagerAccountTeam({
-    args: [address ?? "0x0000000000000000000000000000000000000000"],
-  });
-  const { data: nextTeamId } = useReadTeamManagerNextTeamId();
+  const { data: userTeamId, isLoading: isLoadingUserTeamId } =
+    useReadTeamManagerAccountTeam({
+      args: [address ?? "0x0000000000000000000000000000000000000000"],
+    });
 
   const rankedTeams = useMemo(() => {
     if (!data) return [];
@@ -46,8 +46,7 @@ export function useTeams() {
 
   return {
     teams: rankedTeams,
-    isLoading: !nextTeamId,
-    nextTeamId: Number(nextTeamId),
+    isLoading: isLoadingAPI || isLoadingUserTeamId,
   };
 }
 

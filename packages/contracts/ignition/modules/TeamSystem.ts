@@ -10,7 +10,7 @@ const TeamSystem = buildModule("TeamSystem", (m) => {
     ido,
     wedo,
     manager,
-    m.getParameter("initialS", 10n ** 18n),
+    m.getParameter("initialS", 1000n),
     m.getParameter("sDelay", 0n),
     admin,
   ]);

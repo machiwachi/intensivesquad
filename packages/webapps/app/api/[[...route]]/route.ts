@@ -26,7 +26,7 @@ import {
   parseEventLogs,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { multicall } from "viem/actions";
+import { multicall, readContract } from "viem/actions";
 import { sepolia } from "viem/chains";
 import { z } from "zod";
 
@@ -39,7 +39,7 @@ const zeroxSchema = z
 
 const chainConfig = {
   chain: sepolia,
-  transport: http(),
+  transport: http(process.env.RPC_URL_SEPOLIA),
 };
 
 const publicClient = createPublicClient(chainConfig);
@@ -91,6 +91,31 @@ const app = new Hono()
   .route("/test", testRouter)
   .get("/hello", async (c) => {
     const address = c.var.address;
+    const results = await multicall(publicClient, {
+      contracts: [
+        {
+          ...teamEconomyConfig,
+          functionName: "getTeamL",
+          args: [BigInt(1)],
+        },
+        {
+          ...teamEconomyConfig,
+          functionName: "getR",
+          args: [BigInt(1)],
+        },
+        {
+          ...teamManagerConfig,
+          functionName: "getTeamSize",
+          args: [BigInt(1)],
+        },
+        {
+          ...teamEconomyConfig,
+          functionName: "getStageScalar",
+        },
+      ],
+    });
+
+    console.log({ results });
 
     return c.json({ message: "hello", address });
   })
@@ -98,6 +123,7 @@ const app = new Hono()
     // 获取团队排行榜（包含总分和成员信息）
     const leaderboard = await getTeamLeaderboardIDO();
     const allTeamMembers = await getAllTeamMembers();
+    // console.log({ allTeamMembers, leaderboard });
 
     // 使用 multicall 批量获取团队 WEDO 余额
     const teamWedoBalances = await multicall(publicClient, {
@@ -107,6 +133,8 @@ const app = new Hono()
         args: [BigInt(team.teamId)],
       })),
     });
+
+    console.log({ teamWedoBalances });
 
     // 使用 multicall 批量获取团队杠杆（L值）
     const teamLeverages = await multicall(publicClient, {
@@ -140,7 +168,7 @@ const app = new Hono()
         leverageResult.status === "success"
           ? BigInt(leverageResult.result)
           : BigInt(0);
-      const leverage = String(leverageRaw * BigInt(10));
+      const leverage = String(leverageRaw);
 
       console.log({ wedoBalance, leverage, metadataResult });
 
@@ -188,14 +216,38 @@ const app = new Hono()
     zValidator(
       "json",
       z.object({
-        amount: z.number(),
         account: zeroxSchema,
       })
     ),
     async (c) => {
-      const { amount: idoAmount, account } = c.req.valid("json");
+      const { account } = c.req.valid("json");
 
-      console.log("收到请求 /credit，参数：", { idoAmount, account });
+      // 随机生成积分数量 (5-50)
+      const idoAmount = Math.floor(Math.random() * 46) + 5;
+
+      // 随机选择事件名称
+      const eventNames = [
+        "完成每日任务",
+        "参与团队讨论",
+        "分享学习心得",
+        "帮助团队成员",
+        "完成挑战任务",
+        "积极参与活动",
+        "贡献优质内容",
+        "达成学习目标",
+        "团队协作表现",
+        "创新思维体现",
+        "持续学习进步",
+        "知识分享贡献",
+      ];
+      const randomEvent =
+        eventNames[Math.floor(Math.random() * eventNames.length)];
+
+      console.log("收到请求 /credit，参数：", {
+        idoAmount,
+        account,
+        event: randomEvent,
+      });
 
       try {
         const teamId = await teamManager.read.accountTeam([account]);
@@ -232,7 +284,7 @@ const app = new Hono()
           id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
           user: account,
           teamId: Number(teamId),
-          action: `获得学习积分`,
+          action: randomEvent,
           wedoAmount,
           idoAmount,
           timestamp: Date.now(),
@@ -250,6 +302,7 @@ const app = new Hono()
           wedoAmount,
           idoAmount,
           account,
+          eventName: randomEvent,
           idoTx,
           wedoTx,
         });
@@ -312,6 +365,225 @@ const app = new Hono()
       return c.json({ message: "processed", persisted });
     }
   )
+  .post(
+    "/claim/track",
+    zValidator(
+      "json",
+      z.object({
+        txHash: zeroxSchema,
+        teamId: z.number(),
+        account: zeroxSchema,
+      })
+    ),
+    async (c) => {
+      const { txHash, teamId, account } = c.req.valid("json");
+
+      console.log("收到 /claim/track 请求，参数：", {
+        txHash,
+        teamId,
+        account,
+      });
+
+      try {
+        const receipt = await publicClient.waitForTransactionReceipt({
+          hash: txHash,
+        });
+        console.log("Claim交易回执：", receipt);
+
+        if (receipt.status !== "success") {
+          console.warn("Claim交易回执状态非 success：", receipt.status);
+          return c.json({ message: "tx reverted" }, 400);
+        }
+
+        const logs = parseEventLogs({
+          logs: receipt.logs,
+          abi: teamEconomyConfig.abi,
+        });
+        console.log("解析到的Claim事件日志：", logs);
+
+        let claimedAmount = 0;
+        for (const log of logs) {
+          if (log.eventName === "Claimed") {
+            const {
+              teamId: eventTeamId,
+              account: eventAccount,
+              amount,
+            } = log.args;
+
+            // 验证事件是否匹配请求参数
+            if (
+              Number(eventTeamId) === teamId &&
+              eventAccount.toLowerCase() === account.toLowerCase()
+            ) {
+              claimedAmount = Number(amount) / 10 ** 18; // 转换为以太单位
+              console.log(
+                `检测到 Claimed 事件，teamId: ${teamId}, account: ${account}, amount: ${claimedAmount}`
+              );
+
+              // 记录活动到活动流
+              const activity: Activity = {
+                id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                user: account,
+                teamId: teamId,
+                action: "领取奖励",
+                wedoAmount: 0,
+                idoAmount: claimedAmount,
+                timestamp: Date.now(),
+                txHash: txHash,
+              };
+
+              // 存储到活动流中
+              await redisClient.lpush(
+                activityStreamKey(teamId, account),
+                JSON.stringify(activity)
+              );
+
+              console.log(`已记录Claim活动到Redis，金额: ${claimedAmount} IDO`);
+              break;
+            }
+          }
+        }
+
+        if (claimedAmount === 0) {
+          console.warn("未找到匹配的Claimed事件");
+          return c.json({ message: "no matching claim event found" }, 400);
+        }
+
+        return c.json({
+          message: "claim tracked successfully",
+          claimedAmount,
+          txHash,
+          teamId,
+          account,
+        });
+      } catch (error) {
+        console.error("处理 /claim/track 时发生错误：", error);
+        return c.json(
+          {
+            message: "error tracking claim",
+            error: error instanceof Error ? error.message : String(error),
+          },
+          500
+        );
+      }
+    }
+  )
+  .post(
+    "/withdraw/track",
+    zValidator(
+      "json",
+      z.object({
+        txHash: zeroxSchema,
+        teamId: z.number(),
+        account: zeroxSchema,
+      })
+    ),
+    async (c) => {
+      const { txHash, teamId, account } = c.req.valid("json");
+
+      console.log("收到 /withdraw/track 请求，参数：", {
+        txHash,
+        teamId,
+        account,
+      });
+
+      try {
+        const receipt = await publicClient.waitForTransactionReceipt({
+          hash: txHash,
+        });
+        console.log("Withdraw交易回执：", receipt);
+
+        if (receipt.status !== "success") {
+          console.warn("Withdraw交易回执状态非 success：", receipt.status);
+          return c.json({ message: "tx reverted" }, 400);
+        }
+
+        const logs = parseEventLogs({
+          logs: receipt.logs,
+          abi: teamEconomyConfig.abi,
+        });
+        console.log("解析到的Withdraw事件日志：", logs);
+
+        let withdrawnWedoAmount = 0;
+        let mintedIdoAmount = 0;
+        let leverageRatio = 0;
+
+        for (const log of logs) {
+          if (log.eventName === "TeamWithdraw") {
+            const {
+              teamId: eventTeamId,
+              caller,
+              amountWEDO,
+              L,
+              mintIdo,
+              R,
+            } = log.args;
+
+            // 验证事件是否匹配请求参数
+            if (
+              Number(eventTeamId) === teamId &&
+              caller.toLowerCase() === account.toLowerCase()
+            ) {
+              withdrawnWedoAmount = Number(amountWEDO) / 10 ** 18;
+              mintedIdoAmount = Number(mintIdo) / 10 ** 18;
+              leverageRatio = Number(L) / 10 ** 18;
+
+              console.log(
+                `检测到 TeamWithdraw 事件，teamId: ${teamId}, caller: ${account}, withdrawnWEDO: ${withdrawnWedoAmount}, mintedIDO: ${mintedIdoAmount}, L: ${leverageRatio}`
+              );
+
+              // 记录活动到活动流
+              const activity: Activity = {
+                id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                user: account,
+                teamId: teamId,
+                action: "转换团队WEDO",
+                wedoAmount: -withdrawnWedoAmount, // 负数表示转出
+                idoAmount: 0,
+                timestamp: Date.now(),
+                txHash: txHash,
+              };
+
+              // 存储到活动流中
+              await redisClient.lpush(
+                activityStreamKey(teamId, account),
+                JSON.stringify(activity)
+              );
+
+              console.log(
+                `已记录Withdraw活动到Redis，转换 ${withdrawnWedoAmount} WEDO -> ${mintedIdoAmount} IDO`
+              );
+              break;
+            }
+          }
+        }
+
+        if (withdrawnWedoAmount === 0) {
+          console.warn("未找到匹配的TeamWithdraw事件");
+          return c.json({ message: "no matching withdraw event found" }, 400);
+        }
+
+        return c.json({
+          message: "withdraw tracked successfully",
+          withdrawnWedoAmount,
+          mintedIdoAmount,
+          leverageRatio,
+          txHash,
+          teamId,
+          account,
+        });
+      } catch (error) {
+        console.error("处理 /withdraw/track 时发生错误：", error);
+        return c.json(
+          {
+            message: "error tracking withdraw",
+            error: error instanceof Error ? error.message : String(error),
+          },
+          500
+        );
+      }
+    }
+  )
   .get("/leaderboard/ido/user", async (c) => {
     const flatRank = await redisClient.zrange(userLeaderboardIDOKey, 0, -1, {
       withScores: true,
@@ -333,7 +605,10 @@ const app = new Hono()
   })
   .get(
     "/teams/:teamId/activities",
-    zValidator("param", z.object({ teamId: z.coerce.number() })),
+    zValidator(
+      "param",
+      z.object({ teamId: z.union([z.coerce.number(), z.literal("*")]) })
+    ),
     async (c) => {
       const { teamId } = c.req.valid("param");
 
@@ -347,18 +622,19 @@ const app = new Hono()
       if (keys.length > 0) {
         const pipeline = redisClient.pipeline();
         for (const key of keys) {
-          console.log(`[活动查询] 获取 key: ${key}`);
+          // console.log(`[活动查询] 获取 key: ${key}`);
           pipeline.lrange(key, 0, -1);
         }
         const results = await pipeline.exec<unknown[][]>();
         // results 是一个二维数组，需扁平化
-        activities = results.flatMap((r) =>
-          r.map((x) => {
-            console.log(x);
-            const activity = x as Activity;
-            return activity;
-          })
-        );
+        activities = results
+          .flatMap((r) =>
+            r.map((x) => {
+              const activity = x as Activity;
+              return activity;
+            })
+          )
+          .toSorted((a, b) => b.timestamp - a.timestamp);
       }
 
       console.log(

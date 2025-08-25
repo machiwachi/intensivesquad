@@ -6,7 +6,10 @@ export type User = {
 };
 export type Clan = InferResponseType<typeof apiClient.teams.$get>[number];
 
-export type TokenType = typeof SCORE_TOKEN;
+export type TokenType = {
+  symbol: string;
+  decimals: number;
+};
 
 export interface Team {
   id: number;
@@ -42,4 +45,5 @@ export type Activity = {
   wedoAmount: number;
   txHash?: string;
   timestamp: number;
+  isRead?: boolean; // 可选字段，用于标记活动是否已读
 };
