@@ -19,8 +19,6 @@ import {
   GiOpenTreasureChest,
 } from "react-icons/gi";
 
-import * as R from "remeda";
-
 import { CreateButton } from "@/components/create.button";
 import { formatTokenAmount, generateSeries } from "@/lib/utils";
 import { IDO_TOKEN } from "@/lib/constant";
@@ -29,7 +27,6 @@ import { Badge } from "@/components/retroui/Badge";
 import { GiTombstone } from "react-icons/gi";
 import { RankButton } from "../rank.button";
 import { useAccount } from "wagmi";
-
 export default function ClansLeaderboard() {
   const { teams, isLoading } = useTeams();
   const {
@@ -44,6 +41,7 @@ export default function ClansLeaderboard() {
     });
 
   const [selectedClan, setSelectedClan] = useState<Team | null>(null);
+  const [showGuide, setShowGuide] = useState(false);
 
   if (!teams) return null;
 
@@ -55,84 +53,46 @@ export default function ClansLeaderboard() {
   );
 
   return (
-    <div className="">
+    <div className="space-y-12">
       {/* Header */}
-      {/* Global Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 grid-flow-row">
-        <Card className="p-4">
-          <h1 className="text-2xl font-bold">残酷统计</h1>
-          <CardContent className="h-full grid grid-cols-2 items-center gap-3 place-items-start justify-items-start">
-            <div className="flex items-center gap-3">
-              <GiKnightBanner className="w-8 h-8 text-blue-950" />
-              <div>
-                <p className="text-2xl font-bold ">{totalClans}</p>
-                <p className="text-sm text-muted-foreground ">部落总数</p>
-              </div>
-            </div>
+      {/* Clans Grid */}
 
-            <div className="flex items-center gap-3">
-              <GiOpenTreasureChest className="w-8 h-8 text-yellow-600" />
-              <div>
-                <p className="text-2xl font-bold ">
-                  {isLoadingIDO
-                    ? "Loading..."
-                    : isErrorIDO || !idoTokenTotalSupply
-                    ? "--"
-                    : formatTokenAmount(idoTokenTotalSupply, {
-                        ...IDO_TOKEN,
-                        symbol: "",
-                      })}
-                </p>
-                <p className="text-sm text-muted-foreground ">IDO 总计流通量</p>
-              </div>
-            </div>
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold">所有部落</h1>
 
-            <div className="flex items-center gap-3">
-              <GiBlackKnightHelm className="w-8 h-8 text-emerald-800" />
-              <div>
-                <p className="text-2xl font-bold ">
-                  {teams.reduce((sum, team) => sum + team.remainingMembers, 0)}
-                </p>
-                <p className="text-sm text-muted-foreground ">现役战士</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <GiTombstone className="w-8 h-8 text-red-500" />
-              <div>
-                <p className="text-2xl font-bold  text-red-500">
-                  {teams.reduce(
-                    (sum, team) =>
-                      sum + (team.totalMembers - team.remainingMembers),
-                    0
-                  )}
-                </p>
-                <p className="text-sm text-muted-foreground ">已淘汰</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="md:col-span-2 p-4">
-          <h1 className="text-2xl font-bold">每日战报</h1>
-          <CardContent className="">
-            {/* Mini retention chart */}
-
-            <BarChart
-              data={retentionByDays}
-              index="日期"
-              categories={["活跃用户数"]}
-              className="h-60"
-            />
-            <p className="text-sm text-center text-muted-foreground ">
-              每日用户留存
-            </p>
-          </CardContent>
-        </Card>
+          {/* 如果用户没有部落，则显示创建部落按钮 */}
+          {!isLoadingUserTeamId && !userTeamId && <CreateButton />}
+          <RankButton />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          {isLoading
+            ? Array.from({ length: 6 }).map((_, index) => (
+                <ClanCardSkeleton key={index} />
+              ))
+            : teams.map((team) => (
+                <ClanCard
+                  key={team.id}
+                  clan={team}
+                  onClick={() => {
+                    posthog.capture("leaderboard_clan_viewed", {
+                      clan_id: team.id,
+                    });
+                    setSelectedClan(team);
+                  }}
+                />
+              ))}
+        </div>
+        {/* Clan Detail Dialog */}
+        <ClanDetailDialog
+          open={!!selectedClan}
+          onOpenChange={() => setSelectedClan(null)}
+          clan={selectedClan}
+        />
       </div>
 
       {/* Clan Ladder */}
-      <Card className="w-full p-6 mb-8">
+      <Card className="w-full p-6 ">
         <h1 className="text-2xl font-bold mb-6">部落天梯</h1>
         <div className="relative">
           {/* Horizontal line */}
@@ -205,40 +165,78 @@ export default function ClansLeaderboard() {
         </div>
       </Card>
 
-      {/* Clans Grid */}
+      {/* Global Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4  grid-flow-row">
+        <Card className="p-4">
+          <h1 className="text-2xl font-bold">残酷统计</h1>
+          <CardContent className="h-full grid grid-cols-2 items-center gap-3 place-items-start justify-items-start">
+            <div className="flex items-center gap-3">
+              <GiKnightBanner className="w-8 h-8 text-blue-950" />
+              <div>
+                <p className="text-2xl font-bold ">{totalClans}</p>
+                <p className="text-sm text-muted-foreground ">部落总数</p>
+              </div>
+            </div>
 
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold">所有部落</h1>
+            <div className="flex items-center gap-3">
+              <GiOpenTreasureChest className="w-8 h-8 text-yellow-600" />
+              <div>
+                <p className="text-2xl font-bold ">
+                  {isLoadingIDO
+                    ? "Loading..."
+                    : isErrorIDO || !idoTokenTotalSupply
+                    ? "--"
+                    : formatTokenAmount(idoTokenTotalSupply, {
+                        ...IDO_TOKEN,
+                        symbol: "",
+                      })}
+                </p>
+                <p className="text-sm text-muted-foreground ">IDO 总计流通量</p>
+              </div>
+            </div>
 
-          {/* 如果用户没有部落，则显示创建部落按钮 */}
-          {!isLoadingUserTeamId && !userTeamId && <CreateButton />}
-          <RankButton />
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {isLoading
-            ? Array.from({ length: 6 }).map((_, index) => (
-                <ClanCardSkeleton key={index} />
-              ))
-            : teams.map((team) => (
-                <ClanCard
-                  key={team.id}
-                  clan={team}
-                  onClick={() => {
-                    posthog.capture("leaderboard_clan_viewed", {
-                      clan_id: team.id,
-                    });
-                    setSelectedClan(team);
-                  }}
-                />
-              ))}
-        </div>
-        {/* Clan Detail Dialog */}
-        <ClanDetailDialog
-          open={!!selectedClan}
-          onOpenChange={() => setSelectedClan(null)}
-          clan={selectedClan}
-        />
+            <div className="flex items-center gap-3">
+              <GiBlackKnightHelm className="w-8 h-8 text-emerald-800" />
+              <div>
+                <p className="text-2xl font-bold ">
+                  {teams.reduce((sum, team) => sum + team.remainingMembers, 0)}
+                </p>
+                <p className="text-sm text-muted-foreground ">现役战士</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <GiTombstone className="w-8 h-8 text-red-500" />
+              <div>
+                <p className="text-2xl font-bold  text-red-500">
+                  {teams.reduce(
+                    (sum, team) =>
+                      sum + (team.totalMembers - team.remainingMembers),
+                    0
+                  )}
+                </p>
+                <p className="text-sm text-muted-foreground ">已淘汰</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="md:col-span-2 p-4">
+          <h1 className="text-2xl font-bold">每日战报</h1>
+          <CardContent className="">
+            {/* Mini retention chart */}
+
+            <BarChart
+              data={retentionByDays}
+              index="日期"
+              categories={["活跃用户数"]}
+              className="h-60"
+            />
+            <p className="text-sm text-center text-muted-foreground ">
+              每日用户留存
+            </p>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

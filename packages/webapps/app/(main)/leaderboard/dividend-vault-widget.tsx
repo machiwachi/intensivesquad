@@ -39,6 +39,7 @@ import { useAccount, useWaitForTransactionReceipt } from "wagmi";
 import { formatUnits, parseUnits } from "viem";
 import Link from "next/link";
 import { isFeatureEnabled } from "@/lib/posthog-utils";
+import { KioskButton } from "@/components/kiosk.button";
 
 export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
   const { address: walletAddress, isConnected: isWalletConnected } =
@@ -344,6 +345,7 @@ export const DividendVaultWidget = ({ clan }: { clan: Team }) => {
         <div className="flex items-center gap-2">
           <Coins className="w-5 h-5 text-yellow-500" />
           <h4 className=" font-bold">分红金库</h4>
+          <KioskButton />
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
