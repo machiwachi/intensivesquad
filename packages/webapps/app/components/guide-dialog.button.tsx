@@ -183,7 +183,7 @@ export function GuideDialogButton() {
         <Button
           variant="outline"
           size="icon"
-          className="bg-white rounded-full "
+          className="bg-white rounded-full animate-[bounce_1s_ease-in-out_5_forwards]"
         >
           {/* <HelpCircleIcon className="w-4 h-4 stroke-1" /> */}
           <FaQuestion className="w-4 h-4" />
