@@ -1,7 +1,8 @@
 # 残酷小队
 
 2025 休闲黑客松参赛作品
-[预览地址](http://bit.ly/4mTYIV1)
+[预览地址](https://intensivesquad.vercel.app/?utm_source=github&utm_medium=social&utm_content=readme)
+
 
 ## 我们在做什么（一句话）
 
