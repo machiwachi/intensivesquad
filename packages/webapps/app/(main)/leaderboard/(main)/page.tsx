@@ -20,7 +20,7 @@ import {
 } from "react-icons/gi";
 
 import { CreateButton } from "@/components/create.button";
-import { formatTokenAmount, generateSeries } from "@/lib/utils";
+import { cn, formatTokenAmount, generateSeries } from "@/lib/utils";
 import { IDO_TOKEN } from "@/lib/constant";
 import { BarChart } from "@/components/retroui/charts/BarChart";
 import { Badge } from "@/components/retroui/Badge";
@@ -55,45 +55,15 @@ export default function ClansLeaderboard() {
   return (
     <div className="space-y-12">
       {/* Header */}
-      {/* Clans Grid */}
-
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold">所有部落</h1>
-
-          {/* 如果用户没有部落，则显示创建部落按钮 */}
-          {!isLoadingUserTeamId && !userTeamId && <CreateButton />}
-          <RankButton />
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {isLoading
-            ? Array.from({ length: 6 }).map((_, index) => (
-                <ClanCardSkeleton key={index} />
-              ))
-            : teams.map((team) => (
-                <ClanCard
-                  key={team.id}
-                  clan={team}
-                  onClick={() => {
-                    posthog.capture("leaderboard_clan_viewed", {
-                      clan_id: team.id,
-                    });
-                    setSelectedClan(team);
-                  }}
-                />
-              ))}
-        </div>
-        {/* Clan Detail Dialog */}
-        <ClanDetailDialog
-          open={!!selectedClan}
-          onOpenChange={() => setSelectedClan(null)}
-          clan={selectedClan}
-        />
-      </div>
 
       {/* Clan Ladder */}
       <Card className="w-full p-6 ">
-        <h1 className="text-2xl font-bold mb-6">部落天梯</h1>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold">部落天梯</h1>
+          <p className="text-sm text-muted-foreground">
+            根据成员总IDO量实时排名，欢迎多开一个浏览器登入其他钱包感受！
+          </p>
+        </div>
         <div className="relative">
           {/* Horizontal line */}
           <div className="absolute top-1/2 left-0 right-0 h-2 bg-gradient-to-r from-red-200 via-yellow-200 to-green-200 rounded-full transform -translate-y-1/2" />
@@ -129,11 +99,11 @@ export default function ClansLeaderboard() {
                       <Badge
                         variant="surface"
                         size="sm"
-                        className={`
-                        cursor-pointer  whitespace-nowrap hover:shadow-md
-                        ${index === 0 ? "animate-wiggle" : ""}
-                        ${index === 0 ? "ring-2 ring-yellow-400" : ""}
-                      `}
+                        className={cn(
+                          "cursor-pointer  whitespace-nowrap hover:shadow-md",
+                          index === 0 && "animate-wiggle",
+                          index === 0 && "ring-2 ring-yellow-400"
+                        )}
                         onClick={() => {
                           posthog.capture("leaderboard_ladder_clan_clicked", {
                             clan_id: team.id,
@@ -164,6 +134,41 @@ export default function ClansLeaderboard() {
           </div>
         </div>
       </Card>
+      {/* Clans Grid */}
+
+      <div className="space-y-4">
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-bold">所有部落</h1>
+
+          {/* 如果用户没有部落，则显示创建部落按钮 */}
+          {!isLoadingUserTeamId && !userTeamId && <CreateButton />}
+          <RankButton />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          {isLoading
+            ? Array.from({ length: 6 }).map((_, index) => (
+                <ClanCardSkeleton key={index} />
+              ))
+            : teams.map((team) => (
+                <ClanCard
+                  key={team.id}
+                  clan={team}
+                  onClick={() => {
+                    posthog.capture("leaderboard_clan_viewed", {
+                      clan_id: team.id,
+                    });
+                    setSelectedClan(team);
+                  }}
+                />
+              ))}
+        </div>
+        {/* Clan Detail Dialog */}
+        <ClanDetailDialog
+          open={!!selectedClan}
+          onOpenChange={() => setSelectedClan(null)}
+          clan={selectedClan}
+        />
+      </div>
 
       {/* Global Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4  grid-flow-row">
