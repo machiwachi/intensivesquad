@@ -1,12 +1,10 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
-
-/* @custom-variant dark (&:is(.dark *)); */
 @theme {
-  --font-head: var(--font-head);
-  --font-sans: var(--font-sans);
+  --font-head: 'Archivo Black', system-ui, sans-serif;
+  --font-sans: 'Space Grotesk', system-ui, sans-serif;
 
   --shadow-xs: 1px 1px 0 0 var(--border);
   --shadow-sm: 2px 2px 0 0 var(--border);
@@ -20,9 +18,9 @@
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-hover: var(--primary-hover);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
-  --color-primary-hover: var(--primary-hover);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-muted: var(--muted);
@@ -126,4 +124,18 @@
       transform: rotate(2deg);
     }
   }
+}
+
+/* RetroUI Button specific styles */
+.font-head {
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+}
+
+.outline-hidden {
+  outline: none;
+}
+
+.shadow-primary {
+  box-shadow: 4px 4px 0px var(--color-primary);
 }

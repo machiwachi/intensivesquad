@@ -1,7 +1,7 @@
-import { BarChart3 } from "lucide-react";
-import { Badge } from "@/components/retroui/Badge";
-import { RankIcon } from "./rank";
-import { useTeams } from "@/lib/hooks/useTeams";
+import { BarChart3 } from 'lucide-react';
+import { Badge } from '@/components/retroui/Badge';
+import { RankIcon } from './rank';
+import { useTeams } from '@/lib/hooks/useTeams';
 
 export const ClanRankingsChart = () => {
   const { teams, isLoading } = useTeams();
@@ -9,7 +9,7 @@ export const ClanRankingsChart = () => {
   if (isLoading || !teams) return null;
 
   const sortedClans = [...teams].sort((a, b) => b.totalScore - a.totalScore);
-  const maxScore = Math.max(...sortedClans.map((c) => c.totalScore));
+  const maxScore = Math.max(...sortedClans.map(c => c.totalScore));
 
   return (
     <div className="space-y-3">
@@ -24,8 +24,7 @@ export const ClanRankingsChart = () => {
           return (
             <div
               key={clan.id}
-              className="flex items-center gap-3 p-4 bg-muted/20"
-            >
+              className="flex items-center gap-3 p-4 bg-muted/20">
               <div className="flex items-center gap-2 w-16">
                 <RankIcon rank={clan.rank} />
                 <span className=" text-sm font-bold">#{clan.rank}</span>

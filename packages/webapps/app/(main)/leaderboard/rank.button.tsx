@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
 import posthog from 'posthog-js';
-import { Button } from "@/components/retroui/Button";
+import { Button } from '@/components/retroui/Button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-} from "@/components/retroui/Dialog";
-import { BarChart3 } from "lucide-react";
-import { useState } from "react";
-import { ClanRankingsChart } from "./clan-rankings-chart";
-import { UserRankingsChart } from "./user-rankings-chart";
+} from '@/components/retroui/Dialog';
+import { BarChart3 } from 'lucide-react';
+import { useState } from 'react';
+import { ClanRankingsChart } from './clan-rankings-chart';
+import { UserRankingsChart } from './user-rankings-chart';
 
 export const RankButton = () => {
   const [showRankings, setShowRankings] = useState(false);
@@ -22,8 +22,7 @@ export const RankButton = () => {
           posthog.capture('leaderboard_opened');
         }}
         // variant="outline"
-        className="  flex items-center gap-2"
-      >
+        className="  flex items-center gap-2">
         <BarChart3 className="w-4 h-4" />
         排行榜
       </Button>
