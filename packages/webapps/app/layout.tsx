@@ -29,9 +29,9 @@ const space = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: '残酷小队 | IntensiveSquad',
-  description: '游戏化学习应用的部落排名与成员状态',
-  generator: 'v0.app',
+  title: "残酷小队 | IntensiveSquad",
+  description:
+    '为高强度共学社群打造游戏化链上激励系统，采用"个人贡献+团队荣誉"双代币机制与动态博弈设计，彻底解决团队协作中的动力不均与成员退出难题，实现团队与个人利益的深度绑定。',
 };
 
 export default async function RootLayout({

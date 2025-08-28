@@ -1,4 +1,5 @@
 "use client";
+import { Construction } from "lucide-react";
 import { GuideDialogButton } from "@/app/components/guide-dialog.button";
 import BalanceWidget from "@/components/balance.widget";
 import { ConnectButton } from "@/components/connect.button";
@@ -13,23 +14,27 @@ import { KioskButton } from "./kiosk.button";
 const config = {
   "/shrine": {
     title: "商店",
+    isDemo: true,
     description: "使用 WEDO 代币购买强化道具，提升团队实力",
   },
   "/leaderboard": {
     title: "战场",
+    isDemo: false,
     description: "为了部落，努力打卡！",
   },
   "/pool": {
     title: "IDO 奖池",
+    isDemo: true,
     description: "质押 ETH 参与活动，按持有的 IDO 比例分配奖池。",
   },
 } as const;
 
 export default function Header() {
   const pathname = usePathname() as keyof typeof config;
-  const { title, description } = config[pathname] ?? {
+  const { title, description, isDemo } = config[pathname] ?? {
     title: "部落排行榜",
     description: "游戏化学习应用的部落排名与成员状态",
+    isDemo: false,
   };
 
   return (
@@ -46,11 +51,17 @@ export default function Header() {
                   height={60}
                 />
                 <h1 className="text-4xl lg:text-5xl font-bold">{title}</h1>
+                {isDemo && (
+                  <h3 className="text-sm text-muted-foreground self-baseline flex items-center gap-2">
+                    <Construction className="w-4 h-4 text-primary" />
+                    施工中...
+                  </h3>
+                )}
               </Link>
             </div>
             <p className="text-muted-foreground ">{description}</p>
           </div>
-          <GuideDialogButton />
+          {pathname === "/leaderboard" && <GuideDialogButton />}
         </div>
 
         <div className="flex items-center gap-4">
