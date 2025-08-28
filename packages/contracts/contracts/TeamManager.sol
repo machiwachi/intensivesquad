@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
+import "@openzeppelin/contracts/access/AccessControl.sol";
+import "./Types.sol";
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
 interface ITeamEconomyHooks {
@@ -139,4 +141,10 @@ contract TeamManager is AccessControl {
             economy.onLeave(teamId, msg.sender);
         }
     }
+
+    // //edit by @kafka
+    // // 检查成员是否在籍
+    // function isActiveMember(uint256 teamId, address member) external view returns (bool) {
+    //     return members[teamId][member].status == Types.Status.Active;
+    // }
 }
