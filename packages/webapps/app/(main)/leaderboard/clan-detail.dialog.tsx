@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import posthog from "posthog-js";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/retroui/Badge";
-import { Button } from "@/components/retroui/Button";
+import posthog from 'posthog-js';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/retroui/Badge';
+import { Button } from '@/components/retroui/Button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-} from "@/components/retroui/Dialog";
-import { apiClient } from "@/lib/api";
-import { IDO_TOKEN, WEDO_TOKEN } from "@/lib/constant";
+} from '@/components/retroui/Dialog';
+import { apiClient } from '@/lib/api';
+import { IDO_TOKEN, WEDO_TOKEN } from '@/lib/constant';
 import {
   useWriteTeamManagerJoin,
   useWriteTeamManagerLeave,
@@ -48,7 +48,7 @@ export function ClanDetailDialog({
     refetch: refetchUserTeamId,
     isRefetching: isRefetchingUserTeamId,
   } = useReadTeamManagerAccountTeam({
-    args: [address ?? "0x0000000000000000000000000000000000000000"],
+    args: [address ?? '0x0000000000000000000000000000000000000000'],
   });
 
   // 获取团队活动数据
@@ -57,10 +57,10 @@ export function ClanDetailDialog({
     isLoading: isActivitiesLoading,
     isRefetching: isRefetchingActivities,
   } = useQuery({
-    queryKey: ["activities", "team", clan?.id],
+    queryKey: ['activities', 'team', clan?.id],
     queryFn: async () => {
       if (!clan?.id) return [];
-      const res = await apiClient.teams[":teamId"].activities.$get({
+      const res = await apiClient.teams[':teamId'].activities.$get({
         param: { teamId: clan.id.toString() },
       });
       const data = await res.json();
@@ -73,14 +73,14 @@ export function ClanDetailDialog({
   async function handleJoinClan(id: number, e: React.MouseEvent) {
     e.stopPropagation();
 
-    console.log("尝试加入部落，部落ID:", id);
+    console.log('尝试加入部落，部落ID:', id);
 
     try {
       setIsJoinPending(true);
       const tx = await joinClanAsync({
         args: [BigInt(id)],
       });
-      console.log("加入部落交易已发送，交易哈希:", tx);
+      console.log('加入部落交易已发送，交易哈希:', tx);
 
       const verifyRes = await apiClient.members.events.$post({
         json: {
@@ -88,26 +88,26 @@ export function ClanDetailDialog({
         },
       });
 
-      console.log("后端校验结果:", verifyRes);
+      console.log('后端校验结果:', verifyRes);
 
       if (!verifyRes.ok) {
-        console.error("加入部落失败，后端返回非OK:", verifyRes);
-        throw new Error("加入部落失败");
+        console.error('加入部落失败，后端返回非OK:', verifyRes);
+        throw new Error('加入部落失败');
       }
 
-      toast.success("加入部落成功");
-      posthog.capture("clan_joined", {
+      toast.success('加入部落成功');
+      posthog.capture('clan_joined', {
         clan_id: clan?.id,
         clan_name: clan?.name,
         transaction_hash: tx,
       });
-      console.log("加入部落成功");
+      console.log('加入部落成功');
 
-      queryClient.invalidateQueries({ queryKey: ["teams"] });
+      queryClient.invalidateQueries({ queryKey: ['teams'] });
       refetchUserTeamId();
     } catch (err) {
-      console.error("加入部落失败:", err);
-      toast.error("加入部落失败");
+      console.error('加入部落失败:', err);
+      toast.error('加入部落失败');
     } finally {
       setIsJoinPending(false);
     }
@@ -116,13 +116,13 @@ export function ClanDetailDialog({
   async function handleLeaveClan(id: number, e: React.MouseEvent) {
     e.stopPropagation();
 
-    console.log("尝试离开部落，部落ID:", id);
+    console.log('尝试离开部落，部落ID:', id);
 
     try {
       const tx = await leaveClanAsync({
         args: [BigInt(0)],
       });
-      console.log("离开部落交易已发送，交易哈希:", tx);
+      console.log('离开部落交易已发送，交易哈希:', tx);
 
       const verifyRes = await apiClient.members.events.$post({
         json: {
@@ -130,26 +130,26 @@ export function ClanDetailDialog({
         },
       });
 
-      console.log("后端校验结果:", verifyRes);
+      console.log('后端校验结果:', verifyRes);
 
       if (!verifyRes.ok) {
-        console.error("离开部落失败，后端返回非OK:", verifyRes);
-        throw new Error("离开部落失败");
+        console.error('离开部落失败，后端返回非OK:', verifyRes);
+        throw new Error('离开部落失败');
       }
 
-      toast.success("离开部落成功");
-      posthog.capture("clan_left", {
+      toast.success('离开部落成功');
+      posthog.capture('clan_left', {
         clan_id: clan?.id,
         clan_name: clan?.name,
         transaction_hash: tx,
       });
-      console.log("离开部落成功");
+      console.log('离开部落成功');
 
-      queryClient.invalidateQueries({ queryKey: ["teams"] });
+      queryClient.invalidateQueries({ queryKey: ['teams'] });
       refetchUserTeamId();
     } catch (err) {
-      console.error("离开部落失败:", err);
-      toast.error("离开部落失败");
+      console.error('离开部落失败:', err);
+      toast.error('离开部落失败');
     }
   }
 
@@ -182,10 +182,9 @@ export function ClanDetailDialog({
                   {!userTeamId && isWalletConnected && (
                     <Button
                       size="sm"
-                      onClick={(e) => handleJoinClan(clan.id, e)}
+                      onClick={e => handleJoinClan(clan.id, e)}
                       className="gap-2"
-                      disabled={isJoinPending || isRefetchingUserTeamId}
-                    >
+                      disabled={isJoinPending || isRefetchingUserTeamId}>
                       {isJoinPending ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin" />
@@ -203,26 +202,24 @@ export function ClanDetailDialog({
                   {Number(userTeamId ?? 0) === clan.id && (
                     <Button
                       size="sm"
-                      onClick={(e) => handleLeaveClan(clan.id, e)}
+                      onClick={e => handleLeaveClan(clan.id, e)}
                       className="bg-destructive text-white hover:bg-destructive/90"
-                      disabled={isLeavePending}
-                    >
+                      disabled={isLeavePending}>
                       <UserMinus className="w-4 h-4 mr-2" />
-                      {isLeavePending ? "离开中..." : `离开 ${clan.name}`}
+                      {isLeavePending ? '离开中...' : `离开 ${clan.name}`}
                     </Button>
                   )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
-                  {clan.members.map((member) => (
+                  {clan.members.map(member => (
                     <div
                       key={member.address}
                       className={`flex items-center gap-3 p-2 rounded ${
-                        member.status === "eliminated"
-                          ? "eliminated bg-muted/50"
-                          : "bg-neo-blue/50"
-                      }`}
-                    >
+                        member.status === 'eliminated'
+                          ? 'eliminated bg-muted/50'
+                          : 'bg-neo-blue/50'
+                      }`}>
                       <Avatar className="w-8 h-8">
                         <AvatarImage
                           src={blo(member.address)}
@@ -237,20 +234,18 @@ export function ClanDetailDialog({
                       </span>
                       {member.address === address && (
                         <Badge
-                          className={cn("text-xs", "bg-blue-500 text-white")}
-                        >
+                          className={cn('text-xs', 'bg-blue-500 text-white')}>
                           这是你
                         </Badge>
                       )}
 
                       <Badge
                         className={cn(
-                          " text-xs ml-auto",
-                          member.status === "active" &&
-                            "bg-emerald-500 text-white"
-                        )}
-                      >
-                        {member.status === "active" ? "活跃" : "已淘汰"}
+                          ' text-xs ml-auto',
+                          member.status === 'active' &&
+                            'bg-emerald-500 text-white'
+                        )}>
+                        {member.status === 'active' ? '活跃' : '已淘汰'}
                       </Badge>
                     </div>
                   ))}
@@ -285,11 +280,10 @@ export function ClanDetailDialog({
                             if (activity.txHash) {
                               window.open(
                                 `https://sepolia.etherscan.io/tx/${activity.txHash}`,
-                                "_blank"
+                                '_blank'
                               );
                             }
-                          }}
-                        >
+                          }}>
                           <div className="flex items-center gap-2">
                             <Avatar>
                               <AvatarImage src={blo(activity.user)} />
@@ -312,7 +306,7 @@ export function ClanDetailDialog({
                             {
                               <>
                                 <p className=" text-sm font-semibold text-green-800">
-                                  {activity.idoAmount > 0 ? "+" : ""}
+                                  {activity.idoAmount > 0 ? '+' : ''}
                                   {formatTokenAmount(
                                     activity.idoAmount,
                                     IDO_TOKEN
@@ -320,12 +314,11 @@ export function ClanDetailDialog({
                                 </p>
                                 <p
                                   className={cn(
-                                    " text-xs text-muted-foreground",
-                                    activity.wedoAmount > 0 && "text-green-800",
-                                    activity.wedoAmount < 0 && "text-red-800"
-                                  )}
-                                >
-                                  金库：{activity.wedoAmount > 0 ? "+" : ""}
+                                    ' text-xs text-muted-foreground',
+                                    activity.wedoAmount > 0 && 'text-green-800',
+                                    activity.wedoAmount < 0 && 'text-red-800'
+                                  )}>
+                                  金库：{activity.wedoAmount > 0 ? '+' : ''}
                                   {formatTokenAmount(
                                     activity.wedoAmount,
                                     WEDO_TOKEN
@@ -335,7 +328,7 @@ export function ClanDetailDialog({
                             }
                             <p className=" text-xs text-muted-foreground">
                               {new Date(activity.timestamp).toLocaleString(
-                                "zh-CN"
+                                'zh-CN'
                               )}
                             </p>
                           </div>

@@ -1,26 +1,26 @@
-"use client";
+'use client';
 import posthog from 'posthog-js';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
-} from "@/components/retroui/Dialog";
+} from '@/components/retroui/Dialog';
 
-import { Button } from "@/components/retroui/Button";
-import { Input } from "@/components/retroui/Input";
-import { Label } from "@/components/retroui/Label";
-import { Textarea } from "@/components/retroui/Textarea";
-import { apiClient } from "@/lib/api";
+import { Button } from '@/components/retroui/Button';
+import { Input } from '@/components/retroui/Input';
+import { Label } from '@/components/retroui/Label';
+import { Textarea } from '@/components/retroui/Textarea';
+import { apiClient } from '@/lib/api';
 import {
   teamManagerConfig,
   useWriteTeamManagerCreateTeam,
   useWriteTeamManagerJoin,
-} from "@/lib/contracts";
-import { Plus } from "lucide-react";
-import { useState } from "react";
-import { toast } from "sonner";
-import { parseEventLogs } from "viem";
-import { usePublicClient, useWaitForTransactionReceipt } from "wagmi";
+} from '@/lib/contracts';
+import { Plus } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { parseEventLogs } from 'viem';
+import { usePublicClient, useWaitForTransactionReceipt } from 'wagmi';
 
 export function CreateClanDialog({
   open,
@@ -50,29 +50,29 @@ export function CreateClanDialog({
   const publicClient = usePublicClient();
 
   const [newClanForm, setNewClanForm] = useState({
-    name: "",
-    flag: "",
-    description: "",
-    initialLeverage: "1.0",
+    name: '',
+    flag: '',
+    description: '',
+    initialLeverage: '1.0',
   });
 
   const handleCreateClan = async (event: React.FormEvent) => {
     event.preventDefault();
 
     posthog.capture('clan_creation_submitted', {
-        clan_name: newClanForm.name,
-        clan_flag: newClanForm.flag,
+      clan_name: newClanForm.name,
+      clan_flag: newClanForm.flag,
     });
 
     // In a real app, this would create the clan on the blockchain
-    console.log("[v0] Creating new clan:", newClanForm);
+    console.log('[v0] Creating new clan:', newClanForm);
 
     // Reset form and close dialog
     setNewClanForm({
-      name: "",
-      flag: "",
-      description: "",
-      initialLeverage: "1.0",
+      name: '',
+      flag: '',
+      description: '',
+      initialLeverage: '1.0',
     });
 
     if (!publicClient) return;
@@ -86,7 +86,7 @@ export function CreateClanDialog({
     });
     const logs = parseEventLogs({
       abi: teamManagerConfig.abi,
-      eventName: "TeamCreated",
+      eventName: 'TeamCreated',
       logs: createReceipt.logs,
     });
 
@@ -103,7 +103,7 @@ export function CreateClanDialog({
     });
 
     toast.success(`部落 ${name} 创建成功`, {
-      description: "请等待 5 秒后自动关闭",
+      description: '请等待 5 秒后自动关闭',
     });
 
     setTimeout(() => {
@@ -119,7 +119,7 @@ export function CreateClanDialog({
         <DialogHeader>
           <div className=" text-2xl flex items-center gap-2">
             <Plus className="w-6 h-6" />
-            创建新部落{" "}
+            创建新部落{' '}
           </div>
           {/* <pre>
             {JSON.stringify(
@@ -142,8 +142,8 @@ export function CreateClanDialog({
             <Input
               id="clan-name"
               value={newClanForm.name}
-              onChange={(e) =>
-                setNewClanForm((prev) => ({ ...prev, name: e.target.value }))
+              onChange={e =>
+                setNewClanForm(prev => ({ ...prev, name: e.target.value }))
               }
               placeholder="输入部落名称"
               required
@@ -158,8 +158,8 @@ export function CreateClanDialog({
             <Input
               id="clan-flag"
               value={newClanForm.flag}
-              onChange={(e) =>
-                setNewClanForm((prev) => ({ ...prev, flag: e.target.value }))
+              onChange={e =>
+                setNewClanForm(prev => ({ ...prev, flag: e.target.value }))
               }
               placeholder="🏴‍☠️"
               className="  text-center text-2xl"
@@ -178,7 +178,7 @@ export function CreateClanDialog({
               id="clan-description"
               value={newClanForm.description}
               onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                setNewClanForm((prev) => ({
+                setNewClanForm(prev => ({
                   ...prev,
                   description: e.target.value,
                 }))
@@ -216,16 +216,14 @@ export function CreateClanDialog({
                 onOpenChange(false);
                 reset();
               }}
-              className="flex-1 "
-            >
+              className="flex-1 ">
               取消
             </Button>
             <Button
               type="submit"
               disabled={!newClanForm.name || isCreating}
-              className="flex-1  "
-            >
-              {isCreating ? "创建中..." : "创建部落"}
+              className="flex-1  ">
+              {isCreating ? '创建中...' : '创建部落'}
             </Button>
           </div>
 
