@@ -18,7 +18,6 @@
 ```
 app/
 ├── api/auth/[...nextauth]/route.ts     # NextAuth API 路由
-├── auth-test/page.tsx                  # SIWE 测试页面
 └── layout.tsx                          # 更新以支持会话
 
 components/

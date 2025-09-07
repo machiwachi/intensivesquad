@@ -17,8 +17,9 @@
 ✅ **创建 Providers**
 
 - 创建了 `components/providers.tsx` 包装所有必需的提供商
-- 包含 WagmiProvider、QueryClientProvider、RainbowKitProvider
-- 支持主题切换（亮色/暗色模式）
+- 包含 WagmiProvider、QueryClientProvider、RainbowKitSiweNextAuthProvider、SessionProvider、PostHogProvider 和 ActivitiesProvider。
+- `RainbowKitProvider` 通过 `RainbowKitSiweNextAuthProvider` 进行封装。
+- 主题切换由 `next-themes` 库提供。
 
 ✅ **更新应用布局**
 

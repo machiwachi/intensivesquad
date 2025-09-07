@@ -34,6 +34,7 @@ export type Activity = {
   wedoAmount: number; // 团队金库获得的 WEDO 代币数量
   txHash?: string;
   timestamp: number;
+  isRead?: boolean; // 可选字段，用于标记活动是否已读
 };
 ```
 
@@ -157,13 +158,150 @@ curl "http://localhost:3000/api/teams/1/activities"
 ]
 ```
 
-> **注意**：当前实现中，从 Redis 获取的数据需要 JSON 解析。建议在 API 端点中添加 `JSON.parse()` 处理：
+> **注意**：当前实现中，从 Redis 获取的数据已经是 JSON 对象。不再需要额外的 `JSON.parse()` 处理。
 >
 > ```typescript
-> activities = results.flatMap((r) =>
->   r.map((x) => JSON.parse(x as string) as Activity)
-> );
+> activities = results.flatMap((r) => r.map((x) => x as Activity));
 > ```
+
+## 其他 API 端点
+
+### 积分奖励 `/credit` (POST)
+
+用于记录用户获得的学习积分。包含 `idoAmount`（个人积分）和 `wedoAmount`（团队金库积分），以及交易哈希 `txHash`。
+
+**请求体示例**：
+
+```json
+{
+  "account": "0x..."
+}
+```
+
+**响应示例**：
+
+```json
+{
+  "message": "credited",
+  "wedoAmount": 0.5,
+  "idoAmount": 10,
+  "account": "0x...",
+  "eventName": "完成每日任务",
+  "idoTx": "0x...",
+  "wedoTx": "0x..."
+}
+```
+
+### 成员事件 `/members/events` (POST)
+
+用于处理链上成员加入/离开团队的事件。
+
+**请求体示例**：
+
+```json
+{
+  "txHash": "0x..."
+}
+```
+
+**响应示例**：
+
+```json
+{
+  "message": "processed",
+  "persisted": 1
+}
+```
+
+### 领取奖励追踪 `/claim/track` (POST)
+
+用于追踪用户领取 IDO 奖励的链上交易。
+
+**请求体示例**：
+
+```json
+{
+  "txHash": "0x...",
+  "teamId": 1,
+  "account": "0x..."
+}
+```
+
+**响应示例**：
+
+```json
+{
+  "message": "claim tracked successfully",
+  "claimedAmount": 100,
+  "txHash": "0x...",
+  "teamId": 1,
+  "account": "0x..."
+}
+```
+
+### 提取 WEDO 追踪 `/withdraw/track` (POST)
+
+用于追踪用户将团队 WEDO 转换为个人 IDO 的链上交易。
+
+**请求体示例**：
+
+```json
+{
+  "txHash": "0x...",
+  "teamId": 1,
+  "account": "0x..."
+}
+```
+
+**响应示例**：
+
+```json
+{
+  "message": "withdraw tracked successfully",
+  "withdrawnWedoAmount": 50,
+  "mintedIdoAmount": 200,
+  "leverageRatio": 2,
+  "txHash": "0x...",
+  "teamId": 1,
+  "account": "0x..."
+}
+```
+
+### 用户 IDO 排行榜 `/leaderboard/ido/user` (GET)
+
+获取用户 IDO 积分排行榜。
+
+**响应示例**：
+
+```json
+[
+  {
+    "address": "0x...",
+    "score": 1000
+  }
+]
+```
+
+### 团队 IDO 排行榜 `/leaderboard/ido/team` (GET)
+
+获取团队 IDO 积分排行榜。
+
+**响应示例**：
+
+```json
+[
+  {
+    "teamId": 1,
+    "score": 5000,
+    "members": [
+      {
+        "address": "0x...",
+        "status": "active"
+      }
+    ]
+  }
+]
+```
 
 ## 监控和维护
 

@@ -6,11 +6,11 @@
 
 ### 里程碑状态
 
-- M0 需求冻结：未开始
-- M1 合约骨架：未开始
-- M2 经济逻辑：未开始
+- M0 需求冻结：已完成
+- M1 合约骨架：已完成
+- M2 经济逻辑：已完成
 - M3 测试与安全：未开始
-- M4 脚本与前端：未开始
+- M4 脚本与前端：进行中
 - M5 试运行与上链：未开始
 
 ---
@@ -19,10 +19,10 @@
 
 #### 合约
 
-- [ ] `IDOToken`
-- [ ] `WEDOToken`
-- [ ] `TeamManager`
-- [ ] `TeamEconomy`（含 `S` 延迟生效）
+- [x] `IDOToken`
+- [x] `WEDOToken`
+- [x] `TeamManager`
+- [x] `TeamEconomy`（含 `S` 延迟生效）
 - [ ] 单元/属性测试
 
 #### 脚本/部署
@@ -42,11 +42,13 @@
 
 #### 文档与运营
 
-- [ ] 参数与公式说明（对齐 `tokenomics-v2`）
+- [x] 参数与公式说明（对齐 `tokenomics-v2`）
 - [ ] 运营流程与应急预案（Runbook）
 - [ ] 事件订阅与指标（可选子图）
 - [x] UI/UX 改进文档（2025-01-16）
   - [x] Kiosk 按钮更新文档 (`KIOSK_UI_UPDATE.md`)
+- [x] `ACTIVITY_TRACKING.md` 更新 (最新日期)
+- [x] `IDO_POOL_DESIGN.md` 更新 (最新日期)
 
 ---
 
@@ -60,6 +62,9 @@
 
 ### 变更日志（Changelog）
 
+- v0.1.2（2025-07-26）
+  - 更新 `ACTIVITY_TRACKING.md` 以反映最新代码实现
+  - 更新 `IDO_POOL_DESIGN.md` 以反映最新代码实现（移除 ETH 质押，聚焦 WEDO 转换 IDO）
 - v0.1.1（2025-01-16）
 
   - 完成 Kiosk 按钮 UI 重构
